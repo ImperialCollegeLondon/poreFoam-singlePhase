@@ -9,14 +9,14 @@ Offset =         0   0   0
 ElementDataFile = Berea.raw
 
 
-%%% crop image to   [ Nxyz_begin  Nxyz_end )
+### crop image to   [ Nxyz_begin  Nxyz_end )
 	%cropD   0 0 0    300 300 300 
 
-%%% flip x direction with y or z
+### flip x direction with y or z
 	%direction z
 
 
-%%% threshold image: range -> 0 (void-space), rest->1 (solid)
+### threshold image: range -> 0 (void-space), rest->1 (solid)
 	%threshold   0  0    
 
 
