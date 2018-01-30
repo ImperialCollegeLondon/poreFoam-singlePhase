@@ -1,0 +1,143 @@
+#!/bin/bash
+
+export scriptName=`basename "${BASH_SOURCE[0]}"`
+usage()
+{
+	echo "usage:"
+	echo ;  echo "$scriptName \"*.mhd\"  \"X\" binary";  echo
+	echo "Arguments (all optional):"
+	echo "  arg1: name of images to run flow simulations on (defaults is *.mhd)"
+	echo "  arg2: flow direction(s):  any combination of X Y Z"
+	echo "  arg3: output format for FOAM2Voxel: \"ascii\"(.dat), \"binary\" (.raw, default), "
+	echo "       \"all\",  \"oldBinary\" or  \"oldAscii\" (for compatibility with old IC codes)" 
+	echo "Example:" 
+	echo "$scriptName \"\$(ls *.mhd)\"" 
+}
+if [ "$1" == "" ]; then usage; fi
+if [ "$1" == "-h" ]; then usage; exit; fi
+if [ "$1" == "--help" ]; then usage; exit; fi
+if [ -n "$2" ] ; then 
+	if [[ $2 != [XYZ] ]]; then echo "Error: \$2 ($2) can be X Y or Z only ";  exit; fi 
+fi
+echo $scriptName $@
+echo
+
+
+baseCase="base"
+
+myCurrentDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )
+: ${PoreScaleDir:=$myCurrentDIR} ; export PoreScaleDir
+
+#dataFiles="Berea.mhd" 
+if [ -n "$1" ]; then  dataFiles=$1
+else                  dataFiles="$(ls *.mhd)"
+fi
+echo "Images: $dataFiles"
+
+: ${directions:=$2}
+: ${directions:=X}
+  echo "flow directions=\"$directions\" "
+
+#  !!! For those who don't update their codes to comply with the standard (binary) fornat:
+: ${outPutFormat:=$3}
+: ${outPutFormat:=binary}
+  echo "outPutFormat=\"$outPutFormat\" "
+
+
+#~ maxDeltaT="2e-5"
+endTime=.1
+
+
+ps=" 1"
+
+
+. $PoreScaleDir/scripts/singlePhase/initialize
+
+
+
+for datFile in $dataFiles
+do
+dataFile=${datFile%.*}
+
+prefix="$dataFile/"
+mkdir $prefix
+
+
+for direction in $directions
+do
+echo "direction $direction"
+
+for p in $ps
+do
+echo "p @ $direction : $p  Pa"
+
+  caseName="$prefix""$dataFile-$p""-$direction"
+  if  ! [ -d $caseName ]; then 
+	#~ LAM_MPI_SESSION_SUFFIX="$(echo $caseName | sed 's/\///g')"
+	#~ echo $LAM_MPI_SESSION_SUFFIX
+	#~ lamboot -v machines.txt 
+
+
+
+	cp -r $SP_MACROS_DIR/base $caseName
+
+
+	(cd $caseName/0 && mv p.$direction p)
+	(cd $caseName/0 && rm p.*)
+	(cd $caseName/0 && mv U.$direction U)
+	(cd $caseName/0 && rm U.*)
+
+
+	cp $dataFile.mhd $caseName/${dataFile}_input.mhd
+	sed -i 's/^ElementDataFile[ \t]*=[ \t]*/ElementDataFile = ..\/..\//'  $caseName/${dataFile}_input.mhd
+	(cd $caseName && runApplication rawToFoam  ${dataFile}_input.mhd )
+
+
+
+	(cd $caseName && touch ${caseName//\//-}.foam)
+
+
+
+	setBoundaryCondition "$direction"  "value" "uniform  $p" ./$caseName/0/p 
+
+
+	(cd $caseName && runApplication renumberMesh -overwrite)
+
+
+	setKeywordValues endTime $endTime ./$caseName/system/controlDict 
+
+	#setKeywordValues writeFormat ascii ./$caseName/system/controlDict 
+
+	(cd $caseName && runApplication iPotentialFoam)
+
+	#setKeywordValues writeFormat binary ./$caseName/system/controlDict 
+
+	setSubKeywordValues relaxationFactors "U" "0.5" ./$caseName/system/fvSolution
+
+	setKeywordValues writeInterval 1000 ./$caseName/system/controlDict 
+	echo "..................Runing single phase flow code......................."
+	(cd $caseName && runApplication iInterFoam101SP)
+	(cd $caseName && mv log.iInterFoam101SP log.iInterFoam101SP.1)
+
+
+
+
+	#(cd $caseName && runApplication calc_perms)
+	(cd $caseName && runApplication calc_distributions)
+
+	(cd $caseName && runApplication  FOAM2Voxel vxlImage.mhd 1 "$outPutFormat")
+
+
+	echo "..................            END              ......................."
+
+	#~ lamhalt -d
+   else
+     echo "skipping $caseName"
+   fi
+done
+done
+done
+
+
+
+

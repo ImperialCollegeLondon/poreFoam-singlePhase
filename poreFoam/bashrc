@@ -1,0 +1,27 @@
+#!/bin/bash
+
+
+
+
+# openfoam installation
+# Change according to your openfoam installation directory
+export WM_NCOMPPROCS=8
+. ~/OpenFOAM/OpenFOAM-v1612+/etc/bashrc  WM_NCOMPPROCS=8
+
+
+
+
+myCurrentDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )
+if ! [ -n "$PoreScaleDir" ]; then
+	echo "hint, add to your ~/.bashrc file in a new line:"
+	echo "source $myCurrentDIR/bashrc"
+	source $myCurrentDIR/bashrc
+fi
+
+
+
+export myOFBinDir=$myBinDir/porefoam-v1612
+
+export PATH=$PATH:$myOFBinDir
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$myOFBinDir
+

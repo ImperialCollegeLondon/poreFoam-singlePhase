@@ -1,0 +1,3 @@
+calc_distributions.C
+
+EXE = $(myOFBinDir)/calc_distributions

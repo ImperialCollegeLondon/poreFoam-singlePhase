@@ -1,0 +1,31 @@
+ObjectType =  Image
+NDims =       3
+ElementType = MET_UCHAR
+
+DimSize =        1000  1000  1000
+ElementSpacing = 1.6   1.6   1.6
+Offset =         0   0   0
+
+ElementDataFile = Berea.raw
+
+
+%%% crop image to   [ Nxyz_begin  Nxyz_end )
+	%cropD   0 0 0    300 300 300 
+
+%%% flip x direction with y or z
+	%direction z
+
+
+%%% threshold image: range -> 0 (void-space), rest->1 (solid)
+	%threshold   0  0    
+
+
+
+Notes: 
+ All keyword data should be provided in a single line.
+ The first unrecognised keyword togather with the rest of the file will be ignored. 
+ '%' is used for comments but no comment is allowed above the keyword ElementDataFile. 
+ The first 7 keywords above are compatible with mhd header file specification in vtk/paraview
+ This file can be opened in ImageJ/Fiji or Paraview to load the ElementDataFile
+
+

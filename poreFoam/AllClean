@@ -1,0 +1,33 @@
+#!/bin/bash
+
+myCurrentDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )
+: ${PoreScaleDir:=$myCurrentDIR} ; export PoreScaleDir
+. $PoreScaleDir/poreFoam/bashrc
+
+if [ -n "$1" ]; then 
+	dataFiles=$1
+else
+	dataFiles="$(ls )"
+fi
+	
+
+
+
+
+
+
+
+for case in $dataFiles
+do
+	if [ -f $case/Makefile ]; then
+		echo "$case:"	
+
+		(cd $case && make clean)
+	else 
+		if [ -d $case ]; then
+			echo " skipping $case"	
+		fi
+	fi
+done
+
+

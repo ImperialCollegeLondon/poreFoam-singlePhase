@@ -1,0 +1,68 @@
+#!/bin/bash
+
+SetedPoreScaleDir="$PoreScaleDir"
+
+myCurrentDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )
+if ! [ -n "$PoreScaleDir" ]; then
+	echo " ";
+	echo " PoreScale paths are not set"
+	echo " please set them (preferably in your ~/.bashrc file) by adding in a new line:"
+	echo "source $myCurrentDIR/bashrc"
+	source $myCurrentDIR/bashrc
+	echo " Press Cntrl+C to stop ";	echo " ";
+	sleep 3
+fi
+
+. $PoreScaleDir/poreFoam/bashrc
+
+if ! [ -f $WM_PROJECT_DIR/etc/bashrc ]; then
+	echo "Error: "
+	echo " OpenFOAM installation directory is not set."
+	echo " Please set it in the file: $PoreScaleDir/poreFoam/bashrc"
+	echo " and try again"
+	exit
+fi
+
+
+if [ -n "$1" ]; then
+    dataFiles=$1
+else
+	dataFiles="$(ls -d */)"
+fi
+
+
+if ! [ -d $myOFBinDir ]; then
+    mkdir -p $myOFBinDir
+fi
+
+
+
+
+
+for case in $dataFiles ; do
+  if [ -f $case/makefile ]; then
+		echo " $case"
+			 (cd $case && make)
+  else
+		echo "   skipping $case"
+  fi
+done
+
+for case in $dataFiles ; do
+  if [ -f $case/Makefile ]; then
+		echo " $case"
+			 (cd $case && make)
+  else
+		echo "   skipping $case"
+  fi
+done
+
+
+echo "build directory: $myOFBinDir"
+if ! [ -n "$SetedPoreScaleDir" ]; then
+	echo " ";	echo " ";
+	echo " variable PoreScaleDir is not permanently set"
+	echo " please set in your ~/.bashrc file by adding new line:"
+	echo "source $PoreScaleDir/bashrc"
+	echo " ";
+fi
