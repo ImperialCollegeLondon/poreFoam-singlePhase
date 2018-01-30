@@ -3,7 +3,7 @@
 ___
 
 
-### PoreFoam codes for simulating direct single-phase flow through 3D images of porous media using OpenFOAM
+### PoreFoam codes for simulating direct single-phase flow on 3D images of porous media using OpenFOAM
 
 ---
 
