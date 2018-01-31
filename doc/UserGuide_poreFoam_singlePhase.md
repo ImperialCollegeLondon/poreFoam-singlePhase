@@ -199,7 +199,7 @@ run one of the following commands:
     AllRunImagePar XXX.mhd
     #  or to run on all .mhd files in parallel on a single machine  
     AllRunImagePar
-    #  or parallel mode on a distributed cluster, edit \lstinline|$PoreScaleDir/scripts/singlePhase/machines.txt| first and type:  
+    #  or parallel mode on a distributed cluster, edit $PoreScaleDir/scripts/singlePhase/machines.txt first and type:  
     AllRunImageParDistributed XXX.mhd
 ``` 
 
@@ -370,7 +370,7 @@ voxelImageConvert:
 
 :   converts between image formats, applies cropping, resampling etc,
     supports basic data types other than unsigned char (default); see
-    .mhd header file specifications:
+    .mhd header file specifications: see
     <https://itk.org/Wiki/ITK/MetaIO/Documentation> for more details.
 
 Using zlib  
