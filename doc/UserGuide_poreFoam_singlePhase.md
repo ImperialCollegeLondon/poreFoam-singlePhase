@@ -54,7 +54,7 @@ and it should not show the error message "`No such file or directory`".
 Compiling the codes
 -------------------
 
-Edit the "`~/works/apps/poreFoam/bashrc`" file making sure it sources
+Edit the [`~/works/apps/poreFoam/bashrc`](../poreFoam/bashrc) file making sure it sources
 the OpenFOAM-1612+/etc/bashrc file based on your OpenFOAM installation
 directories.
 
