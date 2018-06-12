@@ -24,7 +24,7 @@ ElementDataFile = Berea.raw
 Notes: 
  All keyword data should be provided in a single line.
  The first unrecognised keyword togather with the rest of the file will be ignored. 
- '%' is used for comments but no comment is allowed above the keyword ElementDataFile. 
+ '#' and '%' are used for comments but no comment is allowed above the keyword ElementDataFile. 
  The first 7 keywords above are compatible with mhd header file specification in vtk/paraview
  This file can be opened in ImageJ/Fiji or Paraview to load the ElementDataFile
 
