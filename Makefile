@@ -1,11 +1,12 @@
 
 # makefile for top directory
 
+
 all:
 	mkdir -p lib
 	mkdir -p bin
 	mkdir -p include
-	(cd thirdparty && make -j$(nproc))
+	(cd thirdparty && make -j)
 	(cd src && ./AllMake)
 
 

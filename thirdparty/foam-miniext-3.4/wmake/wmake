@@ -97,7 +97,7 @@ fi
 
 if [ "$WM_NCOMPPROCS" ]
 then
-    if [ "$WM_NCOMPPROCS" -gt 1 -a ! "$MAKEFLAGS" ]
+    if [ "$WM_NCOMPPROCS" -gt 1  ]  #-a ! "$MAKEFLAGS"
     then
         lockDir=$HOME/.wmakeScheduler
 
