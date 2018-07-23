@@ -6,8 +6,10 @@
 
 
 
-### The codes simulate single-phase flow, by solving 
-### incompressible Naview-Stokes equations, on 3D images of porous media
+### The codes simulate single-phase flow, by solving incompressible Naview-Stokes equations, on 3D images of porous media
+
+
+### Please see the doc folder for [installation and usage](src/doc/porefoam_singlePhase.pdf),  and a sample input file -- [Image.mhd](src/doc/Image.mhd) -- for microCT images similar to those on [Imperial College pore-scale modelling website](http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling/micro-ct-images-and-networks/)
 
 ---
 
@@ -23,12 +25,15 @@ Run, in a terminal in the top-most directory:
 
 `make` 
 
-Once everything tested and working, you can run the following command to delete temporary files:  
-
-`make clean` 
-  
+Once everything tested and working, you can run `make clean` to delete temporary files.    
 The command `make distclean` removes all compiled libraries and executables.
 
----
 
-### Please see the doc folder for [installation and usage](src/doc/porefoam_singlePhase.pdf),  and a sample input file -- [Image.mhd](src/doc/Image.mhd) -- for microCT images similar to those on [Imperial College pore-scale modelling website](http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling/micro-ct-images-and-networks/)
+### Contact and References
+
+For contacts and references please visit: 
+
+http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling
+
+or contact Ali Q. Raeini, email: a.qaseminejad-raeini09@imperial.ac.uk
+
