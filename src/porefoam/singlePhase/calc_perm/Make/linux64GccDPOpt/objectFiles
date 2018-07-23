@@ -1,0 +1,2 @@
+OBJECTS = \
+$(OBJECTS_DIR)/calc_perm.o

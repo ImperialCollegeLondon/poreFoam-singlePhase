@@ -1,0 +1,3 @@
+iInterFoam.C
+
+EXE = $(myOFBinDir)/iInterFoam101SP

@@ -1,0 +1,18 @@
+
+USE_ZLIB=1
+USE_TIFF=1
+USE_VXLIMG=1
+psDir ?= $(abspath ../../..)
+include  $(psDir)/Makefile.in
+
+
+EXE_INC = \
+    $(psCFLAGS) \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude
+
+
+EXE_LIBS = \
+    $(psLFLAGS) \
+    -l:libfiniteVolume.$(SO)
+

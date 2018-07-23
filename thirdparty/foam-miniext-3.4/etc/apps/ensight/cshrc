@@ -1,0 +1,53 @@
+#----------------------------------*-sh-*--------------------------------------
+# =========                 |
+# \\      /  F ield         | foam-extend: Open Source CFD
+#  \\    /   O peration     | Version:     4.0
+#   \\  /    A nd           | Web:         http://www.foam-extend.org
+#    \\/     M anipulation  | For copyright notice see file Copyright
+#------------------------------------------------------------------------------
+# License
+#     This file is part of foam-extend.
+#
+#     foam-extend is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by the
+#     Free Software Foundation, either version 3 of the License, or (at your
+#     option) any later version.
+#
+#     foam-extend is distributed in the hope that it will be useful, but
+#     WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#     General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with foam-extend.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     ensight/cshrc
+#
+# Description
+#     Startup File for Ensight 8.?.
+#     Sourced from FOAM-?.?/etc/cshrc
+#
+#------------------------------------------------------------------------------
+
+# fallback value
+if (! $?CEI_HOME) then
+    setenv CEI_HOME /usr/local/ensight/CEI
+endif
+
+if ( -r $CEI_HOME ) then
+
+    # special treatment for 32bit FOAM and 64bit Ensight
+    if ($WM_ARCH == linux) then
+        setenv CEI_ARCH linux_2.6_64
+    endif
+
+    set path=($path $CEI_HOME/bin)
+
+    setenv ENSIGHT8_INPUT dummy
+    setenv ENSIGHT8_READER $FOAM_LIBBIN
+else
+    unsetenv CEI_HOME
+endif
+
+# -----------------------------------------------------------------------------

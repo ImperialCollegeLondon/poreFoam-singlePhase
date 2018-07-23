@@ -1,0 +1,103 @@
+#----------------------------------*-sh-*--------------------------------------
+# =========                 |
+# \\      /  F ield         | foam-extend: Open Source CFD
+#  \\    /   O peration     | Version:     4.0
+#   \\  /    A nd           | Web:         http://www.foam-extend.org
+#    \\/     M anipulation  | For copyright notice see file Copyright
+#------------------------------------------------------------------------------
+# License
+#     This file is part of foam-extend.
+#
+#     foam-extend is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by the
+#     Free Software Foundation, either version 3 of the License, or (at your
+#     option) any later version.
+#
+#     foam-extend is distributed in the hope that it will be useful, but
+#     WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#     General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with foam-extend.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     paraview3/bashrc
+#
+# Description
+#     Setup file for paraview-3.x
+#     Sourced from FOAM-*/etc/bashrc
+#
+# Note
+#     The env. variable 'ParaView_DIR' is required for building plugins
+#------------------------------------------------------------------------------
+
+# determine the cmake to be used
+unset CMAKE_HOME
+for cmake in cmake-2.6.4 cmake-2.6.2 cmake-2.4.6
+do
+    cmake=$WM_THIRD_PARTY_DIR/$cmake/platforms/$WM_ARCH
+    if [ -r $cmake ]
+    then
+        export CMAKE_HOME=$cmake
+        export PATH=$CMAKE_HOME/bin:$PATH
+        break
+    fi
+done
+
+# set MAJOR and VERSION variables if not already set
+[ -z "$ParaView_MAJOR" ] && export ParaView_MAJOR=paraview-3.8
+[ -z "$ParaView_VERSION" ] && export ParaView_VERSION=3.8.1
+
+export ParaView_INST_DIR=$WM_THIRD_PARTY_DIR/ParaView-$ParaView_VERSION
+export ParaView_DIR=$ParaView_INST_DIR/platforms/$WM_ARCH$WM_COMPILER
+
+# add in python libraries if required
+paraviewPython=$ParaView_DIR/Utilities/VTKPythonWrapping
+if [ -r $paraviewPython ]
+then
+    if [ "$PYTHONPATH" ]
+    then
+        export PYTHONPATH=$PYTHONPATH:$paraviewPython:$ParaView_DIR/lib/$ParaView_MAJOR
+    else
+        export PYTHONPATH=$paraviewPython:$ParaView_DIR/lib/$ParaView_MAJOR
+    fi
+fi
+
+if [ "$PYTHONPATH" ]; then
+    export PYTHONPATH=$PYTHONPATH:$ParaView_DIR/Utilities/VTKPythonWrapping
+else
+    export PYTHONPATH=$ParaView_DIR/Utilities/VTKPythonWrapping
+fi
+if [ "$WM_ARCH_BASE" = "darwin" ]
+then
+    export PYTHONPATH=$PYTHONPATH:$ParaView_DIR/bin
+fi
+
+if [ -r $ParaView_DIR ]
+then
+    export PATH=$ParaView_DIR/bin:$PATH
+    export PV_PLUGIN_PATH=$FOAM_LIBBIN
+    if [ "$WM_ARCH_BASE" == "darwin" ]
+    then
+        export PATH=$ParaView_DIR/bin/paraview.app/Contents/MacOS:$PATH
+        export DYLD_LIBRARY_PATH=$ParaView_DIR/bin:$DYLD_LIBRARY_PATH
+        export DYLD_LIBRARY_PATH=$ParaView_DIR/lib/$ParaView_MAJOR:$DYLD_LIBRARY_PATH
+
+        # Move plugins to a separate directory because paraview crashes
+        # when it tries to load one of the other libraries in $FOAM_LIBBIN as a plugin
+        export PV_PLUGIN_PATH=$FOAM_LIBBIN/paraview
+        if [ ! -e $PV_PLUGIN_PATH ]
+        then
+            echo "Creating $PV_PLUGIN_PATH"
+            mkdir $PV_PLUGIN_PATH
+        fi
+        for i in $(find $FOAM_LIBBIN -depth 1 -name "libPV*")
+        do
+            ln -sf $i $PV_PLUGIN_PATH
+        done
+    fi
+fi
+
+unset cmake paraviewPython
+# -----------------------------------------------------------------------------

@@ -1,0 +1,143 @@
+#!/bin/bash
+#this script modyfies dy so that the values specified by a and h be exact in the voxelized output
+
+
+
+SP_MACROS_DIR=$psDir/scripts/singlePhase
+export SP_MACROS_DIR
+
+. $psDir/porefoam/bashrc  1
+
+
+
+setSubKeywordValues()
+{
+	sed -i '/'"$1"'/,/\}/s/'"$2"' .*$/'" $2         $3; "'/' $4
+}	
+	
+setBoundaryCondition()
+{
+    sed -i '/'"$1"'/,/\}/s/'"$2"' .*$/'" $2           $3; "'/' $4
+}
+
+
+
+
+
+setValues()
+{
+sed -i 's/'"$1"'/'"$2"'/g' $3
+}
+
+setKeywordValues()
+{
+   sed -i 's/^[ \t]*'"$1"'[ \t:].*$/'"     $1   $2; "'/g' $3
+}
+
+deleteFromBC()
+{
+    sed -i '/'"$1"'/,/\}/s/^'"$2"'.*$/\/\/'" $2    "'/' $3
+}
+
+
+setfirstKeywordValue()
+{
+sed -i '0,/^[ \t]*'"$1"' .*$/s//'" $1  $2; "'/' $3
+}
+
+
+
+setParallelBC()
+{
+    sed -i '/'"$1"'/,/\}/s/'"$2"' .*$/'" $2           $3; "'/' $4
+}
+
+
+
+
+runApplication()
+{
+    LOG_NAME=
+    while getopts "l:" OPTFLAG ; do
+        LOG_NAME=$OPTARG
+        shift $((OPTIND-1)) ; OPTIND=1
+    done
+
+    APP_RUN=$1; shift
+    APP_NAME=${APP_RUN##*/}
+
+    if [ -z $LOG_NAME ] ; then
+        LOG_NAME=log.$APP_NAME
+    fi
+
+    if [ -f $LOG_NAME ] ; then
+        echo "$APP_NAME already run on $PWD: remove log file to run"
+    else
+        echo "Running  $APP_NAME $@ on $PWD"
+        $APP_RUN "$@" > $LOG_NAME 2>&1
+    fi
+    sleep .1
+
+}
+
+
+runParallel()
+{
+    LOG_NAME=
+    while getopts "l:" OPTFLAG ; do
+        LOG_NAME=$OPTARG
+        shift $((OPTIND-1)) ; OPTIND=1
+    done
+
+    APP_RUN=$1; shift
+    np=$1; shift
+    APP_NAME=${APP_RUN##*/}
+
+    if [ -z $LOG_NAME ] ; then
+        LOG_NAME=log.$APP_NAME
+    fi
+
+    if [ -f $LOG_NAME ] ; then
+        echo "$APP_NAME already run on $PWD: remove log file to run"
+    elif [ "$np" == "1" ] ; then
+        echo "Running  $APP_NAME $@  on $PWD"
+        $APP_RUN "$@" > $LOG_NAME 2>&1		
+    else
+        echo "Running $APP_NAME $@ in parallel on $PWD using $np processes"
+        #~ ( mpirun -x LD_LIBRARY_PATH -x PATH -x WM_PROJECT_DIR -x WM_PROJECT_INST_DIR -x MPI_BUFFER_SIZE         --mca btl_tcp_if_exclude lo --mca btl_tcp_if_exclude eth0:avahi  --hostfile  machines.txt -np $np $APP_RUN  -parallel "$@" < /dev/null > $LOG_NAME 2>&1 )
+        ( mpirun.openmpi -np $np $APP_RUN -parallel "$@" < /dev/null > $LOG_NAME 2>&1 )
+    fi
+    sleep .1
+}
+
+runDistributed()
+{
+    LOG_NAME=
+    while getopts "l:" OPTFLAG ; do
+        LOG_NAME=$OPTARG
+        shift $((OPTIND-1)) ; OPTIND=1
+    done
+
+    APP_RUN=$1; shift
+    np=$1; shift
+    APP_NAME=${APP_RUN##*/}
+
+    if [ -z $LOG_NAME ] ; then
+        LOG_NAME=log.$APP_NAME
+    fi
+
+    if [ -f $LOG_NAME ] ; then
+        echo "$APP_NAME already run on $PWD: remove log file to run"
+    else
+        echo "Running $APP_NAME $@ in parallel on $PWD using $np processes"
+        ( mpirun.openmpi -x LD_LIBRARY_PATH -x PATH -x WM_PROJECT_DIR -x WM_PROJECT_INST_DIR -x MPI_BUFFER_SIZE \
+          --mca btl_tcp_if_exclude lo --mca btl_tcp_if_exclude eth0:avahi --hostfile $SP_MACROS_DIR/machines.txt \
+          -np $np $APP_RUN  -parallel "$@" < /dev/null > $LOG_NAME 2>&1 )
+        #~ ( mpirun -np $np $APP_RUN  -parallel "$@" < /dev/null > $LOG_NAME 2>&1 )
+   
+    fi
+    sleep .1
+}
+
+
+
