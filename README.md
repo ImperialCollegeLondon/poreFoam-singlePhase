@@ -2,7 +2,7 @@
 
 
  ----------------------------------------------------------------
-* Please see the apps/doc directory for description of the codes *
+* Please see the src/doc directory for description of the codes *
  ----------------------------------------------------------------
 
 
@@ -20,7 +20,7 @@ once everything compiled successfully, to clean the temporary files, type:
 
 The above command can be run inside most of the subfolders, wherever a 
 makefile or Makefile is present.  The libraries, those with a makefile,
-should be compiled before the apps that contain "Makefile"s.
+should be compiled before the src that contain "Makefile"s.
 
 Compilation requires gnu (Linux) make, cmake, a c++ compiler with -std=c++11
 support and an MPI. The compilation is tested using g++ (version 5+) (default)
@@ -33,5 +33,5 @@ For contacts and references please see:
 http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling
 or contact Ali Q. Raeini, email: a.qaseminejad-raeini09@imperial.ac.uk
 
-More details are given in the apps/doc directory.
+More details are given in the src/doc directory.
 
