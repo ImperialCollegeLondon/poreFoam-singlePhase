@@ -1,37 +1,29 @@
+# poreFoam/singlePhase
 
-
-
- ----------------------------------------------------------------
-* Please see the src/doc directory for description of the codes *
- ----------------------------------------------------------------
+ * This branch is experimental, aiming to simplify the build process 
+ * (and for some customization of foam-extend)
 
 
 
 
-###### Compiling ######
+### the codes simulate single-phase flow, by solving 
+incompressible Naview-Stokes equations on 3D images of porous media
 
-To compile, open a terminal in the upper most directory and run:
+---
 
- make 
+### Prerequisites: 
 
-once everything compiled successfully, to clean the temporary files, type:
+- GNU make, cmake, mpi and a c++11 compiler (available in most Linux distributions)
+- voxelImage library (included in apps directory)
+- A costomized foam-extend (included in thirdparty dyrectory)
+- libtiff nad zlib (optional, both included in thirdparty dyrectory)
 
- make clean
+### Compiling: 
+Run, in a terminal in the top-most directory:
+`make` 
+Once everything tested and working, you can run the following command to delete temporary files:
+`make clean` 
 
-The above command can be run inside most of the subfolders, wherever a 
-makefile or Makefile is present.  The libraries, those with a makefile,
-should be compiled before the src that contain "Makefile"s.
+---
 
-Compilation requires gnu (Linux) make, cmake, a c++ compiler with -std=c++11
-support and an MPI. The compilation is tested using g++ (version 5+) (default)
-and using intel-2018 compilers.
-
-
-###### Contact and References ######
-
-For contacts and references please see: 
-http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling
-or contact Ali Q. Raeini, email: a.qaseminejad-raeini09@imperial.ac.uk
-
-More details are given in the src/doc directory.
-
+### Please see the doc folder for [installation and usage](porefoam_singlePhase.pdf),  and a sample input file -- [Berea.mhd](Berea.mhd) -- for the [Berea.raw image](http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling/micro-ct-images-and-networks/berea-sandstone/)
