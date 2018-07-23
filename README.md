@@ -21,12 +21,12 @@
 - libtiff nad zlib (optional, both included in thirdparty directory)
 
 ### Compiling: 
-Run, in a terminal in the top-most directory:
-
-`make` 
+Run, in a terminal in the top-most directory:     
+`make`  
+* Note: edit and remove the `-j` from the top-most level Makefile if your computer has less than 30GB RAM!
 
 Once everything tested and working, you can run `make clean` to delete temporary files.    
-The command `make distclean` removes all compiled libraries and executables.
+The command `make distclean` removes all compiled libraries and executables. 
 
 
 ### Contact and References
