@@ -21,19 +21,15 @@
 - libtiff nad zlib (optional, both included in thirdparty directory)
 
 ### Compiling: 
-Run, in a terminal in the top-most directory:
-
-`make` 
-
+Run, in a terminal in the top-most directory:  
+`make`  
 Once everything tested and working, you can run `make clean` to delete temporary files.    
 The command `make distclean` removes all compiled libraries and executables.
 
 
 ### Contact and References
 
-For contacts and references please visit: 
-
-http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling
-
+For contacts and references please visit:  
+http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling  
 or contact Ali Q. Raeini, email: a.qaseminejad-raeini09@imperial.ac.uk
 
