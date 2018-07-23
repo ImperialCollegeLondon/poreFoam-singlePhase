@@ -17,8 +17,8 @@
 
 - GNU make, cmake, mpi and a c++11 compiler (available in most Linux distributions)
 - voxelImage library (included in apps directory)
-- A costomized foam-extend (included in thirdparty dyrectory)
-- libtiff nad zlib (optional, both included in thirdparty dyrectory)
+- A costomized foam-extend (included in thirdparty directory)
+- libtiff nad zlib (optional, both included in thirdparty directory)
 
 ### Compiling: 
 Run, in a terminal in the top-most directory:
