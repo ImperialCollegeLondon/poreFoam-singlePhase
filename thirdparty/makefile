@@ -1,5 +1,5 @@
 
-all:  tiff  hypre zlib foam
+all: foam  zlib  tiff 
 
 psInstall ?= $(abspath ..)
  $(info psInstall set to $(psInstall))
