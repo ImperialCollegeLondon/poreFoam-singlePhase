@@ -17,5 +17,5 @@ distclean:
 	(cd thirdparty && make clean)
 	(cd src && ./AllDistClean)
 	echo && echo "Warning: removing  bin, include, lib and share  folders" && echo press Ctrl+c to stop && echo && sleep 6
-	rm -rf   src/../bin  src/../include  src/../lib  src/../share
+	rm -rf   src/../bin  src/../include  src/../lib  src/../share log.make
 	(cd ./thirdparty/foam-miniext-3.4/ && ./AllDistclean)
