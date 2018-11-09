@@ -3,7 +3,7 @@
 
  The codes simulate incompressible single-phase flow, by solving Naview-Stokes equations on 3D images of porous media
 
- * This branch is aims to simplify the build process by including the prerequisites (+ some customization of foam-extend for saving memory)
+ * This branch's aim is to simplify the build process by including the prerequisites (+ some customization of foam-extend for saving memory)
 
 ---
 
