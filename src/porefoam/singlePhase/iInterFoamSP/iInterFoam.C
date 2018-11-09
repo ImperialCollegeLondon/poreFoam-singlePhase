@@ -91,7 +91,6 @@ int main(int argc, char *argv[])
 
 			ifMonitor   { Info<< "ExeTime - tOldPU = " << runTime.elapsedCpuTime()-tOldPU << " s"	<< endl;}
 
-			// --- PISO loop
 			while (pimple.correct())// --- PISO loop
 			{
 				#include "pEqn.H"
@@ -168,4 +167,4 @@ int main(int argc, char *argv[])
 }
 
 
-// ************************************************************************* //
+//----------------------------------------------------------------------

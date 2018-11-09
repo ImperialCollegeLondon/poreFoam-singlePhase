@@ -1,5 +1,5 @@
 
-vector FF(0.0, 0.0, 0.0);
+//vector FF(0.0, 0.0, 0.0);
 {
 	Info<< "Reading field p\n" << endl;
 
@@ -18,12 +18,14 @@ vector FF(0.0, 0.0, 0.0);
 	volScalarField kEf
 	(	IOobject
 		(	"kEf",	"0",	mesh,
-			IOobject::READ_IF_PRESENT,	IOobject::AUTO_WRITE
+			IOobject::READ_IF_PRESENT,	IOobject::NO_WRITE
 		),
 		1.0/porosity/porosity,"zeroGradient"
 	);
 	kEf.correctBoundaryConditions();
-	Info<<"avg kEf"<<average(kEf)<<endl;
+	p.correctBoundaryConditions();
+	Info<<"avg kEf: "<<average(kEf).value()<<",  ["<<min(kEf).value()<<" - "<<max(kEf).value()<<"]"<<endl;
+	Info<<"avg p init: "<<average(p).value()<<",  ["<<min(p).value()<<" - "<<max(p).value()<<"]"<<endl;
 
 	pimpleControl pimple(mesh);
 
@@ -31,7 +33,7 @@ vector FF(0.0, 0.0, 0.0);
 
 	Info<< "\ncalculating formation factor \n" << endl;
 
-	for(int iter = 0; iter<2; ++iter)
+	for(int iter = 0; iter<4; ++iter)
 	{
  
 		//runTime++;
@@ -57,6 +59,7 @@ vector FF(0.0, 0.0, 0.0);
 	
 	
 	phi=fvc::interpolate(kEf*dimensionedScalar("one", dimLength*dimLength, 1.0)/(mu))*fvc::snGrad(p)*mesh.magSf();
+	Info<<"avg phi psi: "<<average(phi).value()<<",  ["<<min(phi).value()<<" - "<<max(phi).value()<<"]"<<endl;
 
 	Info<< ".\n" << endl;
 
@@ -79,18 +82,29 @@ vector FF(0.0, 0.0, 0.0);
 		label iRight = mesh.boundaryMesh().findPatchID(RightPs[iDir]);
 		if (iRight < 0) { Info	<< "Unable to find  patch " << RightPs[iDir] << nl	<< endl;	}
 	
-		Info<<gSum(kEf.boundaryField()[iRight])<<"  "<<endl;
+		Info<<"kEf_ iRight: "<<gSum(kEf.boundaryField()[iRight])<<"  "<<endl;
+		Info<<"kEf_ iLeft: "<<gSum(kEf.boundaryField()[iLeft])<<"  "<<endl;
+		Info<<"psi_ iRight: "<<gSum(p.boundaryField()[iRight])<<"  "<<endl;
+		Info<<"psi_ iLeft: "<<gSum(p.boundaryField()[iLeft])<<"  "<<endl;
 
 		if( iLeft>=0 && iRight>=0)
 		{
 
-			scalar fluxIn=gSum(phi.boundaryField()[iLeft]);
+			scalar fluxIn=gSum(phi.boundaryField()[iLeft]+1.0e-29);
+			scalar fluxOut=gSum(phi.boundaryField()[iRight]+1.0e-29);
 
-			scalar PLeft=gSum(p.boundaryField()[iLeft]*(phi.boundaryField()[iLeft]))/(fluxIn+1.0e-29);
-			scalar PRight=gSum(p.boundaryField()[iRight]*(phi.boundaryField()[iRight]))/(fluxIn+1.0e-29);
+			scalar PLeft=gSum(p.boundaryField()[iLeft]*(phi.boundaryField()[iLeft]))/(fluxIn+1.0e-129);
+			scalar PRight=gSum(p.boundaryField()[iRight]*(phi.boundaryField()[iRight]))/(fluxOut+1.0e-129);
 			dV[iDir]=mag(PLeft-PRight);
 
+			fluxIn=gSum(phi.boundaryField()[iLeft]);
+		Info<<"fluxIn: "<<fluxIn<<"  @dir"<<iDir<<endl;
+		Info<<"dV[iDir]: "<<dV[iDir]<<" = "<<PLeft<<" - "<<PRight<<iDir<<endl;
+		Info<<"A/L: "<<A[iDir]/L[iDir]<<endl;
+		Info<<"mu.value(): "<<mu.value()<<endl;
+
 			FF[iDir]=dV[iDir]*A[iDir]/L[iDir]/(mag(fluxIn)+1.0e-126)/(mu.value());
+		Info<<"FF[iDir]: "<<FF[iDir]<<endl;
 		}
 	}
 }

@@ -491,7 +491,7 @@ if (JPEG_SUPPORT)
 endif()
 
 # JBIG-KIT
-option(jbig "use ISO JBIG compression (requires JBIT-KIT library)" ON)
+option(jbig "use ISO JBIG compression (requires JBIT-KIT library)" OFF)
 if (jbig)
   set(JBIG_FOUND 0)
   find_path(JBIG_INCLUDE_DIR jbig.h)

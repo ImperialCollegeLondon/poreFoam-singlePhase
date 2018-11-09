@@ -278,21 +278,21 @@ template<typename Type>   bool voxelField<Type>::readBin(std::string fileName, i
 
 //kji
 template<typename Type>   bool voxelField<Type>::readBin(std::string fileName,
-				int iStart,int iEnd ,	int jStart,int jEnd ,	int kStart,int kEnd, int nSkipBytes
+				int iS,int iE ,	int jS,int jE ,	int kS,int kE, int nSkipBytes
 )
 {
 	if(fileName.compare(fileName.size()-4,4,".tif")==0)
 	{ 
 		voxelImageT<Type> vxls(fileName);
-		if (vxls.size3()[0]!=iEnd-iStart)	std::cout<<"Error in reading "<<fileName<<", unexpected size: Nx="<<vxls.size3()[0]<<"  !="<<iEnd-iStart<<std::endl;
-		setBlock(iStart,jStart,kStart, vxls);
+		if (vxls.size3()[0]!=iE-iS)	std::cout<<"Error in reading "<<fileName<<", unexpected size: Nx="<<vxls.size3()[0]<<"  !="<<iE-iS<<std::endl;
+		setBlock(iS,jS,kS, vxls);
 		return true;
 	}
 	if(fileName.compare(fileName.size()-3,3,".gz")==0)
 	{
-		voxelField<Type> vxls(int3{{iEnd-iStart, jEnd-jStart, kEnd-kStart}});
+		voxelField<Type> vxls(int3{{iE-iS, jE-jS, kE-kS}});
 		vxls.readBin(fileName);
-		setBlock(iStart,jStart,kStart, vxls);
+		setBlock(iS,jS,kS, vxls);
 		return true;
 	}
 	
@@ -301,12 +301,12 @@ template<typename Type>   bool voxelField<Type>::readBin(std::string fileName,
 	std::ifstream in (fileName.c_str(), std::ios::in | std::ios::binary);
 	if(!in)  {std::cout<<"\n\n  Error: can not open image file, "<<fileName<<std::endl<<std::endl;		return false;}
 	if(nSkipBytes) in.ignore(nSkipBytes);
-	int k = kStart;
-	for ( ;k < kEnd;k++)
+	int k = kS;
+	for ( ;k < kE;k++)
 	{
-		for ( int j = jStart;j < jEnd;j++)
+		for ( int j = jS;j < jE;j++)
 		{
-			if(in)  in.read(reinterpret_cast<char*>(&((*this)(iStart,j,k))), (iEnd-iStart)*sizeof(Type) );
+			if(in)  in.read(reinterpret_cast<char*>(&((*this)(iS,j,k))), (iE-iS)*sizeof(Type) );
 		}
 		if (!in) break;
 	}
@@ -355,8 +355,15 @@ template<typename Type>   void voxelField<Type>::writeBin(std::string fileName) 
 
 
 	std::cout<<  " writting binary file "<<fileName<<";  size: "<<n; std::cout.flush();
-
-	std::ofstream of (fileName.c_str(), std::ios::out | std::ios::binary);
+	auto mode = std::ios::out | std::ios::binary;
+	if(fileName.compare(fileName.size()-3,3,".am")==0) //-Warning  remember to call Writeheader before this if suffix is .amam
+	{
+		char cs[]="xxx";
+		std::ifstream is(fileName.c_str());		if(is)	{ is.seekg (3, is.end);	is.get(cs,3); }		is.close();
+		if(cs[0]!='@' || cs[1]!='1' || cs[2]!='\n')	writeHeader(fileName,{0,0,0},n);
+		mode = mode | std::ios::app;
+	}
+	std::ofstream of (fileName.c_str(), mode);
 	assert(of);
 	if(data_.size())
 	of.write(reinterpret_cast<const char*>(&((*this)(0,0,0))), (size_t(n[0])*n[1]*n[2]) * sizeof(Type));
@@ -370,15 +377,15 @@ template<typename Type>   void voxelField<Type>::writeBin(std::string fileName) 
 
 //kji
 template<typename Type>   void voxelField<Type>::writeBin(std::string fileName,
-							   int iStart,int iEnd , int jStart,int jEnd , int kStart,int kEnd ) const
+							   int iS,int iE , int jS,int jE , int kS,int kE ) const
 {
 
 
 	if(fileName.compare(fileName.size()-4,4,".tif")==0)
 	{
 	 #ifdef TIFLIB
-		std::cout<<  " writting tif file "<<fileName<<";  i: "<<iStart<<" "<<iEnd<<",  j: "<<jStart<<" "<<jEnd<<",  k: "<<kStart<<" "<<kEnd; std::cout.flush();
-		writeTif(*this, fileName, iStart, iEnd,  jStart, jEnd ,  kStart, kEnd);
+		std::cout<<  " writting tif file "<<fileName<<";  i: "<<iS<<" "<<iE<<",  j: "<<jS<<" "<<jE<<",  k: "<<kS<<" "<<kE; std::cout.flush();
+		writeTif(*this, fileName, iS, iE,  jS, jE ,  kS, kE);
 		std::cout<<  "."<<std::endl;
 		return;
 	 #else
@@ -389,31 +396,39 @@ template<typename Type>   void voxelField<Type>::writeBin(std::string fileName,
 	#ifdef ZLIB
 	if(fileName.compare(fileName.size()-3,3,".gz")==0)
 	{
-		std::cout<<  " writting compressed file "<<fileName<<";  i: "<<iStart<<" "<<iEnd<<",  j: "<<jStart<<" "<<jEnd<<",  k: "<<kStart<<" "<<kEnd; std::cout.flush();
+		std::cout<<  " writting compressed file "<<fileName<<";  i: "<<iS<<" "<<iE<<",  j: "<<jS<<" "<<jE<<",  k: "<<kS<<" "<<kE; std::cout.flush();
 		gzofstream  of((fileName).c_str());
 		of << setcompression(Z_DEFAULT_COMPRESSION);
 		assert(of);
 		if(data_.size())
-		 for ( int k = kStart;k < kEnd;k++)
-			for ( int j = jStart;j < jEnd;j++)
+		 for ( int k = kS;k < kE;k++)
+			for ( int j = jS;j < jE;j++)
 			{
-				of.write(reinterpret_cast<const char*>(&((*this)(iStart,j,k))), (iEnd-iStart) * sizeof(Type));
+				of.write(reinterpret_cast<const char*>(&((*this)(iS,j,k))), (iE-iS) * sizeof(Type));
 			}
 		of.flush();
 		of.close();
 		std::cout<<  "."<<std::endl;
 		return;
-	
 	}
 	#endif
-	std::cout<<  " writting binary file "<<fileName<<";  i: "<<iStart<<" "<<iEnd<<",  j: "<<jStart<<" "<<jEnd<<",  k: "<<kStart<<" "<<kEnd; std::cout.flush();
-	std::ofstream of(fileName.c_str(), std::ios::out | std::ios::binary);
+
+	std::cout<<  " writting binary file "<<fileName<<";  i: "<<iS<<" "<<iE<<",  j: "<<jS<<" "<<jE<<",  k: "<<kS<<" "<<kE; std::cout.flush();
+	auto mode = std::ios::out | std::ios::binary;
+	if(fileName.compare(fileName.size()-3,3,".am")==0)
+	{
+		char cs[]="xxx";
+		std::ifstream is(fileName.c_str());		if(is)	{ is.seekg (3, is.end);	is.get(cs,3); }		is.close();
+		if(cs[0]!='@' || cs[1]!='1' || cs[2]!='\n')	writeHeader(fileName,{iS,jS,kS},{iE ,jE,kE});
+		mode = mode | std::ios::app;
+	}
+	std::ofstream of(fileName.c_str(), mode);
 	assert(of);
 	if(data_.size())
-	 for ( int k = kStart;k < kEnd;k++)
-		for ( int j = jStart;j < jEnd;j++)
+	 for ( int k = kS;k < kE;k++)
+		for ( int j = jS;j < jE;j++)
 		{
-			of.write(reinterpret_cast<const char*>(&((*this)(iStart,j,k))), (iEnd-iStart) * sizeof(Type));
+			of.write(reinterpret_cast<const char*>(&((*this)(iS,j,k))), (iE-iS) * sizeof(Type));
 		}
 	of.flush();
 	of.close();
@@ -421,25 +436,39 @@ template<typename Type>   void voxelField<Type>::writeBin(std::string fileName,
 
 }
 
-template<typename Type>   void voxelField<Type>::writeAscii(std::string fileName,int iStart,int iEnd , int jStart,int jEnd , int kStart,int kEnd) const
+template<typename Type>   void voxelField<Type>::writeAscii(std::string fileName,int iS,int iE , int jS,int jE , int kS,int kE) const
 {
 	std::cout<<  " writting ascii file "<<fileName<<";  "; std::cout.flush();
 
 	std::ofstream of (fileName.c_str());
 	assert(of);
 
-	for ( int k = kStart;k < kEnd;k++)
-	{
-	  for ( int j = jStart;j < jEnd;j++)
+	for ( int k = kS;k < kE;k++)
+	  for ( int j = jS;j < jE;j++)
 	  {
-		for ( int i = iStart;i < iEnd;i++)
-		{
-
-		   of<<double((*this)(i,j,k))<<' ';
-		}
+		for ( int i = iS;i < iE;i++)
+		   of<<((*this)(i,j,k))<<' ';
 		of<<"\n";
 	  }
-	}
+	of<<std::endl;
+	of.close();
+	std::cout<<  "."<<std::endl;
+}
+
+template<>  inline void voxelField<unsigned char>::writeAscii(std::string fileName,int iS,int iE , int jS,int jE , int kS,int kE) const
+{
+	std::cout<<  " writting ascii file "<<fileName<<";  "; std::cout.flush();
+
+	std::ofstream of (fileName.c_str());
+	assert(of);
+
+	for ( int k = kS;k < kE;k++)
+	  for ( int j = jS;j < jE;j++)
+	  {
+		for ( int i = iS;i < iE;i++)
+		   of<<int((*this)(i,j,k))<<' ';
+		of<<"\n";
+	  }
 	of<<std::endl;
 	of.close();
 	std::cout<<  "."<<std::endl;
@@ -487,29 +516,29 @@ void voxelImageT<T>::crop( int cropBegin[3],  int cropEnd[3],int emptylayers, T 
 //kji
 template<typename T>
 void voxelImageT<T>::crop(
-							int iStart, int iEnd ,
-							int jStart, int jEnd ,
-							int kStart, int kEnd  ,
+							int iS, int iE ,
+							int jS, int jE ,
+							int kS, int kE  ,
 							int emptylayers, T emptylayersValue
 )
 {
-	(std::cout<<  "  cropping, "<<  "   ["<<iStart<<" "<<iEnd+1 <<  ")  ["<<jStart<<" "<<jEnd+1<< ")  ["<<kStart<<" "<<kEnd+1<<") ").flush();
+	(std::cout<<  "  cropping, "<<  "   ["<<iS<<" "<<iE+1 <<  ")  ["<<jS<<" "<<jE+1<< ")  ["<<kS<<" "<<kE+1<<") ").flush();
 	if (emptylayersValue) (std::cout<<  ", adding "<<emptylayers<<" layers of "<< double(emptylayersValue)<<"  ").flush();
 
-	X0_[0]=X0_[0]+(int(iStart)-int(emptylayers))*dx_[0];   X0_[1]=X0_[1]+(int(jStart)-int(emptylayers))*dx_[1];   X0_[2]=X0_[2]+(int(kStart)-int(emptylayers))*dx_[2];
+	X0_[0]=X0_[0]+(int(iS)-int(emptylayers))*dx_[0];   X0_[1]=X0_[1]+(int(jS)-int(emptylayers))*dx_[1];   X0_[2]=X0_[2]+(int(kS)-int(emptylayers))*dx_[2];
 
 	voxelImageT<T> tmp=*this;
 
 
-	this->reset(iEnd+1-iStart+2*emptylayers,jEnd+1-jStart+2*emptylayers,kEnd+1-kStart+2*emptylayers, emptylayersValue);
+	this->reset(iE+1-iS+2*emptylayers,jE+1-jS+2*emptylayers,kE+1-kS+2*emptylayers, emptylayersValue);
 
 
-	for ( int k=0; k<kEnd+1-kStart; k++ )
-		for ( int j=0; j<jEnd+1-jStart; ++j )
-			//for ( int i=0; i<iEnd+1-iStart; ++i )
+	for ( int k=0; k<kE+1-kS; k++ )
+		for ( int j=0; j<jE+1-jS; ++j )
+			//for ( int i=0; i<iE+1-iS; ++i )
 			//{
-				//(*this)[k+emptylayers][j+emptylayers][i+emptylayers]=tmp[k+kStart][j+jStart][i+iStart];
-					std::copy(&tmp(iStart,j+jStart,k+kStart), &tmp(iEnd+1,j+jStart,k+kStart), &(*this)(emptylayers,j+emptylayers,k+emptylayers));
+				//(*this)[k+emptylayers][j+emptylayers][i+emptylayers]=tmp[k+kS][j+jS][i+iS];
+					std::copy(&tmp(iS,j+jS,k+kS), &tmp(iE+1,j+jS,k+kS), &(*this)(emptylayers,j+emptylayers,k+emptylayers));
 
 			//}
 		//}
@@ -945,7 +974,7 @@ template<typename T>
 class mapComparer  {  public: bool operator() (std::pair<const T,short>& i1, std::pair<const T,short> i2) {return i1.second<i2.second;}  };
 
 template<typename T>
-void voxelImageT<T>::mode(short nNeist)
+void voxelImageT<T>::mode(short minDif)
 {
 	voxelImageT<T> voxls=*this;
 	long long nChanges = 0;
@@ -972,9 +1001,9 @@ void voxelImageT<T>::mode(short nNeist)
 		neiPID = voxls(i,j,k+1);
 		if (neiPID != pID  ) 	 ++(neis.insert(std::pair<T,short>(neiPID,0)).first->second); else ++nSames;
 
-		if(nSames<nNeist)
+		if(nSames<minDif)
 		{
-			typename std::map<T,short>::iterator neitr = max_element(neis.begin(), neis.end(), mapComparer<T>());
+			typename std::map<T,short>::iterator neitr = std::max_element(neis.begin(), neis.end(), mapComparer<T>());
 			if (neitr->second>nSames)
 			{
 				++nChanges;
@@ -991,8 +1020,7 @@ void voxelImageT<T>::mode(short nNeist)
 			{ std::cout<<"  X "<<int(pID)<<":"<<int(nSames)<<" "<<int(neitr->first)<<":"<<(neitr->second)<<" "<<neis[0]<<" "<<neis[1]<<" "<<neis[2]<<"  X ";
 			}
 		 }
-	  }
-
+	}
 	( std::cout<<"  nMedian: "<< std::left<<nChanges<<"  \n").flush();
 
 }
@@ -1269,20 +1297,51 @@ double voxelImageT<T>::volFraction(T vv1,T vv2) const
 template<typename T>
 void voxelImageT<T>::writeHeader(std::string outputName) const
 {
-	this->voxelImageT<T>::writeHeader(outputName, int3{{0,0,0}}, voxelField<T>::sizeu3());
+	voxelField<T>::writeHeader(outputName, int3{{0,0,0}}, voxelField<T>::sizeu3(),dx_,X0_);
 }
 
 template<typename T>
-void voxelImageT<T>::writeHeader(std::string outName, int3 iStart, int3 iEnd) const
+void voxelField<T>::writeHeader(std::string outName, int3 iS, int3 iE, dbl3 dx, dbl3 X0) const
 {
 	std::string xufix;
 	if (outName.size()>=3 && outName.compare(outName.size()-3,3,".gz")==0)
 	{	xufix=".gz";
 		outName=outName.substr(0,outName.size()-3);
 	}
+	if(dx[0]<0)
+	{
+		std::cout<<"Error negative dx" ;
+		dx[0]=abs(dx[0]);  dx[1]=abs(dx[1]);  dx[2]=abs(dx[2]);
+	}
+	dbl3 xmin(X0+iS*dx);
+	dbl3 xmax(X0+iE*dx);
+	int3	n(iE-iS);
+	if (outName.compare(outName.size()-3,3,".am")==0)
+	{
+		std::string typ="uchar";
+		if (typeid(T)==typeid(char)) typ="char";
+		else if (typeid(T)==typeid(short)) typ="short";
+		else if (typeid(T)==typeid(unsigned short)) typ="ushort";
+		else if (typeid(T)==typeid(int)) typ="int";
+		else if (typeid(T)==typeid(int)) typ="uint";
+		else if (typeid(T)==typeid(float)) typ="float";
+		else if (typeid(T)==typeid(double)) typ="double";
+		//else if (typeid(T)==typeid(float3)) typ="float[3]";
 
-	dbl3 xmin(X0_+(iStart*dx_));
-	int3	n(iEnd-iStart);
+		std::ofstream out(outName.c_str());
+		assert(out);
+		out	<<"# Avizo BINARY-LITTLE-ENDIAN 2.1\n\n\n"
+			<<"define Lattice "<<n[0]<<" "<<n[1]<<" "<<n[2]<<"\n\n"
+			<<"Parameters {\n    Units {\n        Coordinates \"m\"\n    }\n";
+			if(typ=="float[3]")
+				out <<"    XLabExperiment {\n        viscosity 0.001,\n        inputPressure 1,\n        outputPressure 0,\n        flowRate 1111111\n    }\n";
+			
+		out	<<"    Content \""<<n[0]<<"x"<<n[1]<<"x"<<n[2]<<" "<<typ<<", uniform coordinates\",\n"
+			<<"    BoundingBox "<<xmin[0]<<" "<<xmax[0]<<" "<<xmin[1]<<" "<<xmax[1]<<" "<<xmin[2]<<" "<<xmax[2]<<",\n"
+			<<"    CoordType \"uniform\"\n}\n\n"
+			<<"Lattice { "<<typ<<" Data } @1\n\n# Data section follows\n@1\n";
+
+	}else
 	if (outName.size()<7 || outName.compare(outName.size()-7,7,"_header")!=0)
 	{
 		int islash=outName.find_last_of("\\/"); if (islash>=int(outName.size())) islash=-1;
@@ -1307,13 +1366,15 @@ void voxelImageT<T>::writeHeader(std::string outName, int3 iStart, int3 iEnd) co
 		outputHeaderFile
 			 <<"ObjectType =  Image"<<std::endl
 			 <<"NDims =	   3"<<std::endl
-			 <<"ElementType = "<<typeNmeVTK<<std::endl <<std::endl
+			 <<"ElementType = "<<typeNmeVTK <<std::endl
+			 <<"ElementByteOrderMSB = False\n"//(typeNmeVTK=="MET_UCHAR" ? "\n":)
+			 <<"ElementNumberOfChannels = 1\n"//(typeNmeVTK=="MET_UCHAR" ? "\n":)
+			 <<(xufix==".gz" ? "CompressedData = True\n" : "CompressedData = False\n")<<std::endl
 			 <<"DimSize =		"<<n[0]<<" "<<n[1]<<" "<<n[2]<<std::endl
-			 <<"ElementSpacing = "<<dx_[0]<<" "<<"  " <<dx_[1]<<" "<<"  " <<dx_[2]<<std::endl
-			 <<"Offset =		 "<<X0_[0]<<" "<<"  " <<X0_[1]<<" "<<"  " <<X0_[2]<<std::endl
-			 <<(typeNmeVTK=="MET_UCHAR" ? "\n":"ElementByteOrderMSB = False\n") <<std::endl
+			 <<"ElementSpacing = "<<dx[0]<<" "<<"  " <<dx[1]<<" "<<"  " <<dx[2]<<std::endl
+			 <<"Offset =		 "<<X0[0]<<" "<<"  " <<X0[1]<<" "<<"  " <<X0[2]<<std::endl
 			 <<"ElementDataFile = "<<title+xufix<<std::endl <<std::endl;
-			 if(dx_[0]>=0.001)
+			 if(dx[0]>=0.001)
 				outputHeaderFile <<"Unit = "<<1<<std::endl;
 
 			outputHeaderFile <<std::endl <<std::endl;
@@ -1326,7 +1387,7 @@ void voxelImageT<T>::writeHeader(std::string outName, int3 iStart, int3 iEnd) co
 		 <<"Nxyz"<<std::endl
 		 <<"dxX0"<<std::endl
 		 <<n[0]<<" "<<n[1]<<" "<<n[2]<<std::endl
-		 <<dx_[0]<<" "<<"  " <<dx_[1]<<" "<<"  " <<dx_[2]<<std::endl
+		 <<dx[0]<<" "<<"  " <<dx[1]<<" "<<"  " <<dx[2]<<std::endl
 		 <<xmin[0]<<" "<<"  " <<xmin[1]<<" "<<"  " <<xmin[2]<<std::endl
 		 <<"\n\nComments:"<<std::endl
 		 <<" first 9 entries above are:"<<std::endl
@@ -1354,14 +1415,19 @@ void voxelField<T>::writeNoHdr(std::string outName) const
 	if (outName.compare(outName.size()-4,4,".dat") == 0 || outName.compare(outName.size()-4,4,".txt") == 0)
 	{
 		this->writeAscii(outName);
-		//writeHeader(outName+"_header");
 	}
 	else if(outName!="NO_WRITE")
 	{
 		this->writeBin(outName);
-		//writeHeader(outName);
 	}
 
+}
+
+template<typename T>
+void voxelImageT<T>::writeNoHdr(std::string outName) const
+{
+	if(outName.compare(outName.size()-3,3,".am")==0) writeHeader(outName);// Warning: remember to append to this in writeBin
+	voxelField<T>::writeBin(outName);
 }
 
 template<typename T>
@@ -1377,8 +1443,9 @@ void voxelImageT<T>::write(std::string outName) const
 	}
 	else if(outName!="NO_WRITE")
 	{
+		if(outName.compare(outName.size()-4,4,".tif")!=0 )//|| outName.compare(outName.size()-3,3,".am")!=0
+			writeHeader(outName);
 		this->writeBin(outName);
-		writeHeader(outName);
 	}
 }
 

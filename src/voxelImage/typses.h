@@ -99,8 +99,8 @@ class piece
 	piece(): d(0), dn(0) {};
   public:
 
-	piece(T* dd, int n): d(dd), dn(d+n) {};
-	piece(T* dd, T* de): d(dd), dn(de) {};
+	piece(T* dd, int n): d(dd), dn(d+n)     {};
+	piece(T* dd, T* de): d(dd), dn(de)      {};
 	piece(const piece& p): d(p.d), dn(p.dn) {};//! note data hold by piece are not const unless piece is const itself
 	piece(const std::vector<T>& vs): d(&vs[0]), dn(d+vs.size()) {};
 
@@ -122,12 +122,12 @@ class piece
 	piece& operator -=(const piece& v)  { for(auto& a:*this){ a -= v[&a-d];};  return (*this); }
 	piece& operator *=(const piece& v)  { for(auto& a:*this){ a *= v[&a-d];};  return (*this); }
 	piece& operator /=(const piece& v)  { for(auto& a:*this){ a /= v[&a-d];};  return (*this); }
-	piece& operator +=(T v)  { for(auto& a:*this){ a += v;};  return (*this); }
-	piece& operator -=(T v)  { for(auto& a:*this){ a -= v;};  return (*this); }
-	piece& operator *=(double t)             { for(auto& a:*this){ a *= t;};  return (*this); }
-	piece& operator *=(int t)             { for(auto& a:*this){ a *= t;};  return (*this); }
-	piece& operator /=(double t)  { return (*this)*=(1.0/t); }
-	T sum() const  { T sm=0; for(auto a:*this){ sm += a;}  return sm; }
+	piece& operator +=(T v)             { for(auto& a:*this){ a += v;};  return (*this); }
+	piece& operator -=(T v)             { for(auto& a:*this){ a -= v;};  return (*this); }
+	piece& operator *=(double t)        { for(auto& a:*this){ a *= t;};  return (*this); }
+	piece& operator *=(int t)           { for(auto& a:*this){ a *= t;};  return (*this); }
+	piece& operator /=(double t)        { return (*this)*=(1.0/t); }
+	T sum() const                       { T sm=0; for(auto a:*this){ sm += a;}  return sm; }
 
 
   //protected:
@@ -146,7 +146,7 @@ class lazyvec: public piece<T>
 	using piece<T>::dn;
 
 	lazyvec(): piece<T>(0,0) {};
-	lazyvec(int siz): piece<T>(new T[siz],siz) {};  
+	lazyvec(int siz): piece<T>(new T[siz],siz) {};
 	lazyvec(size_t siz, T val): piece<T>(new T[siz],siz) {  std::fill(d, dn, val);}
 	lazyvec(const lazyvec& v): piece<T>(new T[v.size()],v.size())  {  std::copy(v.d, v.dn, d); }
 	lazyvec(const std::vector<T>& v): piece<T>(new T[v.size()],v.size())  {  std::copy(&v[0], &*v.end(), d); }
@@ -188,15 +188,15 @@ class lazyvec: public piece<T>
 	lazyvec  operator *(int t) const { lazyvec tmp(*this); tmp*=t;     return tmp; }
 	lazyvec  operator /(double t) const { lazyvec tmp(*this); tmp*=1.0/t; return tmp; }
 
-   void resize(int nn)  
-   { { if(d) delete[] d; }   if(nn) {d=new T[nn]; dn=d+nn;} else {d=0; dn=0;} }
-   void resize(int nn,const T& val)  
-   { { if(d) delete[] d; }   if(nn) {d=new T[nn]; dn=d+nn;  std::fill(d, dn, val); } else {d=0; dn=0;} }
-   void pbak(T& vj)
-   {	if(d) 
-		{ T* od=d;  d=new T[dn+1-od];  
-			safememcpy(d, od, (dn-od));//! TODO reuse (move) resources
-			dn=dn+1-od; *(dn-1)=vj;  delete[] od;  }
+	void resize(int nn)
+	{ { if(d) delete[] d; }   if(nn) {d=new T[nn]; dn=d+nn;} else {d=0; dn=0;} }
+	void resize(int nn,const T& val)
+	{ { if(d) delete[] d; }   if(nn) {d=new T[nn]; dn=d+nn;  std::fill(d, dn, val); } else {d=0; dn=0;} }
+	void pbak(T& vj)
+	{	if(d)
+		{ T* od=d;  d=new T[dn+1-od];
+			std::copy(od, dn, d);// TODO: test
+			dn=d+dn+1-od; *(dn-1)=vj;  delete[] od;  }
 		else    { d=new T[1];   *d=vj;   dn=d+1; }
 	}
 };
@@ -217,7 +217,7 @@ using int2 = std::pair<int,int>;
 
 #ifdef VMMLIB__VECTOR__HPP
  template< size_t M, typename T >
- Vctr<M,T>::Vctr(const dbl3& v3) 	{ 	array[ 0 ] = v3.x;	array[ 1 ] = v3.y;	array[ 2 ] = v3.z; 	}
+ Vctr<M,T>::Vctr(const dbl3& v3) 	{ array[ 0 ] = v3.x;	array[ 1 ] = v3.y;	array[ 2 ] = v3.z; 	}
 #endif
 
 
@@ -268,7 +268,7 @@ T sumvars(const piece<T>& ps, const piece<T>& ws)  { T sm; sm*=0.0; const T* p =
 inline std::ostream& operator<< (std::ostream& out, const dbl3& node)
 {
 	std::ios_base::fmtflags flgs=out.flags();
-	out.flags(std::ios::showpoint | std::ios::scientific);	
+	out.flags(std::ios::showpoint | std::ios::scientific);
 	out << std::setprecision(5)  << node.x   <<" " << node.y   <<" " << node.z;
 	out.flags(flgs);
 	return out;
@@ -323,6 +323,25 @@ std::ostream & operator << (std::ostream & out, const piece<T>& vec)
 	if(vec.size() && vec.size()<10 )  for (auto v : vec) out << v << '\t';
 	else                             for (auto v : vec) out << v << '\n';
 	return out;
+}
+
+
+template<class T> T min(const piece<T>& pis)  { return *std::min_element(pis.d,pis.dn); }
+template<class T> T max(const piece<T>& pis)  { return *std::max_element(pis.d,pis.dn); }
+template<class T> void transform(piece<T>& pis, float(*func)(float&))  { for(float& dr:pis) dr=func(dr); }
+//template<class T> void transform(piece<T>& pis, float(*func)(float&))  { for(float& dr:pis) dr=func(dr); }
+template<typename T> void transform(T* d, const T* dn, T(*func)(const T&))  { --d; while (++d<dn) *d=func(*d); }
+
+//double (*func)(const double&) = ([](const double& d) {return d;})
+
+template<typename T, template<typename ...> class C>
+vars<vars<T> > transpose(const C<C<T> >& vecvec)
+{
+	if(!vecvec.size()) return vars<vars<T> >();
+	vars<vars<T> > trans(vecvec[0].size(),vars<T>(vecvec.size()));
+	for (size_t i=0; i<vecvec[0].size();++i)
+		for (size_t j=0; j<vecvec.size();++j) trans[i][j] = vecvec[j][i] ;
+	return trans;
 }
 
 

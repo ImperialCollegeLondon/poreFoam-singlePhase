@@ -69,9 +69,9 @@ int main(int argc, char *argv[])
 	if(argc>3) outputFormat = std::string (argv[3]); 
 	if(argc>4) writeVoltage = argv[4][0]=='t' || argv[4][0]=='T'; 
 	//~ if(argc>4) skipOutlet = std::string(argv[4]); 
-	Info<<"FOAM2Voxel "<<headerName<<" "<<nProcs<<" "<<outputFormat<<endl;
-
 	suffix(outputFormat);
+	Info<<"FOAM2Voxel "<<headerName<<" "<<nProcs<<" "<<outputFormat<<" "<<writeVoltage<<endl;
+
 	voxelImage vximage(headerName,2);
 	int3 n = vximage.size3();
 	dbl3 xmin=vximage.X0();
@@ -183,17 +183,7 @@ int main(int argc, char *argv[])
 		}
 
 
-		if (outputFormat[0]!='o')
-		{
-			vface0.writeNoHdr("./Ufx"+suffix());
-			vface1.writeNoHdr("./Ufy"+suffix());	
-			vface2.writeNoHdr("./Ufz"+suffix());	
-			pVoxel.writeNoHdr("./p"+suffix());
-			if(writeVoltage) peVoxel.writeNoHdr("./psi"+suffix());
-			vximage.writeNoHdr("./vxlImage"+suffix());
-			vximage.writeHeader("./vxlImage-"+suffix());
-		}
-		else
+		if (outputFormat[0]=='o')
 		{
 			 vface0.writeAscii("./Ux.dat", 0,n[0], 0,n[1], 0,n[2]);
 			 vface1.writeAscii("./Uy.dat", 0,n[0], 0,n[1], 0,n[2]);	
@@ -202,6 +192,16 @@ int main(int argc, char *argv[])
 			 if(writeVoltage) peVoxel.writeAscii("./psi.dat");
 			 vximage.writeAscii("./vxlImage.dat");
 			 vximage.writeHeader("./vxlImage.dat");
+		}
+		else
+		{
+			vface0.writeNoHdr("./Ufx"+suffix());
+			vface1.writeNoHdr("./Ufy"+suffix());	
+			vface2.writeNoHdr("./Ufz"+suffix());	
+			pVoxel.writeNoHdr("./p"+suffix());
+			if(writeVoltage) peVoxel.writeNoHdr("./psi"+suffix());
+			vximage.writeNoHdr("./vxlImage"+suffix());
+			vximage.writeHeader("./vxlImage-"+suffix());
 		}
 
 
@@ -223,15 +223,15 @@ int main(int argc, char *argv[])
 			}
 
 
-			if (outputFormat[0]!='o')
+			if (outputFormat[0]=='o')//old
 			{
 				 vximage.writeAscii("./vxlImage.dat");
 				 vximage.writeHeader("./vxlImage.dat_header");
 			}
 			else
 			{
-				 vximage.writeNoHdr("./vxlImage"+suffix());
-				 vximage.writeHeader("./vxlImage-"+suffix());				
+				 vximage.write("./vxlImage"+suffix());
+				 vximage.writeHeader("./vxlImage"+suffix());
 			}
 			
 			vximage.printInfo();
@@ -246,10 +246,10 @@ int main(int argc, char *argv[])
 				Info<< "\nprocessor: "<<p<<"========================================" << endl;
 				procMainP( 3, argvProc, pVoxel, n, xmin, dx, initialiseOF);
 			}
-			if (outputFormat[0]!='o')
-				 pVoxel.writeNoHdr("./p"+suffix());
-			else
+			if (outputFormat[0]=='o')//old
 				 pVoxel.writeAscii("./p.dat");
+			else
+				 pVoxel.writeNoHdr("./p"+suffix());
 		}
 
 	///. voltage / concentrat
@@ -263,10 +263,10 @@ int main(int argc, char *argv[])
 				Info<< "\nprocessor: "<<p<<"========================================" << endl;
 				procMainPE( 3, argvProc, pVoxel, n, xmin, dx, initialiseOF);
 			}
-			if (outputFormat[0]!='o')
-				 pVoxel.writeNoHdr("./psi"+suffix());
-			else
+			if (outputFormat[0]=='o')//old
 				 pVoxel.writeAscii("./psi.dat");
+			else
+				 pVoxel.writeNoHdr("./psi"+suffix());
 		}
 
 		{	voxelField<float> vface0(n[0]+1,n[1],n[2],0.0);
@@ -277,10 +277,10 @@ int main(int argc, char *argv[])
 				Info<< "\nprocessor: "<<p<<"========================================" << endl;
 				procMainUx( 3, argvProc, vface0, n, xmin, dx, initialiseOF);
 			}
-			if (outputFormat[0]!='o')
-				vface0.writeNoHdr("./Ufx"+suffix());
-			else
+			if (outputFormat[0]=='o')//old
 				vface0.writeAscii("./Ux.dat", 0,n[0], 0,n[1], 0,n[2]);
+			else
+				vface0.writeNoHdr("./Ufx"+suffix());
 		}
 
 		{	voxelField<float> vface1(n[0],n[1]+1,n[2],0.0);
@@ -291,10 +291,10 @@ int main(int argc, char *argv[])
 				Info<< "\nprocessor: "<<p<<"========================================" << endl;
 				procMainUy( 3, argvProc, vface1, n, xmin, dx, initialiseOF);
 			}
-			if (outputFormat[0]!='o')
-				vface1.writeNoHdr("./Ufy"+suffix());	
-			else
+			if (outputFormat[0]=='o')//old
 				vface1.writeAscii("./Uy.dat", 0,n[0], 0,n[1], 0,n[2]);	
+			else
+				vface1.writeNoHdr("./Ufy"+suffix());	
 		}
 
 		{	voxelField<float> vface2(n[0],n[1],n[2]+1,0.0);
@@ -305,10 +305,10 @@ int main(int argc, char *argv[])
 				Info<< "\nprocessor: "<<p<<"========================================" << endl;
 				procMainUz( 3, argvProc, vface2, n, xmin, dx, initialiseOF);
 			}
-			if (outputFormat[0]!='o')
-				vface2.writeNoHdr("./Ufz"+suffix());	
-			else
+			if (outputFormat[0]=='o')//old
 				vface2.writeAscii("./Uz.dat", 0,n[0], 0,n[1], 0,n[2]);	
+			else
+				vface2.writeNoHdr("./Ufz"+suffix());	
 		}
 
 

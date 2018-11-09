@@ -39,7 +39,7 @@ zlib:
 
 tiff:
 	ls $(psInstall)/lib/libtiffxx.a || (cd libtiff && mkdir -p build)
-	ls $(psInstall)/lib/libtiffxx.a || (cd libtiff/build && cmake -DCMAKE_TOOLCHAIN_FILE=$(PS3rdParty)/toolchain$(OPT).txt -DCMAKE_INSTALL_PREFIX=$(psInstall)/ -DBUILD_SHARED_LIBS=False ..)
+	ls $(psInstall)/lib/libtiffxx.a || (cd libtiff/build && cmake -DCMAKE_TOOLCHAIN_FILE=$(PS3rdParty)/toolchain$(OPT).txt -DCMAKE_INSTALL_PREFIX=$(psInstall)/ -DBUILD_SHARED_LIBS=False --disable-jbig ..)
 	ls $(psInstall)/lib/libtiffxx.a || (cd libtiff/build && make -j install)
 #	cp libtiff/build/libtiff/libtiff*.so* $(psDir)/bin/
 

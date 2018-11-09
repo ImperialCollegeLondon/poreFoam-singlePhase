@@ -52,7 +52,7 @@ done
 
 
 
-echo "build directory: $myOFBinDir"
+echo "bin directory: $myOFBinDir"
 if ! [ -n "$SetedpsDir" ]; then
 	echo " ";	echo " ";
 	echo " variable psDir is not permanently set"

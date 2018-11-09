@@ -33,10 +33,10 @@ int usage()
 		<<" Writes velocity magnitide if third argument (optional) is Umag or UmagOnly\n\n"
 		<<"Usage examples, type:\n"
 		<<" #cd PATH/TO/Ufx.*etc first"<< std::endl
-		<<" Ufraw2Uc  vxlImage.mhd raw          # generate Uc*s"<< std::endl
-		<<" Ufraw2Uc  vxlImage.mhd raw Umag     # write mag(U) as well"<< std::endl
-		<<" Ufraw2Uc  vxlImage.mhd raw UmagOnly # write mag(U) only"<< std::endl
-		<<" Ufraw2Uc  vxlImage.mhd dat          # write Uc*s in ascii format"<< std::endl;
+		<<" Ufraw2Uc raw  vxlImage.mhd          # generate Uc*s"<< std::endl
+		<<" Ufraw2Uc raw  vxlImage.mhd Umag     # write mag(U) as well"<< std::endl
+		<<" Ufraw2Uc raw  vxlImage.mhd UmagOnly # write mag(U) only"<< std::endl
+		<<" Ufraw2Uc dat  vxlImage.mhd          # write Uc*s in ascii format"<< std::endl;
 	return 1;
 }
 

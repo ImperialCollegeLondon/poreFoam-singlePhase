@@ -16,7 +16,7 @@
 	#include "createPhi.H"
 
 
-    U.correctBoundaryConditions();
+	U.correctBoundaryConditions();
 
     Info<< "Reading transportProperties\n" << endl;
     IOdictionary transportProperties

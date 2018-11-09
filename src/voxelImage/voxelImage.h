@@ -35,21 +35,21 @@ Ali Q Raeini:    a.qaseminejad-raeini09@imperial.ac.uk
 /// class Config { 
 inline const std::string& suffix(const std::string& defSuffix="")
 {
-	#ifdef TIFLIB
-	 static std::string defSuffix_=".tif";
-	#else
-	  #ifdef ZLIB
+	#ifdef ZLIB
   	   static std::string defSuffix_=".raw.gz";
+	#else
+	  #ifdef TIFLIB
+	   static std::string defSuffix_=".tif";
 	  #else
   	   static std::string defSuffix_=".raw";
-	  #endif //ZLIB
-	#endif //TIFLIB
+	  #endif //TIFLIB
+	#endif //ZLIB
 
 	///. set via OutputFormat keyword
 	if (defSuffix.size()) {
 		if(defSuffix[0]!='.') defSuffix_="."+defSuffix;
 		else                  defSuffix_=defSuffix;
-		if( defSuffix_!=".tif" && defSuffix_!=".raw.gz" &&
+		if( defSuffix_!=".tif" && defSuffix_!=".raw.gz" && defSuffix_!=".am" &&
 		    defSuffix_!=".raw" && defSuffix_!=".dat" && defSuffix_!=".txt" )
 			std::cout<<"\nError: wrong default image format: "<<defSuffix_<<"\n"<<std::endl;
 	}
@@ -106,6 +106,7 @@ template <typename T> class voxelField
 	int3 sizeu3() const;
 	void getSize(int& n1, int& n2, int& n3) const;
 
+	void writeHeader(std::string fileName, int3 iStart, int3 iEnd, dbl3 dx=dbl3(1.0,1.0,1.0), dbl3 X0=dbl3(0.0,0.0,0.0)) const;
 
 	void setLayer(int k, const T* Values);
 	void setSlice(char dir, int ijk, T vv);
@@ -126,7 +127,9 @@ public:
 	virtual void printInfo() const = 0;
 	virtual int3 sizeu3() const = 0;
 	virtual int getInt(int i, int j, int k) const = 0;
+	virtual int getInt(size_t iii) const = 0;
 	virtual double getDbl(int i, int j, int k) const = 0;
+	virtual double getDbl(size_t iii) const = 0;
 	virtual double vv_mp5(double i, double j, double k) const = 0;
 	virtual const dbl3& dx() const = 0;
 	virtual const dbl3& X0() const = 0;
@@ -227,8 +230,9 @@ class voxelImageT: public voxelField<T>, public voxelImageTBase
 				 int emptylayers=0,T emptylayersValue=1);
 
 	void writeHeader(std::string fileName) const;
-	void writeHeader(std::string fileName, int3 iStart, int3 iEnd) const;
-
+	void writeHeader(std::string fileName, int3 iStart, int3 iEnd) const { voxelField<T>::writeHeader(fileName,iStart,iEnd,dx_,X0_); };
+	void writeNoHdr(std::string fileName) const;
+	void write(std::string fileName) const;
 
 	void erodeLayer(int i);
 	void resample(double i);
@@ -264,7 +268,6 @@ class voxelImageT: public voxelField<T>, public voxelImageTBase
 		end={{((*this).size3()[0]-nlyr),((*this).size3()[1]-nlyr),((*this).size3()[2]-nlyr)}};
 		cropD(beg,end);};
 
-	void write(std::string fileName) const;
 	double volFraction(T vv1,T vv2) const;
 	void printInfo() const;
 
@@ -273,8 +276,10 @@ class voxelImageT: public voxelField<T>, public voxelImageTBase
 	const dbl3& dx() const {return dx_;};
 	dbl3& dxCh()    {return dx_;};
 	int3 sizeu3() const {return voxelField<T>::sizeu3();};
-	int getInt(int i, int j, int k) const { return (*this)(i,j,k); };
-	double getDbl(int i, int j, int k) const { return (*this)(i,j,k); };
+	int getInt(int i, int j, int k) const { return int((*this)(i,j,k)); };
+	int getInt(size_t iii) const { return int((*this)(iii)); };
+	double getDbl(int i, int j, int k) const { return double((*this)(i,j,k)); };
+	double getDbl(size_t iii) const { return double((*this)(iii)); };
 	double vv_mp5(double i, double j, double k) const /// set i,j,k -=0.5 before passing them here
 	{
 		const int i0=i-0.0000001, j0=j-0.0000001, k0=k-0.0000001; ///. note neg fracs round to zero

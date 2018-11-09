@@ -23,7 +23,7 @@ Ufraw2Uc:	Ufraw2Uc.o
 	$(psCXX) -DGCC_COMPILER  Ufraw2Uc.o  $(psLFLAGS) -o $(psBinDir)/Ufraw2Uc$(OPT)
 
 rawToFoamPar.o:	rawToFoamPar.cpp
-	$(psCXX)  $(psCFLAGS) -DGCC_COMPILER   -c rawToFoamPar.cpp
+	$(psCXX)  $(psCFLAGS) -DGCC_COMPILER  -c rawToFoamPar.cpp
 rawToFoamPar:	rawToFoamPar.o
 	$(psCXX)	-DGCC_COMPILER rawToFoamPar.o $(psLFLAGS) -o	$(psBinDir)/rawToFoamPar$(OPT)
 

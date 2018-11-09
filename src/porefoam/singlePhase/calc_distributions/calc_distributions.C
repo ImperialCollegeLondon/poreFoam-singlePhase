@@ -44,7 +44,7 @@ std::ostream & operator << (std::ostream & outstream, const std::valarray<std::v
 	return outstream;
 }
 
-std::valarray<std::valarray<double> > distribution(const scalarField & UcompNormed, const scalarField & Vol)
+std::valarray<std::valarray<double> > distribution(const scalarField & UcompNormed, const scalarField & Vol, double minmax=6)
 {
 
 
@@ -52,7 +52,7 @@ std::valarray<std::valarray<double> > distribution(const scalarField & UcompNorm
 
 
 	double minU=gMin(UcompNormed);
-	double maxU=gMax(UcompNormed);
+	double maxU=max(gMax(UcompNormed),minmax);
 	double spanU=(maxU-minU);
 	double deltaU=spanU/128.0+1.0e-72;
 
@@ -83,18 +83,19 @@ std::valarray<std::valarray<double> > distribution(const scalarField & UcompNorm
 }
 
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+//----------------------------------------------------------------------
 // Main program:
 
 int main(int argc, char *argv[])
 {
-#   include "setRootCase.H"
-#   include "createTime.H"
-    instantList timeDirs = timeSelector::select0(runTime, args);
+	#include "setRootCase.H"
+	#include "createTime.H"
+	instantList timeDirs = timeSelector::select0(runTime, args);
 
 
-	#   include "createNamedMesh.H"
-    pimpleControl pimple(mesh);
+	#include "createNamedMesh.H"
+	pimpleControl pimple(mesh);
+
 
 
 	//Info<< "Reading transportProperties\n" << endl;
@@ -106,36 +107,7 @@ int main(int argc, char *argv[])
 
 	runTime.setTime(timeDirs[timeDirs.size()-1], timeDirs.size()-1);
 
-	#   include "createFields.H"
 
-
-	surfaceScalarField muEff
-	(	IOobject
-		(	"muEff",  runTime.timeName(),  mesh,
-		IOobject::NO_READ,  IOobject::NO_WRITE
-		),  mesh,  rho*nu
-	);
-	#include  "correctmuEff.H"
-
-
-  #include "createCVs.H"
-
-
-
-	word weight = transportProperties.lookupOrDefault("weight",word("porosity"));
-
-	volScalarField porosity
-	(	IOobject
-		(	weight,	"0",	mesh,
-			IOobject::READ_IF_PRESENT,	IOobject::NO_WRITE
-		),	max(clip,1.0e-64)
-	);
-			
-
-
-
-
-	
 	#define x_ 0 
 	#define y_ 1 
 	#define z_ 2 
@@ -155,104 +127,177 @@ int main(int argc, char *argv[])
 	word RightPs[]={"Right","Top","Back"};//
 	word directions[]={"x","y","z"};//
 
-	label iDir;
-	for (iDir=0;iDir<3;iDir++)
+
+	#include "./createFields.H"
+
+
+
+  #include "createCVs.H"
+
+	const volVectorField& C=mesh.C();
+
+	int nSams = regionVoxelValues.size();
+	for (int iSam=0;iSam<nSams;iSam++)   
 	{
-		label iBegin = mesh.boundaryMesh().findPatchID(LeftPs[iDir]);
-		if (iBegin < 0)	 { Info	<< "Unable to find  patch " << LeftPs[iDir] << nl	<< endl;	 continue; }
-		label iEnd = mesh.boundaryMesh().findPatchID(RightPs[iDir]);
-		if (iEnd < 0) { Info	<< "Unable to find  patch " << RightPs[iDir] << nl	<< endl;	 continue; }
+		clip=0.0;
+		forAll(C,c) 
+		{ 
+			if (PPRegions[c]==regionVoxelValues[iSam]&& 
+				(C[c][0]>=CVBounds1[iSam] && C[c][0]<=CVBounds2[iSam] && 
+				 C[c][1]>=CVyBounds1[iSam] && C[c][1]<=CVyBounds2[iSam] && 
+				 C[c][2]>=CVzBounds1[iSam] && C[c][2]<=CVzBounds2[iSam] ))
+				clip[c]=1.0;
+		}
+
+		word weightporo = transportProperties.lookupOrDefault("weight",word("porosity"));
+		volScalarField porosity
+		(	IOobject
+			(	weightporo,	"0",	mesh, IOobject::READ_IF_PRESENT
+			),	max(clip,1.0e-64)
+		);
+		porosity=max(porosity,1.0e-17);
 
 
-		scalar fluxIn=gSum(phi.boundaryField()[iBegin]);
+		if(max(porosity).value()<0.99999)
+			Info<<"micro-porosity: ["<<min(porosity).value()<<", "<<max(porosity).value()<<"], avg: "<<average(porosity).value()<<endl;
+
+		label iDir;
+		for (iDir=0;iDir<3;iDir++)
+		{
+			label iBegin = mesh.boundaryMesh().findPatchID(LeftPs[iDir]);
+			if (iBegin < 0)	 { Info	<< "Unable to find  patch " << LeftPs[iDir] << nl	<< endl;	 continue; }
+			label iEnd = mesh.boundaryMesh().findPatchID(RightPs[iDir]);
+			if (iEnd < 0) { Info	<< "Unable to find  patch " << RightPs[iDir] << nl	<< endl;	 continue; }
 
 
-		scalar PLeft=gSum(p.boundaryField()[iBegin]*(phi.boundaryField()[iBegin]))/(fluxIn+1.0e-63);
-		scalar PRight=gSum(p.boundaryField()[iEnd]*(phi.boundaryField()[iEnd]))/(fluxIn+1.0e-63);
-		dp[iDir]=mag(PLeft-PRight);
-
-		K[iDir]=mag(fluxIn)*mu.value()/A[iDir]*L[iDir]/(dp[iDir]+1.0e-64);
-		VDarcy[iDir]=mag(fluxIn/A[iDir])+1.0e-56;
-	}
-
-	iDir=findMax(dp);
-	scalar Pmax_min=(max(p)-min(p)).value();
-	scalar Umax=(max(mag(U))).value();
-	scalar Re=rho.value()*VDarcy[iDir]*std::sqrt(K[iDir])/mu.value() ;
-	double porVol = gSum(mesh.V()*porosity.internalField());
-
-	Info << runTime.caseName()
-		<<"\teffPorosity= "<< porVol/(L[x_]*L[y_]*L[z_]) <<" \t"
-		<<"\tK_"<<directions[iDir]<<"= "<<  K[iDir]<<" m^2 \t"
-		<<"\tDarcyVelocity= "<< VDarcy[iDir] <<" m/s \t"
-		<<"\tDelP= "<< dp[iDir] <<" Pa \t"
-		<<"\tK: "<<  K[iDir]<<" m^2 \t"
-		<<"\t\tK=( "<<  K[x_]<<"  "<<  K[y_]<<"  "<<  K[z_] <<" )"
-		<<" Pmax-Pmin: "<<  Pmax_min
-		<<" Umax= "<<  Umax
-		<<"\t\t effPorosity = "<<  "V_pore / (L_x*L_y*L_z) = "<<  porVol<<" / "<<" ("<<L[x_]<<"*"<<L[y_]<<"*"<<L[z_]<<") = "<<porVol/(L[x_]*L[y_]*L[z_])
-		<<"\t\t Re= "<<  "rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[iDir]<<" * sqrt("<<K[iDir]<<") / "<<mu.value()<<" ) = "<<Re 
-		<< "\n";
-
-	std::valarray<std::valarray<double> > ditribLogU = distribution(log10(max(1.0e-16,(mag(clip.internalField()*U.internalField())/porosity.internalField()/VDarcy[iDir])) ), mesh.V()*porosity.internalField());
-	std::valarray<std::valarray<double> > ditribU  = distribution(mag(clip.internalField()*U.internalField())/porosity.internalField()/VDarcy[iDir], mesh.V());
-	std::valarray<std::valarray<double> > ditribUx = distribution(clip.internalField()*U.internalField().component(vector::X)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
-	std::valarray<std::valarray<double> > ditribUy = distribution(clip.internalField()*U.internalField().component(vector::Y)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
-	std::valarray<std::valarray<double> > ditribUz = distribution(clip.internalField()*U.internalField().component(vector::Z)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
+			scalar fluxIn=gSum(phi.boundaryField()[iBegin]+1.0e-63);
+			scalar fluxOut=gSum(phi.boundaryField()[iEnd]+1.0e-63);
 
 
-	std::valarray<std::valarray<double> > ditribLogUPlus(ditribLogU[0],5);
-	ditribLogUPlus[0]=std::pow(10.0,ditribLogU[0]);
-	ditribLogUPlus[1]=ditribLogU[1]/ditribLogUPlus[0]/Foam::log(10.0);
-	ditribLogUPlus[2]=ditribLogU[2]/ditribLogUPlus[0]/Foam::log(10.0);
-	ditribLogUPlus[3]=ditribLogU[1];
-	ditribLogUPlus[4]=ditribLogU[2];
+			scalar PLeft=gSum(p.boundaryField()[iBegin]*(phi.boundaryField()[iBegin]+1.0e-63))/(fluxIn+1.0e-163);
+			scalar PRight=gSum(p.boundaryField()[iEnd]*(phi.boundaryField()[iEnd]+1.0e-63))/(fluxOut+1.0e-163);
+			dp[iDir]=mag(PLeft-PRight);
+
+			fluxIn=gSum(phi.boundaryField()[iBegin]);
+
+			K[iDir]=mag(fluxIn)*mu.value()/A[iDir]*L[iDir]/(dp[iDir]+1.0e-64);
+			VDarcy[iDir]=mag(fluxIn/A[iDir]);
+		}
+
+		iDir=findMax(dp);
+		scalar Pmax_min=(max(p)-min(p)).value();
+		scalar Umax=(max(mag(U))).value();
+		scalar Re=rho.value()*VDarcy[iDir]*std::sqrt(K[iDir])/mu.value() ;
+		double porVol = gSum(mesh.V()*porosity.internalField());
+
+		Info << runTime.caseName()
+			<<"\teffPorosity= "<< porVol/(L[x_]*L[y_]*L[z_]) <<" \t"
+			<<"\tK_"<<directions[iDir]<<"= "<<  K[iDir]<<" m^2 \t"
+			<<"\tDarcyVelocity= "<< VDarcy[iDir] <<" m/s \t"
+			<<"\tDelP= "<< dp[iDir] <<" Pa \t"
+			<<"\tK: "<<  K[iDir]<<" m^2 \t"
+			<<"\t\tK=( "<<  K[x_]<<"  "<<  K[y_]<<"  "<<  K[z_] <<" )"
+			<<" Pmax-Pmin: "<<  Pmax_min
+			<<" Umax= "<<  Umax
+			<<"\t\t effPorosity = "<<  "V_pore / (L_x*L_y*L_z) = "<<  porVol<<" / "<<" ("<<L[x_]<<"*"<<L[y_]<<"*"<<L[z_]<<") = "<<porVol/(L[x_]*L[y_]*L[z_])
+			<<"\t\t Re= "<<  "rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[iDir]<<" * sqrt("<<K[iDir]<<") / "<<mu.value()<<" ) = "<<Re 
+			<< "\n";
+		VDarcy[iDir]=max(1.0e-64,VDarcy[iDir]);
+		std::valarray<std::valarray<double> > ditribLogU = distribution(log10(max(1.0e-16,clip.internalField()*mag(U.internalField())/porosity.internalField()/VDarcy[iDir]) ), mesh.V()*porosity.internalField());
+		std::valarray<std::valarray<double> > ditribU  = distribution(clip.internalField()*mag(U.internalField())/porosity.internalField()/VDarcy[iDir], mesh.V());
+		std::valarray<std::valarray<double> > ditribUx = distribution(clip.internalField()*U.internalField().component(vector::X)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
+		std::valarray<std::valarray<double> > ditribUy = distribution(clip.internalField()*U.internalField().component(vector::Y)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
+		std::valarray<std::valarray<double> > ditribUz = distribution(clip.internalField()*U.internalField().component(vector::Z)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
+
+		std::valarray<std::valarray<double> > ditribUmCbrt = distribution(cbrt(clip.internalField()*mag(U.internalField())/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
+		std::valarray<std::valarray<double> > ditribUxCbrt = distribution(cbrt(clip.internalField()*U.internalField().component(0)/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
+		std::valarray<std::valarray<double> > ditribUyCbrt = distribution(cbrt(clip.internalField()*U.internalField().component(1)/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
+		std::valarray<std::valarray<double> > ditribUzCbrt = distribution(cbrt(clip.internalField()*U.internalField().component(2)/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
+
+
+		std::valarray<std::valarray<double> > ditribLogUPlus(ditribLogU[0],5);
+		ditribLogUPlus[0]=std::pow(10.0,ditribLogU[0]);
+		ditribLogUPlus[1]=ditribLogU[1]/ditribLogUPlus[0]/Foam::log(10.0);
+		ditribLogUPlus[2]=ditribLogU[2]/ditribLogUPlus[0]/Foam::log(10.0);
+		ditribLogUPlus[3]=ditribLogU[1];
+		ditribLogUPlus[4]=ditribLogU[2];
+
+
+		vector FF(0.0, 0.0, 0.0);
+		if(nSams==1)
+		{
+			#include "calc_FF.H"
+		}
+		else Info<<"\n\nInfo: Skipping calc_FF in multi_region upscaling mdoe\n\n"<<endl;
+
+		Info	<< runTime.caseName()
+				<<"\n\neffPorosity=   "<< porVol/(L[x_]*L[y_]*L[z_]) <<"                  = "<<  "V_pore / (L_x*L_y*L_z) = "<<  porVol<<" / "<<" ("<<L[x_]<<"*"<<L[y_]<<"*"<<L[z_]<<")\n"
+				<<"K_"<<directions[iDir]<<"=           "<<  K[iDir]<<" m^2,          K=( "<<  K[x_]<<"  "<<  K[y_]<<"  "<<  K[z_] <<" ) \n";
+		if(nSams==1) Info <<"FF_"<<directions[iDir]<<"=          "<<  FF[iDir]<<" ";
+		Info	<<"\nDarcyVelocity= "<< VDarcy[iDir] <<" m/s,    \t   Umax= "<<  Umax <<"\t  DelP= "<< dp[iDir] <<" Pa "<<",  Pmax-Pmin: "<<  Pmax_min <<" \n"
+				<<"Re=            "<<Re<<  "             =  rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[iDir]<<" * sqrt("<<K[iDir]<<") / "<<mu.value()<<" )" 
+				<< "\n\n";
 
 
 
+		if (Pstream::master())
+		{
+			std::string title=runTime.caseName();
 
-#	include "calc_FF.H"
+			size_t slashloc=title.find_last_of("\\/"); if (slashloc<title.size()) title.erase(slashloc, std::string::npos);
+			slashloc=title.find_last_of("\\/"); if (slashloc<title.size()) title=title.substr(slashloc+1);
+			Info <<"title: " <<title<<endl;
+			if(nSams>1)  title=title+toStr(iSam);
+			std::ofstream of("summary_"+title+".txt"/*,std::ios::app*/);
+			assert(of);
+
+			of  << runTime.caseName()
+				<<"\n\neffPorosity=   "<< porVol/(L[x_]*L[y_]*L[z_]) <<"                  = "<<  "V_pore / (L_x*L_y*L_z) = "<<  porVol<<" / "<<" ("<<L[x_]<<"*"<<L[y_]<<"*"<<L[z_]<<")\n"
+				<<"K_"<<directions[iDir]<<"=           "<<  K[iDir]<<" m^2,          K=( "<<  K[x_]<<"  "<<  K[y_]<<"  "<<  K[z_] <<" ) \n";
+			if(nSams==1) of	<<"FF_"<<directions[iDir]<<"=          "<<  FF[iDir]<<" ";
+			of	<<"\nDarcyVelocity= "<< VDarcy[iDir] <<" m/s,    \t   Umax= "<<  Umax <<"\t  DelP= "<< dp[iDir] <<" Pa "<<",  Pmax-Pmin: "<<  Pmax_min <<" \n"
+				<<"Re=            "<<Re<<  "             =  rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[iDir]<<" * sqrt("<<K[iDir]<<") / "<<mu.value()<<" )" 
+				<< "\n\n";
+
+			of<<"\n\nx=mag(U)/U_D \t PDF \t dV/Vdx \t PDF(log10(x)) \t dV/Vd(log10(x))"<<std::endl;
+			of<<ditribLogUPlus<<std::endl;
+			of<<"\n\nx=U_x/U_D \t PDF \t dV/Vdx"<<std::endl;
+			of<<ditribUx<<std::endl;
+			of<<"\n\nx=U_y/U_D \t PDF \t dV/Vdx"<<std::endl;
+			of<<ditribUy<<std::endl;
+			of<<"\n\nx=U_z/U_D \t PDF \t dV/Vdx"<<std::endl;
+			of<<ditribUz<<std::endl;
+			of<<"\n\nx=mag(U)/U_D \t PDF \t dV/Vdx"<<std::endl;
+			of<<ditribU<<std::endl;
 
 
-	Info << runTime.caseName()
-			<<"\n\neffPorosity=   "<< porVol/(L[x_]*L[y_]*L[z_]) <<"                  = "<<  "V_pore / (L_x*L_y*L_z) = "<<  porVol<<" / "<<" ("<<L[x_]<<"*"<<L[y_]<<"*"<<L[z_]<<")\n"
-			<<"K_"<<directions[iDir]<<"=           "<<  K[iDir]<<" m^2,          K=( "<<  K[x_]<<"  "<<  K[y_]<<"  "<<  K[z_] <<" ) \n"
-			<<"FF_"<<directions[iDir]<<"=          "<<  FF[iDir]<<"\n"
-			<<"DarcyVelocity= "<< VDarcy[iDir] <<" m/s,    \t   Umax= "<<  Umax <<"\t  DelP= "<< dp[iDir] <<" Pa "<<",  Pmax-Pmin: "<<  Pmax_min <<" \n"
-			<<"Re=            "<<Re<<  "             =  rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[iDir]<<" * sqrt("<<K[iDir]<<") / "<<mu.value()<<" )" 
-			<< "\n\n";
+			of<<"\n\n distributions with uniform cbrt(U) interval "<<std::endl;
+			of<<"\n\nx=U_m/U_D dummy \t PDF \t dV/Vdx"<<std::endl;
+			ditribUmCbrt[1]=3.0*ditribUmCbrt[0]*ditribUmCbrt[0]*ditribUmCbrt[1];
+			ditribUmCbrt[2]=3.0*ditribUmCbrt[0]*ditribUmCbrt[0]*ditribUmCbrt[2];
+			ditribUmCbrt[0]=ditribUmCbrt[0]*ditribUmCbrt[0]*ditribUmCbrt[0];
+			of<<ditribUmCbrt<<std::endl;
 
+			of<<"\n\nx=U_x/U_D dummy \t PDF \t dV/Vdx"<<std::endl;
+			ditribUxCbrt[1]=3.0*ditribUxCbrt[0]*ditribUxCbrt[0]*ditribUxCbrt[1];
+			ditribUxCbrt[2]=3.0*ditribUxCbrt[0]*ditribUxCbrt[0]*ditribUxCbrt[2];
+			ditribUxCbrt[0]=ditribUxCbrt[0]*ditribUxCbrt[0]*ditribUxCbrt[0];
+			of<<ditribUxCbrt<<std::endl;
 
+			of<<"\n\nx=U_y/U_D dummy \t PDF \t dV/Vdx"<<std::endl;
+			ditribUyCbrt[1]=3.0*ditribUyCbrt[0]*ditribUyCbrt[0]*ditribUyCbrt[1];
+			ditribUyCbrt[2]=3.0*ditribUyCbrt[0]*ditribUyCbrt[0]*ditribUyCbrt[2];
+			ditribUyCbrt[0]=ditribUyCbrt[0]*ditribUyCbrt[0]*ditribUyCbrt[0];
+			of<<ditribUyCbrt<<std::endl;
 
-	if (Pstream::master())
-	{
-		std::string title=runTime.caseName();
-		
-		size_t slashloc=title.find_last_of("\\/"); if (slashloc<title.size()) title.erase(slashloc, std::string::npos);
-		slashloc=title.find_last_of("\\/"); if (slashloc<title.size()) title=title.substr(slashloc+1);
-		Info <<"title: " <<title<<endl;
-		std::ofstream of("summary_"+title+".txt"/*,std::ios::app*/);
-		assert(of);
-
-		of<< runTime.caseName()
-			<<"\n\neffPorosity=   "<< porVol/(L[x_]*L[y_]*L[z_]) <<"                  = "<<  "V_pore / (L_x*L_y*L_z) = "<<  porVol<<" / "<<" ("<<L[x_]<<"*"<<L[y_]<<"*"<<L[z_]<<")\n"
-			<<"K_"<<directions[iDir]<<"=           "<<  K[iDir]<<" m^2,          K=( "<<  K[x_]<<"  "<<  K[y_]<<"  "<<  K[z_] <<" ) \n"
-			<<"FF_"<<directions[iDir]<<"=          "<<  FF[iDir]<<"\n"
-			<<"DarcyVelocity= "<< VDarcy[iDir] <<" m/s,    \t   Umax= "<<  Umax <<"\t  DelP= "<< dp[iDir] <<" Pa "<<",  Pmax-Pmin: "<<  Pmax_min <<" \n"
-			<<"Re=            "<<Re<<  "             =  rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[iDir]<<" * sqrt("<<K[iDir]<<") / "<<mu.value()<<" )" 
-			<< "\n\n";
-
-		of<<"\n\nx=mag(U)/U_D \t PDF \t dV/Vdx \t PDF(log10(x)) \t dV/Vd(log10(x))"<<std::endl;
-		of<<ditribLogUPlus<<std::endl;
-		of<<"\n\nx=U_x/U_D \t PDF \t dV/Vdx"<<std::endl;
-		of<<ditribUx<<std::endl;
-		of<<"\n\nx=U_y/U_D \t PDF \t dV/Vdx"<<std::endl;
-		of<<ditribUy<<std::endl;
-		of<<"\n\nx=U_z/U_D \t PDF \t dV/Vdx"<<std::endl;
-		of<<ditribUz<<std::endl;
-		of<<"\n\nx=mag(U)/U_D \t PDF \t dV/Vdx"<<std::endl;
-		of<<ditribU<<std::endl;
-		of.close();
+			of<<"\n\nx=U_z/U_D dummy \t PDF \t dV/Vdx"<<std::endl;
+			ditribUzCbrt[1]=3.0*ditribUzCbrt[0]*ditribUzCbrt[0]*ditribUzCbrt[1];
+			ditribUzCbrt[2]=3.0*ditribUzCbrt[0]*ditribUzCbrt[0]*ditribUzCbrt[2];
+			ditribUzCbrt[0]=ditribUzCbrt[0]*ditribUzCbrt[0]*ditribUzCbrt[0];
+			of<<ditribUzCbrt<<std::endl;
+			
+			of.close();
+		}
 	}
 
 	#include "calc_grads.H"
@@ -262,4 +307,4 @@ int main(int argc, char *argv[])
 }
 
 
-// ************************************************************************* //
+//----------------------------------------------------------------------

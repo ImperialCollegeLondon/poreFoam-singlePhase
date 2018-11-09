@@ -71,9 +71,10 @@ runApplication()
     fi
 
     if [ -f $LOG_NAME ] ; then
-        echo "$APP_NAME already run on $PWD: remove log file to run"
+        echo "$APP_NAME already run on $PWD: remove log file to run:"
+        echo "$PWD/$LOG_NAME"
     else
-        echo "Running  $APP_NAME $@ on $PWD"
+        echo "Running $APP_NAME $@  >  $PWD/$LOG_NAME"
         $APP_RUN "$@" > $LOG_NAME 2>&1
     fi
     sleep .1
@@ -98,12 +99,13 @@ runParallel()
     fi
 
     if [ -f $LOG_NAME ] ; then
-        echo "$APP_NAME already run on $PWD: remove log file to run"
+        echo "$APP_NAME already run on $PWD: remove log file to run:"
+        echo "$PWD/$LOG_NAME"
     elif [ "$np" == "1" ] ; then
-        echo "Running  $APP_NAME $@  on $PWD"
+        echo "Running $APP_NAME $@  >  $PWD/$LOG_NAME"
         $APP_RUN "$@" > $LOG_NAME 2>&1		
     else
-        echo "Running $APP_NAME $@ in parallel on $PWD using $np processes"
+        echo "Running $APP_NAME $@  >  $PWD/$LOG_NAME , using $np processes"
         #~ ( mpirun -x LD_LIBRARY_PATH -x PATH -x WM_PROJECT_DIR -x WM_PROJECT_INST_DIR -x MPI_BUFFER_SIZE         --mca btl_tcp_if_exclude lo --mca btl_tcp_if_exclude eth0:avahi  --hostfile  machines.txt -np $np $APP_RUN  -parallel "$@" < /dev/null > $LOG_NAME 2>&1 )
         ( mpirun.openmpi -np $np $APP_RUN -parallel "$@" < /dev/null > $LOG_NAME 2>&1 )
     fi
@@ -127,9 +129,10 @@ runDistributed()
     fi
 
     if [ -f $LOG_NAME ] ; then
-        echo "$APP_NAME already run on $PWD: remove log file to run"
+        echo "$APP_NAME already run on $PWD: remove log file to run:"
+        echo "$PWD/$LOG_NAME"
     else
-        echo "Running $APP_NAME $@ in parallel on $PWD using $np processes"
+        echo "Running $APP_NAME $@  >  $PWD/$LOG_NAME , using $np processes"
         ( mpirun.openmpi -x LD_LIBRARY_PATH -x PATH -x WM_PROJECT_DIR -x WM_PROJECT_INST_DIR -x MPI_BUFFER_SIZE \
           --mca btl_tcp_if_exclude lo --mca btl_tcp_if_exclude eth0:avahi --hostfile $SP_MACROS_DIR/machines.txt \
           -np $np $APP_RUN  -parallel "$@" < /dev/null > $LOG_NAME 2>&1 )

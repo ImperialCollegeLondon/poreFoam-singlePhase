@@ -36,7 +36,13 @@ Ali Q Raeini:    a.qaseminejad-raeini09@imperial.ac.uk
 
 
 
-
+	surfaceScalarField muEff
+	(	IOobject
+		(	"muEff",  runTime.timeName(),  mesh,
+		IOobject::NO_READ,  IOobject::NO_WRITE
+		),  mesh,  rho*nu
+	);
+	#include  "correctmuEff.H"
 
 
 

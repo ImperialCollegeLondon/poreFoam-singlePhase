@@ -96,10 +96,10 @@ inline void setTifTags(const dbl3& X0_, const dbl3& dx_, TIFF *tif)
 	std::ostringstream ostrim;
 	ostrim<<" dx "<<dx_;
 	if(mag(X0_)>1.0e-16) ostrim<<"  X0 "<<X0_;
-
-	const char* info = (ostrim.str()+" ").c_str();//+" \0" \0 leads to Warning when reading 
-	(std::cout<<" tag: \""<<info<<"\" ").flush();
-	TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, info);
+	ostrim<<" "<<std::endl;
+	//const char* info = ostrim.str().c_str();//+" \0" \0 leads to Warning when reading 
+	(std::cout<<" tag: \""<<ostrim.str()<<"\" ").flush();
+	TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, ostrim.str().c_str());
 
 	TIFFSetField(tif, TIFFTAG_SOFTWARE, "voxelImage+libtiff");
 }

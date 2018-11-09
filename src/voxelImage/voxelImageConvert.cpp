@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 	if(outputFormat=="UChar")
 	{
 		voxelImage vImgUChar(vxlImage->sizeu3(), vxlImage->dx(), vxlImage->X0(), 0);
-		forAllkji(vImgUChar)			vImgUChar(i,j,k) = vxlImage->getInt(i,j,k);
+		forAlliii(vImgUChar)			vImgUChar(iii) = vxlImage->getInt(iii);
 		vImgUChar.write(outputName);
 	}
 	else

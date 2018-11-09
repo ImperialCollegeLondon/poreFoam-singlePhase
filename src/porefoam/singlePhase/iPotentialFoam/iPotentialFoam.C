@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 }
 
 	
-	Info<< "\n		 Umax = " << max(mag(U)).value() << " m/s  "
+	Info<< "\n         Umax = " << max(mag(U)).value() << " m/s  "
 	<< "Uavg = " << mag(average(U)).value() << " m/s"
 	<< "   DP = " << (max(p)-min(p)).value() << " Pa"
 	<< nl<< nl << endl;
@@ -123,6 +123,7 @@ int main(int argc, char *argv[])
 	surfaceScalarField muEff
 	(	IOobject ( "muEff", runTime.timeName(), mesh ),
 		mesh, rho*nu
+		//+ fvc::interpolate(rho*turbulence->nut()) //caution turbulance is disabled
 	);
 
 
@@ -144,7 +145,7 @@ int main(int argc, char *argv[])
 	);	
 	phi = (fvc::interpolate(U) & mesh.Sf());
 	
-	Info<< "\n		 Umax = " << max(mag(U)).value() << " m/s  "
+	Info<< "\n         Umax = " << max(mag(U)).value() << " m/s  "
 	<< "Uavg = " << mag(average(U)).value() << " m/s"
 	<< "   DP = " << (max(p)-min(p)).value() << " Pa"
 	<< nl<< nl << endl;
@@ -161,7 +162,7 @@ int main(int argc, char *argv[])
 }	
 
 
-	Info<< "\n		 Umax = " << max(mag(U)).value() << " m/s  "
+	Info<< "\n         Umax = " << max(mag(U)).value() << " m/s  "
 	<< "Uavg = " << mag(average(U)).value() << " m/s"
 	<< "   DP = " << (max(p)-min(p)).value() << " Pa"
 	<< nl<< nl << endl;
@@ -210,7 +211,7 @@ for (int ii=1;ii<10;++ii)
 
 
 
-	Info<< "\n		 Umax = " << max(mag(U)).value() << " m/s  "
+	Info<< "\n         Umax = " << max(mag(U)).value() << " m/s  "
 	<< "Uavg = " << mag(average(U)).value() << " m/s"
 	<< "   DP = " << (max(p)-min(p)).value() << " Pa"
 	<< nl<< nl << endl;

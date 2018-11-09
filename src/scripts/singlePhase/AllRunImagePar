@@ -182,7 +182,7 @@ echo "p @ $direction : $p  Pa"
 
 	#(cd $caseName && runParallel iPotentialFoam $nProc)
 
-	(cd $caseName && runParallel iInterFoam101SP $nProc)
+	[ -z "$skip_flow" ] && (cd $caseName && runParallel iInterFoam101SP $nProc)
 	(cd $caseName && mv log.iInterFoam101SP log.iInterFoam101SP.1)
 
 	#setSubKeywordValues relaxationFactors "U" "0.6" ./$caseName/system/fvSolution
@@ -195,7 +195,7 @@ echo "p @ $direction : $p  Pa"
 	#(cd $caseName && runParallel calc_perms $nProc)
 	(cd $caseName && runParallel calc_distributions $nProc)
 
-	(cd $caseName && runApplication  FOAM2Voxel vxlImage.mhd "$nProc" $outPutFormat)
+	(cd $caseName && runApplication  FOAM2Voxel vxlImage.mhd "$nProc" $outPutFormat t)
 
 
 	echo "..................            END              ......................."

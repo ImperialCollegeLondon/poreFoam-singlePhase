@@ -65,12 +65,12 @@ template<typename T> bool rescale( std::stringstream & ins, voxelImageT<T>& vxlI
 	ins>>thresholdMin;
 	ins>>thresholdMax;
 
-	(std::cout<<(int)thresholdMin<<", "<<(int)thresholdMax<<" ]    ").flush();
+	(std::cout<<thresholdMin<<", "<<thresholdMax<<" ]    ").flush();
 	rescale(vxlImage,T(thresholdMin),T(thresholdMax));
 	(std::cout<<".").flush();
 	return true;
 }
- 
+
 template<typename T> bool growPore( std::stringstream & ins, voxelImageT<T>& vxlImage)
 {
 		std::cout<<"  growing voxels:"<<std::endl;
@@ -185,7 +185,43 @@ template<typename T> bool write( std::stringstream & ins, voxelImageT<T>& voxima
 	return true;
 }
 
+template<typename T> bool writeUchar( std::stringstream & ins, voxelImageT<T>& voximage)
+{
+	std::string outName("dump.tif");
+	ins >> outName;
+	double minv=-0.5, maxv=255.499999999;
+	ins>>minv>>maxv;
+	double delv=255.999999999/(maxv-minv);
+	(std::cout<<minv<<" "<<maxv).flush();
+	voxelImage voxels(voximage.size3(),voximage.dx(),voximage.X0(),255);
+	forAlliii(voxels) voxels(iii)=std::max(0,std::min(255,int(delv*(voximage(iii)-minv))));
+	voxels.write(outName);
+	(std::cout<<".").flush();
+	return true;
+}
 
+template<typename T> bool read( std::stringstream & ins, voxelImageT<T>& voximage)
+{
+	int3 nnn = voximage.size3();
+	//vxlImage.reset({{0,0,0}},0);
+
+	std::string fname;
+	ins>>fname;
+	std::cout<<"  reading from  image "<<fname<<std::endl;
+	if(fname.size()>4)
+	{ 
+		if (  (fname.size()>=4 && fname.compare(fname.size()-4,4,".tif") == 0 )
+			||	(fname.size()>=7 && fname.compare(fname.size()-7,7,".raw.gz") == 0 )
+			||	(fname.size()>=4 && fname.compare(fname.size()-4,4,".raw") == 0 )
+			)
+		{
+			  voximage.reset(nnn,0);
+			  voximage.readBin(fname);
+		}
+		else voximage.readFromHeader(fname,0);
+	}
+	return true;
+}
 template<typename T> bool medianFilter( std::stringstream & ins, voxelImageT<T> & voximage)
 {
 	int nIterations(1); 
@@ -304,7 +340,9 @@ template<typename T> std::unordered_map<std::string,bool(*)( std::stringstream&,
 		{  "cropD"	   , ProcessP(& cropD )},
 		{  "resampleMax" , ProcessP(& resampleMax )},
 		{  "replaceRange", ProcessP(& replaceRange )},
-		{  "write"  ,ProcessP(& write )},
+		{  "write"  , ProcessP(& write )},
+		{  "writeUchar"  , ProcessP(& writeUchar )},
+		{  "read"  , ProcessP(& read )},
 		{  "medianFilter"  ,ProcessP(& medianFilter )},
 		{  "FaceMedian06"  ,ProcessP(& FaceMedian06 )},
 		{  "PointMedian026"  ,ProcessP(& PointMedian026 )},
@@ -471,7 +509,7 @@ void voxelImageT<T>::readFromHeader
 				std::cout<<"HeaderSize, nSkipBytes = "<<nSkipBytes<<std::endl;
 			}
 			else if (tmpStr!="BinaryDataByteOrderMSB" && tmpStr!="ElementByteOrderMSB" && tmpStr!="CompressedData" &&  tmpStr!="CompressedDataSize" &&  tmpStr!="TransformMatrix" &&
-					 tmpStr!="CenterOfRotation" && tmpStr!="AnatomicalOrientation" && tmpStr!="AnatomicalOrientation")
+					 tmpStr!="ElementNumberOfChannels" && tmpStr!="CenterOfRotation" && tmpStr!="AnatomicalOrientation" && tmpStr!="AnatomicalOrientation")
 			{
 				headerFile.clear();
 				headerFile.seekg(begLine);
@@ -571,7 +609,7 @@ void voxelImageT<T>::readFromHeader
 		//cout<<tmpStr<<endl;///. keep me
 		if (headerFile.fail())
 		{std::cout<<" Finished reading "<<header<<":/  "<<headerFile.tellg()<<std::endl;  break; }
-		else if (tmpStr[0]=='#' || tmpStr[0]=='\'' || tmpStr[0]=='%')
+		else if (tmpStr[0]=='#' || tmpStr[0]=='\'' || tmpStr[0]=='/' || tmpStr[0]=='%')
 		{
 			headerFile.ignore(10000,'\n');
 			//validKey=true;
