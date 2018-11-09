@@ -332,6 +332,10 @@ Foam::dimensionSet Foam::sqrt(const dimensionSet& ds)
 {
 	return pow(ds, 0.5);
 }
+Foam::dimensionSet Foam::cbrt(const dimensionSet& ds)
+{
+	return pow(ds, 1.0/3.0);
+}
 
 Foam::dimensionSet Foam::magSqr(const dimensionSet& ds)
 {

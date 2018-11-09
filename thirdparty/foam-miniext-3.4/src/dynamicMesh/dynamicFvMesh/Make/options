@@ -19,5 +19,5 @@ LIB_LIBS = \
     -l:libfvMotionSolver.$(SO) \
     -l:libRBFMotionSolver.$(SO)
 
-#    -ltetFiniteElement \
-#   -ltetMotionSolver \
+/*#    -ltetFiniteElement */
+/*#   -ltetMotionSolver */

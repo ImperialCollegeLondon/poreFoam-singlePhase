@@ -208,6 +208,7 @@ fi
 # ~~~~~~~~~~~~~~~~~~~~~~
 
 unset MPI_ARCH_PATH
+
 mpi_version=unknown
 case "$WM_MPLIB" in
 OPENMPI)
@@ -242,6 +243,88 @@ OPENMPI)
     export FOAM_MPI_LIBBIN=$FOAM_LIBBIN/$mpi_version
     unset mpi_version
     ;;
+
+SYSTEMOPENMPI)
+   mpi_version=openmpi-system
+
+   # make sure not the "old" mpi is used
+   # Not sure if this is necessary anymore.
+   # export OPAL_PREFIX=
+
+   # Make sure OPENMPI_BIN_DIR is set and valid
+   if [ -n "${OPENMPI_BIN_DIR}" ] && [ -d "${OPENMPI_BIN_DIR}" ]
+   then
+    # User defined value specified for OPENMPI_BIN_DIR
+    #
+    # WARNING:
+    #          We assume this path specified by $OPENMPI_BIN_DIR is valid
+    #          We assume the command mpicc is located somewhere under this path
+    #          We assume the file mpi.h is located somewhere under this path
+    #
+    #          Otherwise, please double check your openmpi installation, you are
+    #          probably missing the openmpi runtime and/or development packages
+    #          available for your system.
+    #
+    _foamAddPath $OPENMPI_BIN_DIR
+   else
+    # Here, we assume your environment is already set for running
+    # and developing with openmpi.
+    #
+    # Initialize OPENMPI_BIN_DIR using the path to mpicc
+    export OPENMPI_BIN_DIR=$(dirname `which mpicc`)
+   fi
+
+   # Make sure OPENMPI_LIB_DIR is set
+   if [ ! -n "${OPENMPI_LIB_DIR}" ]
+   then
+        # Initialize OPENMPI_LIB_DIR using the path to mpicc
+        export OPENMPI_LIB_DIR="`mpicc --showme:libdirs`"
+   fi
+
+   # Make sure the dynamic libraries are accessible
+   [   -n "${OPENMPI_LIB_DIR}" ]       && _foamAddLib $OPENMPI_LIB_DIR
+
+   export MPI_HOME=`dirname $OPENMPI_BIN_DIR`
+   export MPI_ARCH_PATH=$MPI_HOME
+   export OPAL_PREFIX=$MPI_ARCH_PATH
+
+   # We initialize the rest of the environment using mpicc --showme:
+   [ ! -n "${OPENMPI_INCLUDE_DIR}" ]   && export OPENMPI_INCLUDE_DIR="`mpicc --showme:incdirs`"
+   [ ! -n "${OPENMPI_COMPILE_FLAGS}" ] && export OPENMPI_COMPILE_FLAGS="`mpicc --showme:compile`"
+   [ ! -n "${OPENMPI_LINK_FLAGS}" ]    && export OPENMPI_LINK_FLAGS="`mpicc --showme:link`"
+
+   #
+   # WARNING: We assume the file mpi.h will be available under the directories identified
+   #          by the variable $OPENMPI_INCLUDE_DIR. Otherwise, please double check your
+   #          system openmpi installation.
+   
+   # Set compilation flags here instead of in wmake/rules/../mplibSYSTEMOPENMPI
+   export PINC="${OPENMPI_COMPILE_FLAGS}"
+   export PLIBS="${OPENMPI_LINK_FLAGS}"
+   
+   # No longer needed, but we keep this as a reference, just in case...
+   #libDir=`echo "$PLIBS" | sed -e 's/.*-L\([^ ]*\).*/\1/'`
+   #_foamAddLib $libDir
+   
+   if [ "$FOAM_VERBOSE" -a "$PS1" ]
+   then
+       echo "  Environment variables defined for OpenMPI:"
+       echo "    OPENMPI_BIN_DIR       : $OPENMPI_BIN_DIR"
+       echo "    OPENMPI_LIB_DIR       : $OPENMPI_LIB_DIR"
+       echo "    OPENMPI_INCLUDE_DIR   : $OPENMPI_INCLUDE_DIR"
+       echo "    OPENMPI_COMPILE_FLAGS : $OPENMPI_COMPILE_FLAGS"
+       echo "    OPENMPI_LINK_FLAGS    : $OPENMPI_LINK_FLAGS"
+       echo ""
+       echo "    MPI_HOME              : $MPI_HOME"
+       echo "    MPI_ARCH_PATH         : $MPI_ARCH_PATH"
+       echo "    OPAL_PREFIX           : $OPAL_PREFIX"
+       echo "    PINC                  : $PINC"
+       echo "    PLIBS                 : $PLIBS"
+   fi
+
+   export FOAM_MPI_LIBBIN=$FOAM_LIBBIN/$mpi_version
+   unset mpi_version
+   ;;
 
 MACPORTOPENMPI)
 	unset OPAL_PREFIX
@@ -278,88 +361,6 @@ MACPORTMPICH)
     then
 	export WM_MPIRUN_PROG=mpirun-mpich-$WM_MACPORT_MPI_VERSION
     fi
-    ;;
-
-SYSTEMOPENMPI)
-    mpi_version=openmpi-system
-
-    # make sure not the "old" mpi is used
-    # Not sure if this is necessary anymore.
-    # export OPAL_PREFIX=
-
-    # Make sure OPENMPI_BIN_DIR is set and valid
-    if [ -n "${OPENMPI_BIN_DIR}" ] && [ -d "${OPENMPI_BIN_DIR}" ]
-    then
-    # User defined value specified for OPENMPI_BIN_DIR
-    #
-    # WARNING:
-    #          We assume this path specified by $OPENMPI_BIN_DIR is valid
-    #          We assume the command mpicc is located somewhere under this path
-    #          We assume the file mpi.h is located somewhere under this path
-    #
-    #          Otherwise, please double check your openmpi installation, you are
-    #          probably missing the openmpi runtime and/or development packages
-    #          available for your system.
-    #
-    _foamAddPath $OPENMPI_BIN_DIR
-    else
-    # Here, we assume your environment is already set for running
-    # and developping with openmpi.
-    #
-    # Initialize OPENMPI_BIN_DIR using the path to mpicc
-    export OPENMPI_BIN_DIR=$(dirname `which mpicc`)
-    fi
-
-    # Make sure OPENMPI_LIB_DIR is set
-    if [ ! -n "${OPENMPI_LIB_DIR}" ]
-    then
-        # Initialize OPENMPI_LIB_DIR using the path to mpicc
-        export OPENMPI_LIB_DIR="`mpicc --showme:libdirs`"
-    fi
-
-    # Make sure the dynamic libraries are accessible
-    [   -n "${OPENMPI_LIB_DIR}" ]       && _foamAddLib $OPENMPI_LIB_DIR
-
-    export MPI_HOME=`dirname $OPENMPI_BIN_DIR`
-    export MPI_ARCH_PATH=$MPI_HOME
-    export OPAL_PREFIX=$MPI_ARCH_PATH
-
-    # We initialize the rest of the environment using mpicc --showme:
-    [ ! -n "${OPENMPI_INCLUDE_DIR}" ]   && export OPENMPI_INCLUDE_DIR="`mpicc --showme:incdirs`"
-    [ ! -n "${OPENMPI_COMPILE_FLAGS}" ] && export OPENMPI_COMPILE_FLAGS="`mpicc --showme:compile`"
-    [ ! -n "${OPENMPI_LINK_FLAGS}" ]    && export OPENMPI_LINK_FLAGS="`mpicc --showme:link`"
-
-    #
-    # WARNING: We assume the file mpi.h will be available under the directories identified
-    #          by the variable $OPENMPI_INCLUDE_DIR. Otherwise, please double check your
-    #          system openmpi installation.
-
-    # Set compilation flags here instead of in wmake/rules/../mplibSYSTEMOPENMPI
-    export PINC="${OPENMPI_COMPILE_FLAGS}"
-    export PLIBS="${OPENMPI_LINK_FLAGS}"
-
-    # No longer needed, but we keep this as a reference, just in case...
-    #libDir=`echo "$PLIBS" | sed -e 's/.*-L\([^ ]*\).*/\1/'`
-    #_foamAddLib $libDir
-
-    if [ "$FOAM_VERBOSE" -a "$PS1" ]
-    then
-        echo "  Environment variables defined for OpenMPI:"
-        echo "    OPENMPI_BIN_DIR       : $OPENMPI_BIN_DIR"
-        echo "    OPENMPI_LIB_DIR       : $OPENMPI_LIB_DIR"
-        echo "    OPENMPI_INCLUDE_DIR   : $OPENMPI_INCLUDE_DIR"
-        echo "    OPENMPI_COMPILE_FLAGS : $OPENMPI_COMPILE_FLAGS"
-        echo "    OPENMPI_LINK_FLAGS    : $OPENMPI_LINK_FLAGS"
-        echo ""
-        echo "    MPI_HOME              : $MPI_HOME"
-        echo "    MPI_ARCH_PATH         : $MPI_ARCH_PATH"
-        echo "    OPAL_PREFIX           : $OPAL_PREFIX"
-        echo "    PINC                  : $PINC"
-        echo "    PLIBS                 : $PLIBS"
-    fi
-
-    export FOAM_MPI_LIBBIN=$FOAM_LIBBIN/$mpi_version
-    unset mpi_version
     ;;
 
 MVAPICH2)

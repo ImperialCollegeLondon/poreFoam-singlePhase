@@ -122,7 +122,7 @@ class triSurface
 		bool read(const fileName&, const word& ext, const bool check = true);
 
 		bool readSTL(const fileName&);
-		bool readSTLASCII(const fileName&);
+		bool readSTLASCII(const fileName&) {  FatalErrorIn("triSurface::readSTLASCII deactivated") << exit(FatalError); return false;  };
 		bool readSTLBINARY(const fileName&);
 		bool readGTS(const fileName&);
 		bool readOBJ(const fileName&);

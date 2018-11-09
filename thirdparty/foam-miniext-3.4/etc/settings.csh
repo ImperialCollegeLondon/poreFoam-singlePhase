@@ -188,13 +188,13 @@ case OPENMPI:
 case SYSTEMOPENMPI:
     set mpi_version=openmpi-system
 
-    # make sure not the "old" mpi is used
-    # Not sure if this is necessary anymore.
-    # export OPAL_PREFIX=
+   # make sure not the "old" mpi is used
+   # Not sure if this is necessary anymore.
+   # export OPAL_PREFIX=
 
-    # Make sure OPENMPI_BIN_DIR is set and valid
-    if ($?OPENMPI_BIN_DIR != 0 ) then
-        if (-d "${OPENMPI_BIN_DIR}" ) then
+   # Make sure OPENMPI_BIN_DIR is set and valid
+   if ($?OPENMPI_BIN_DIR != 0 ) then
+       if (-d "${OPENMPI_BIN_DIR}" ) then
         # User defined value specified for OPENMPI_BIN_DIR
         #
         # WARNING:
@@ -207,8 +207,8 @@ case SYSTEMOPENMPI:
         #          available for your system.
         #
         _foamAddPath $OPENMPI_BIN_DIR
-         endif
-    else
+       endif
+   else
     # Here, we assume your environment is already set for running
     # and developing with openmpi.
     #
@@ -401,7 +401,7 @@ _foamAddLib $FOAM_MPI_LIBBIN
 
 # Set the minimum MPI buffer size (used by all platforms except SGI MPI)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-set minBufferSize=20000000
+set minBufferSize=200000000
 
 if ( $?MPI_BUFFER_SIZE ) then
     if ( $MPI_BUFFER_SIZE < $minBufferSize ) then
@@ -411,8 +411,9 @@ else
     setenv MPI_BUFFER_SIZE $minBufferSize
 endif
 
-# CUDA library
-# ~~~~~~~~~~~~
+
+# CUDA if available
+# ~~~~~~~~~~~~~~~~~
 if ( $?CUDA_SYSTEM == 0 && -e /usr/local/cuda-5.5/bin/nvcc ) then
     setenv CUDA_DIR /usr/local/cuda-5.5
     setenv CUDA_BIN_DIR $CUDA_DIR/bin

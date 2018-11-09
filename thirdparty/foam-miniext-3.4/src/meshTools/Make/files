@@ -105,7 +105,7 @@ triSurface/orientedSurface/orientedSurface.C
 triSurface/surfaceLocation/surfaceLocation.C
 $(triSurfaceInterfaces)/STL/writeSTL.C
 $(triSurfaceInterfaces)/STL/readSTL.C
-$(triSurfaceInterfaces)/STL/readSTLASCII.L
+/* $(triSurfaceInterfaces)/STL/readSTLASCII.L */
 $(triSurfaceInterfaces)/STL/readSTLBINARY.C
 $(triSurfaceInterfaces)/GTS/writeGTS.C
 $(triSurfaceInterfaces)/GTS/readGTS.C

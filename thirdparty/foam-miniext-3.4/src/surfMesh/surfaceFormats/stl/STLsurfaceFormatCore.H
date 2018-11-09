@@ -80,7 +80,7 @@ class STLsurfaceFormatCore
 		static int detectBINARY(const fileName&);
 
 		//- Read ASCII
-		bool readASCII(istream&, const off_t);
+		bool readASCII(istream&, const off_t)  {  FatalErrorIn("STLsurfaceFormatCore::readSTLASCII deactivated") << exit(FatalError); return false;  };
 
 		//- Read BINARY
 		bool readBINARY(istream&, const off_t);
