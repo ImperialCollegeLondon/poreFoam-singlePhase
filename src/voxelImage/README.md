@@ -11,8 +11,10 @@ The library can read raw data in ascii (.dat) or binary (.raw) formats, in Avizo
 ### Instructions
 
 #### pre-requisites:
-sudo apt install libjpeg-dev
-sudo apt install liblzma-dev
+
+To install necassary libraries in Ubuntu (18.08 etc.), run:    
+	`sudo apt install libjpeg-dev  #used by libtiff`    
+	`sudo apt install liblzma-dev  #used by libtiff`    
 
 ### Download, build and install
 This library is not to be compiled (after all its a header-only template library), and a component of my other `apps`: for instance [pnextract]/[pnflow] and [porefoam].  
