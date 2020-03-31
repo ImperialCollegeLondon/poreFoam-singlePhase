@@ -124,7 +124,7 @@ echo "p @ $direction : $p  Pa"
 
 	cp $dataFile.mhd $caseName/${dataFile}_input.mhd
 	sed -i 's/^ElementDataFile[ \t]*=[ \t]*/ElementDataFile = ..\/..\//'  $caseName/${dataFile}_input.mhd
-	(cd $caseName && runApplication rawToFoamPar  ${dataFile}_input.mhd $nProcX $nProcY $nProcZ )
+	(cd $caseName && runApplication voxelToFoamPar  ${dataFile}_input.mhd $nProcX $nProcY $nProcZ )
 	(cd $caseName &&  for processorDir in `ls -d processo*[0-9]` ; do  cp -r 0 "$processorDir" ;    done )
 	nlProc=`cd $caseName && ls -d -1 processo*[0-9] | sed 's/processor//g' | sort -n -r | head -n 1`
 	nProc=$[nlProc+1]
