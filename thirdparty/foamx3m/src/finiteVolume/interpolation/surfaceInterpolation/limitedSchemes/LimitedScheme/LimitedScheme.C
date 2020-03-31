@@ -95,7 +95,7 @@ tmp<surfaceScalarField> LimitedScheme<Type, Limiter, LimitFunc>::limiter
 		);
 	}
 
-	surfaceScalarField::GeometricBoundaryField& bLim = lim.boundaryField();
+	surfaceScalarField::Boundary& bLim = lim.boundaryField();
 
 	forAll(bLim, patchi)
 	{

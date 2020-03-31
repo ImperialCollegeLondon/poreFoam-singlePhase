@@ -132,7 +132,7 @@ tmp<volVectorField> cellLimitedGrad<scalar>::grad
 	}
 
 
-	const volScalarField::GeometricBoundaryField& bsf = vsf.boundaryField();
+	const volScalarField::Boundary& bsf = vsf.boundaryField();
 
 	forAll(bsf, patchi)
 	{
@@ -284,7 +284,7 @@ tmp<volTensorField> cellLimitedGrad<vector>::grad
 	}
 
 
-	const volVectorField::GeometricBoundaryField& bsf = vsf.boundaryField();
+	const volVectorField::Boundary& bsf = vsf.boundaryField();
 
 	forAll(bsf, patchi)
 	{

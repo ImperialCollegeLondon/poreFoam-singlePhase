@@ -1,0 +1,8 @@
+/home/ali/git/poreFoam-singlePhaseMiniFoam/thirdparty/zlib-1.2.11/build/CMakeFiles/install/strip.dir
+/home/ali/git/poreFoam-singlePhaseMiniFoam/thirdparty/zlib-1.2.11/build/CMakeFiles/install/local.dir
+/home/ali/git/poreFoam-singlePhaseMiniFoam/thirdparty/zlib-1.2.11/build/CMakeFiles/test.dir
+/home/ali/git/poreFoam-singlePhaseMiniFoam/thirdparty/zlib-1.2.11/build/CMakeFiles/list_install_components.dir
+/home/ali/git/poreFoam-singlePhaseMiniFoam/thirdparty/zlib-1.2.11/build/CMakeFiles/zlibstatic.dir
+/home/ali/git/poreFoam-singlePhaseMiniFoam/thirdparty/zlib-1.2.11/build/CMakeFiles/rebuild_cache.dir
+/home/ali/git/poreFoam-singlePhaseMiniFoam/thirdparty/zlib-1.2.11/build/CMakeFiles/edit_cache.dir
+/home/ali/git/poreFoam-singlePhaseMiniFoam/thirdparty/zlib-1.2.11/build/CMakeFiles/install.dir

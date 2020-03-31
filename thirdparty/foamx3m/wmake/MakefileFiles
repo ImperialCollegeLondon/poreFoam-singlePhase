@@ -31,12 +31,11 @@
 
 GENERAL_RULES = $(WM_DIR)/rules/General
 RULES         = $(WM_DIR)/rules/$(WM_ARCH)$(WM_COMPILER)
-OBJECTS_DIR   = $(WM_OPTIONS)
 FFLAGS        =
 
 include $(GENERAL_RULES)/general
 include $(RULES)/general
-include $(OBJECTS_DIR)/options
+include $(WM_OPTIONS)/options
 
 #------------------------------------------------------------------------------
 # declare names of make system control files derived from file files

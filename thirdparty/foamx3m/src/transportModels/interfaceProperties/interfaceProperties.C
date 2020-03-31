@@ -47,11 +47,11 @@ const Foam::scalar Foam::interfaceProperties::convertToRad =
 
 void Foam::interfaceProperties::correctContactAngle
 (
-	surfaceVectorField::GeometricBoundaryField& nHatb
+	surfaceVectorField::Boundary& nHatb
 ) const
 {
 	const fvMesh& mesh = alpha1_.mesh();
-	const volScalarField::GeometricBoundaryField& gbf = alpha1_.boundaryField();
+	const volScalarField::Boundary& gbf = alpha1_.boundaryField();
 
 	const fvBoundaryMesh& boundary = mesh.boundary();
 

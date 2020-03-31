@@ -69,7 +69,7 @@ void Foam::fileFormats::VTKsurfaceFormatCore::writeTail
 	os  << nl
 		<< "CELL_DATA " << nFaces << nl
 		<< "FIELD attributes 1" << nl
-		<< "zone 1 " << nFaces << " float" << nl;
+		<< "zone 1 " << nFaces << " int" << nl;
 
 
 	forAll(zoneLst, zoneI)

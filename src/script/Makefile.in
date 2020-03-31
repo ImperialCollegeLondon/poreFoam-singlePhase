@@ -1,0 +1,201 @@
+################# settings to adjust from here or bashrc  ##############
+
+msCXX ?= g++
+
+
+
+# Note: add -std=c++11 manually if you set msCFLAGS
+ifdef USE_CPP17
+ msCXX = g++-7
+ msCFLAGS += -std=c++17 -MMD -MP 
+else
+ msCFLAGS += -std=c++11 -MMD -MP
+endif
+
+# $(info msCFLAGS set to ${msCFLAGS})
+
+#-O3 -Wall -pedantic
+
+# msSrc=
+# msRoot=
+# msBinDir=
+
+#link to relative path to exe
+#msCFLAGS ?= -Wl,-rpath,'$ORIGIN/../lib' 
+
+
+
+############# set via makefile of individual applications ##############
+
+# USE_TIFF=1
+# USE_ZLIB=1
+# USE_OMP=1
+
+
+
+
+#Note: for debugging find&replace @${msCXX} with ${msCXX} in this file
+
+
+
+
+########################################################################
+####################### do not change here after   #####################
+
+
+
+ifndef msSrc
+ # set msSrc to upper directory if not already set
+ msSrc := $(abspath $(lastword $(MAKEFILE_LIST))/../..)
+ $(info msSrc set to ${msSrc})
+endif
+
+msRoot ?= $(abspath ${msSrc}/..)
+
+# set msBinDir if not set
+msBinDir ?= ${msRoot}/bin
+msLibDir ?= ${msRoot}/lib
+
+
+
+
+
+
+
+
+
+
+
+InDir=In $(notdir $(abspath $(dir $(PWD))))/$(notdir $(PWD)): ***  
+
+psReleaseDate ?= \"$(shell date +'%Y.%m.%d')\"
+
+
+msCFLAGS := ${msCFLAGS} -I${msSrc}/include -I${msRoot}/include -I${msSrc}/include -DRELEASE_DATE=$(psReleaseDate)
+msLFLAGS := ${msLFLAGS} -L$(msLibDir)
+
+
+
+ifeq (${USE_VXIMG},1)
+ ifdef USED_VXLIB
+   $(info $(InDir) using voxlib instead of libvoxel)
+ else 
+   msCFLAGS := -I${msSrc}/libvoxel ${msCFLAGS}
+ endif
+endif
+
+
+
+# set thirdparty directory if not set
+ifndef ms3rd
+ ifneq ("$(wildcard ${msSrc}/thirdparty/)","")
+  ms3rd := ${msSrc}/thirdparty
+ else
+  ifneq ("$(wildcard ${msRoot}/thirdparty/)","")
+   ms3rd := ${msRoot}/thirdparty
+  endif
+ endif
+ #$(info ms3rd set to ${ms3rd})
+endif
+
+
+# set libtiff install directory: TIFDIR
+ifdef USE_TIFF
+ TIFDIR?=${msRoot}
+ ifneq ("$(wildcard ${TIFDIR}/include/tiff.h)","")
+   msCFLAGS := -I${TIFDIR}/include ${msCFLAGS} -DTIFLIB 
+   msLFLAGS := -L${TIFDIR}/libtiff     ${msLFLAGS} -ltiff -ltiffxx
+
+   ifneq ($(shell ${msCXX} -ljpeg 2>&1 | grep ljpeg; echo $$?),0)
+       msLFLAGS := ${msLFLAGS}  -ljpeg 
+   else
+     $(info ignoring jpeg)
+ endif
+
+   ifneq ($(shell ${msCXX} -llzma 2>&1 | grep llzma; echo $$?),0)
+      msLFLAGS := ${msLFLAGS}  -llzma 
+   endif
+
+   else
+   $(info $(InDir) tiff.h not found in ${TIFDIR}/include, nor in ${msRoot}/include/, ignoring USE_TIFF)
+ endif
+   endif
+
+#-pedantic -static # -lstdc++ -lm
+
+# set zlib directory
+# Note: ${ZLIBDIR}/contrib/iostream3/zfstream.h should be installed too
+ifdef USE_ZLIB
+ ZLIBDIR?=${msRoot}
+ ifneq ("$(wildcard ${ZLIBDIR}/include/zlib.h)","")
+   msCFLAGS := -I$ ${ZLIBDIR}/include ${msCFLAGS} -DZLIB
+   msLFLAGS := -L$ ${ZLIBDIR}/lib     ${msLFLAGS}  -lz
+   else
+   $(info $(InDir) ZLIBDIR, ${ms3rd}/zlib/zlib.h, not found, ignoring USE_ZLIB)
+ endif
+   endif
+
+
+
+# set hypre directory, also gnflow multithreading
+ifdef USE_HYPRE
+ HYPREDIR=${msRoot}
+ ifeq ("$(wildcard ${HYPREDIR}/include/HYPRE.h)","")
+   HYPREDIR=${ms3rd}/hypre/src/hypre
+ endif
+ ifneq ("$(wildcard ${HYPREDIR}/include/HYPRE.h)","")
+  msCFLAGS := ${msCFLAGS} -DHAVE_CONFIG_H -DHYPRE_TIMING -I${HYPREDIR}/include  -DMULTITHREAD
+  msLFLAGS := ${msLFLAGS} -pthread  ${HYPREDIR}/lib/libHYPRE.a 
+ else
+   $(info $(InDir))
+   $(error HYPREDIR, ${HYPREDIR}/include/HYPRE.h, not found)
+ endif
+endif
+
+
+
+# set hypre directory, also gnflow multithreading -DMULTITHREAD
+ifdef USE_HYPRESEQ
+ HYPREDIR=${msRoot}
+ ifeq ("$(wildcard ${HYPREDIR}/include/HYPRE.h)","")
+   HYPREDIR=${ms3rd}/hypre/src/hypre
+ endif
+ ifneq ("$(wildcard ${HYPREDIR}/include/HYPRE.h)","")
+  msCFLAGS := ${msCFLAGS} -DHAVE_CONFIG_H -DHYPRE_TIMING -I${HYPREDIR}/include
+  msLFLAGS := ${msLFLAGS} -pthread  ${HYPREDIR}/lib/libHYPRESeq.a 
+ else
+   $(info $(InDir))
+   $(error HYPREDIR, ${HYPREDIR}/include/HYPRE.h, not found)
+ endif
+endif
+
+
+
+
+
+ifdef USE_SVG
+ ifneq ("$(wildcard ${ms3rd}/svplot/svplot.hpp)","")
+   msCFLAGS := -I${ms3rd}/svplot  ${msCFLAGS} -DSVG
+ else
+   $(info $(InDir) ignoring USE_SVG, ${ms3rd}/svplot/svplot.hpp, not found)
+ endif
+endif
+
+
+
+
+# Warning: VTK-8.9 and upwards do not work on tesla3&4(Ubuntu16)
+ifdef USE_VTK 
+ msCMAKFLAGS := ${msCmakeFLAGS}  -DVTK_DIR:PATH=${HOME}/.local/lib/cmake/vtk-8.2  -DCMAKE_INSTALL_PREFIX=${msRoot} 
+endif
+
+
+# set openMP for parallel image processing, mesh generation ...
+# not yet integrated with the "released" codes due to portability concerns / too experimental 
+ifdef USE_OMP 
+ msCFLAGS := ${msCFLAGS} -DOpenMP -I/usr/include/mpi -fopenmp
+ msLFLAGS := ${msLFLAGS} -L/usr/lib/openmpi/lib -lmpi_cxx -lmpi -lopen-rte -lopen-pal -ldl -Wall -fopenmp
+endif
+
+
+

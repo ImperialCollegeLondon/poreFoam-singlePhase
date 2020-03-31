@@ -131,7 +131,7 @@ int procMain(int argc, char *argv[],
 						int j=(Cfp[c][1]-xmin[1]+dx[1]*0.4)/dx[1];
 						int k=(Cfp[c][2]-xmin[2]+dx[2]*0.4)/dx[2];
 
-					  //~ if( i<n[0] && j<n[1] && k<n[2] )
+					  //if( i<n[0] && j<n[1] && k<n[2] )
 					  {
 							vector nf=(Sfp[c]/mag(Sfp[c]));
 						if      (mag(nf[0])>0.9  &&  i<n[0]+1 && j<n[1] && k<n[2] && i>=0 && j>=0 && k>=0)
@@ -243,7 +243,7 @@ int procMainUx(int argc, char *argv[], voxelField<float>& vface0, int3& n,  dbl3
 			IOobject::READ_IF_PRESENT,  IOobject::NO_WRITE
 		), linearInterpolate(U) & mesh.Sf()
 	);
-	//~ if (outputFormat=="binary")
+	//if (outputFormat=="binary")
 	{
 		Info<<"faceVelocitiesWithBC"<<endl;
 		
@@ -363,7 +363,7 @@ int procMainUy(int argc, char *argv[], voxelField<float>& vface1, int3& n,  dbl3
 		), linearInterpolate(U) & mesh.Sf()
 	);
 
-	//~ if (outputFormat=="binary")
+	//if (outputFormat=="binary")
 	{
 		Info<<"faceVelocitiesWithBC"<<endl;
 		
@@ -475,7 +475,7 @@ int procMainUz(int argc, char *argv[], voxelField<float>& vface2, int3& n,  dbl3
 			IOobject::READ_IF_PRESENT,  IOobject::NO_WRITE
 		), linearInterpolate(U) & mesh.Sf()
 	);
-	//~ if (outputFormat=="binary")
+	//if (outputFormat=="binary")
 	{
 		Info<<"faceVelocitiesWithBC"<<endl;
 		

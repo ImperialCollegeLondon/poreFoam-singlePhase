@@ -71,7 +71,7 @@ $(BIN)/dirToString: dirToString.c
 
 $(BIN)/wmkdep: wmkdep.l
 	@mkdir -p $(BIN)
-	flex wmkdep.l
+	flex wmkdep.l || printf "please install flex for this to work:\n  sudo apt install flex # in Ubuntu\n\n"
 	$(cc) $(cFLAGS) lex.yy.c -o $(BIN)/wmkdep
 	@rm -f lex.yy.c 2>/dev/null
 

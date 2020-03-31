@@ -148,6 +148,11 @@ public:
 		//- Construct by transferring the parameter contents
 		explicit inline face(const Xfer<labelList>&);
 
+        //- Copy construct from an initializer list of labels
+        inline explicit face(std::initializer_list<label> lst):
+				labelList(lst)
+			{}
+
 		//- Copy construct from triFace
 		face(const triFace&);
 

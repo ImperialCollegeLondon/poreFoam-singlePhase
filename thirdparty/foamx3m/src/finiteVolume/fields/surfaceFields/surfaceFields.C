@@ -32,13 +32,13 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-defineTemplateTypeNameAndDebug(surfaceScalarField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(surfaceVectorField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(surfaceSphericalTensorField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(surfaceSymmTensorField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(surfaceSymmTensor4thOrderField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(surfaceDiagTensorField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(surfaceTensorField::DimensionedInternalField, 0);
+defineTemplateTypeNameAndDebug(surfaceScalarField::Internal, 0);
+defineTemplateTypeNameAndDebug(surfaceVectorField::Internal, 0);
+defineTemplateTypeNameAndDebug(surfaceSphericalTensorField::Internal, 0);
+defineTemplateTypeNameAndDebug(surfaceSymmTensorField::Internal, 0);
+defineTemplateTypeNameAndDebug(surfaceSymmTensor4thOrderField::Internal, 0);
+defineTemplateTypeNameAndDebug(surfaceDiagTensorField::Internal, 0);
+defineTemplateTypeNameAndDebug(surfaceTensorField::Internal, 0);
 
 defineTemplateTypeNameAndDebug(surfaceScalarField, 0);
 defineTemplateTypeNameAndDebug(surfaceVectorField, 0);

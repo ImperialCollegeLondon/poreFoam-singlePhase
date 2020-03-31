@@ -117,7 +117,7 @@ void Foam::MeshedSurface<Face>::write
 	const MeshedSurface<Face>& surf
 )
 {
-	if (debug)
+	//if (debug)
 	{
 		Info<< "MeshedSurface::write"
 			"(const fileName&, const MeshedSurface&) : "
@@ -345,6 +345,7 @@ Foam::MeshedSurface<Face>::MeshedSurface
 :
 	ParentType(List<Face>(), pointField())
 {
+	Info<<"MeshedSurfaceReading "<<name<<ext<<endl;
 	read(name, ext);
 }
 

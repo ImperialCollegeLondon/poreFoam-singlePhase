@@ -43,6 +43,7 @@ SourceFiles
 #include "dimensionedTypes.H"
 #include "DimensionedField.H"
 #include "FieldField.H"
+#include "pointPatchField.H"
 #include "lduInterfaceFieldPtrsList.H"
 #include "BlockLduInterfaceFieldPtrsList.H"
 
@@ -96,15 +97,15 @@ public:
 	// Public typedefs
 
 		typedef typename GeoMesh::Mesh Mesh;
-		typedef typename GeoMesh::BoundaryMesh BoundaryMesh;
+		typedef typename GeoMesh::BoundaryMesh BoundaryMesh;  // OpenFOAM-1906
 
-		typedef DimensionedField<Type, GeoMesh> DimensionedInternalField;
-		typedef DimensionedField<Type, GeoMesh> Internal;
+        //- Type of the internal field from which this GeometricField is derived
+		typedef DimensionedField<Type, GeoMesh> Internal; // OpenFOAM-1906
 		typedef Field<Type> InternalField;
 		typedef PatchField<Type> PatchFieldType;
 
 
-	class GeometricBoundaryField
+	class Boundary
 	:
 		public FieldField<PatchField, Type>
 	{
@@ -121,38 +122,38 @@ public:
 			//- Construct from a BoundaryMesh,
 			//  reference to the internal field
 			//  and a patch type
-			GeometricBoundaryField
+			Boundary
 			(
 				const BoundaryMesh&,
-				const DimensionedInternalField&,
+				const Internal&,
 				const word&
 			);
 
 			//- Construct from a BoundaryMesh,
 			//  reference to the internal field
 			//  and a wordList of patch types
-			GeometricBoundaryField
+			Boundary
 			(
 				const BoundaryMesh&,
-				const DimensionedInternalField&,
+				const Internal&,
 				const wordList&
 			);
 
 			//- Construct from a BoundaryMesh,
 			//  reference to the internal field
 			//  and a PtrList<PatchField<Type> >
-			GeometricBoundaryField
+			Boundary
 			(
 				const BoundaryMesh&,
-				const DimensionedInternalField&,
+				const Internal&,
 				const PtrList<PatchField<Type> >&
 			);
 
 			//- Construct as copy setting the reference to the internal field
-			GeometricBoundaryField
+			Boundary
 			(
-				const DimensionedInternalField&,
-				const GeometricBoundaryField&
+				const Internal&,
+				const Boundary&
 			);
 
 			//- Construct as copy
@@ -160,16 +161,16 @@ public:
 			//  Need new type of BoundaryField, one which is part of a geometric
 			//  field for which snGrad etc. may be called and a free standing
 			//  BoundaryField for which such operations are unavailable.
-			GeometricBoundaryField
+			Boundary
 			(
-				const GeometricBoundaryField&
+				const Boundary&
 			);
 
 			//- Construct from dictionary
-			GeometricBoundaryField
+			Boundary
 			(
 				const BoundaryMesh&,
-				const DimensionedInternalField&,
+				const Internal&,
 				const dictionary&
 			);
 
@@ -190,7 +191,7 @@ public:
 
 			//- Return BoundaryField of the cell values neighbouring
 			//  the boundary
-			GeometricBoundaryField boundaryInternalField() const;
+			Boundary boundaryInternalField() const;
 
 			//- Return a list of pointers for each patch field with only those
 			//  pointIng to interfaces being set
@@ -208,7 +209,7 @@ public:
 		// Member operators
 
 			//- Assignment to BoundaryField<Type, PatchField, BoundaryMesh>
-			void operator=(const GeometricBoundaryField&);
+			void operator=(const Boundary&);
 
 			//- Assignment to FieldField<PatchField, Type>
 			void operator=(const FieldField<PatchField, Type>&);
@@ -219,7 +220,7 @@ public:
 
 			//- Forced assignment to
 			//  BoundaryField<Type, PatchField, BoundaryMesh>
-			void operator==(const GeometricBoundaryField&);
+			void operator==(const Boundary&);
 
 			//- Forced assignment to FieldField<PatchField, Type>
 			void operator==(const FieldField<PatchField, Type>&);
@@ -228,7 +229,7 @@ public:
 			void operator==(const Type&);
 	};
 
-	//typedef  GeometricBoundaryField Boundary;
+	//typedef  Boundary Boundary;
 private:
 
 	// Private data
@@ -244,16 +245,16 @@ private:
 		mutable GeometricField<Type, PatchField, GeoMesh>* fieldPrevIterPtr_;
 
 		//- Boundary Type field containing boundary field values
-		GeometricBoundaryField boundaryField_;
+		Boundary boundaryField_;
 
 
 	// Private member functions
 
 		//- Read the field from the dictionary
-		tmp<GeometricBoundaryField> readField(const dictionary&);
+		tmp<Boundary> readField(const dictionary&);
 
 		//- Read the field from the given stream
-		tmp<GeometricBoundaryField> readField(Istream& is);
+		tmp<Boundary> readField(Istream& is);
 
 
 public:
@@ -422,25 +423,28 @@ public:
 	// Member Functions
 
 		//- Return dimensioned internal field
-		DimensionedInternalField& dimensionedInternalField();
-		inline DimensionedInternalField& ref()			   { return dimensionedInternalField(); };
+		Internal& dimensionedInternalField()   { return ref(); };
+		inline Internal& ref();
 
 		//- Return dimensioned internal field
-		inline const DimensionedInternalField&  dimensionedInternalField() const;
-		inline const DimensionedInternalField&  v() const	{ return dimensionedInternalField(); };
+		inline const Internal&  dimensionedInternalField() const;
+		inline const Internal&  v() const	{ return dimensionedInternalField(); };
 
 		//- Return internal field
 		InternalField& internalField();
 
 		//- Return internal field
+		inline const InternalField& ref() const;
+
+		//- Return internal field
 		inline const InternalField& internalField() const;
 
-		//- Return reference to GeometricBoundaryField
-		GeometricBoundaryField& boundaryField();
-		GeometricBoundaryField& boundaryFieldRef()					   { return boundaryField();};
+		//- Return reference to Boundary
+		Boundary& boundaryField();
+		Boundary& boundaryFieldRef()					   { return boundaryField();};
 
-		//- Return reference to GeometricBoundaryField for const field
-		inline const GeometricBoundaryField& boundaryField() const;
+		//- Return reference to Boundary for const field
+		inline const Boundary& boundaryField() const;
 
 		//- Return the time index of the field
 		inline label timeIndex() const;
@@ -602,7 +606,7 @@ Ostream& operator<<
 (
 	Ostream&,
 	const typename GeometricField<Type, PatchField, GeoMesh>::
-	GeometricBoundaryField&
+	Boundary&
 );
 
 

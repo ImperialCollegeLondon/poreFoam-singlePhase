@@ -290,25 +290,18 @@ bool Foam::Time::writeObject
 	{
 		addProfile2(actualOutput,"Foam::Time::writeObject - outputTime");
 
-		IOdictionary timeDict
-		(
-			IOobject
-			(
-				"time",
-				timeName(),
-				"uniform",
-				*this,
-				IOobject::NO_READ,
-				IOobject::NO_WRITE,
-				false
-			)
-		);
+		//IOdictionary timeDict
+		//(	IOobject
+			//(	"time", timeName(), "uniform", *this, 
+				//IOobject::NO_READ, IOobject::NO_WRITE, false
+			//)
+		//);
+		//timeDict.add("index", timeIndex_);
+		//timeDict.add("deltaT", deltaT_);
+		//timeDict.add("deltaT0", deltaT0_);
+		//timeDict.regIOobject::writeObject(fmt, ver, cmp);
+		Info<<"Not writing uniform/time, deactivated"<<endl;
 
-		timeDict.add("index", timeIndex_);
-		timeDict.add("deltaT", deltaT_);
-		timeDict.add("deltaT0", deltaT0_);
-
-		timeDict.regIOobject::writeObject(fmt, ver, cmp);
 		bool writeOK = objectRegistry::writeObject(fmt, ver, cmp);
 
 		if (writeOK && purgeWrite_)

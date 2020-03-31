@@ -637,8 +637,8 @@ Foam::argList::argList
 			Info<< "Slaves : " << slaveProcs << nl
 				<< "Pstream initialized with:" << nl
 				<< "    nProcsSimpleSum   : " << Pstream::nProcsSimpleSum() << nl
-				<< "    commsType         : " << Pstream::commsTypeNames[Pstream::defaultCommsType()] << endl;
-			Info<<"    MPI_BUFFER_SIZE   : " << std::getenv("MPI_BUFFER_SIZE") << endl;
+				<< "    commsType         : " << Pstream::commsTypeNames[Pstream::defaultCommsType()] << nl
+				<< "    MPI_BUFFER_SIZE   : " << Pstream::mpiBufferSize << endl;
 		}
 	}
 

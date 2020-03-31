@@ -18,7 +18,7 @@ License
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
+    You should have received a copy of the GNU General Public License
 	along with foam-extend.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
@@ -36,44 +36,64 @@ namespace Foam
 namespace fileFormats
 {
 
-// write MeshedSurfaceProxy
+// read MeshedSurface
+addNamedTemplatedToRunTimeSelectionTable
+(
+    MeshedSurface,
+    VTKsurfaceFormat,
+    face,
+    fileExtension,
+    vtk
+);
+addNamedTemplatedToRunTimeSelectionTable
+(
+    MeshedSurface,
+    VTKsurfaceFormat,
+    triFace,
+    fileExtension,
+    vtk
+);
+
+ //write MeshedSurfaceProxy
 addNamedTemplatedToMemberFunctionSelectionTable
 (
-	MeshedSurfaceProxy,
-	VTKsurfaceFormat,
-	face,
-	write,
-	fileExtension,
-	vtk
+    MeshedSurfaceProxy,
+    VTKsurfaceFormat,
+    face,
+    write,
+    fileExtension,
+    vtk
 );
 addNamedTemplatedToMemberFunctionSelectionTable
 (
-	MeshedSurfaceProxy,
-	VTKsurfaceFormat,
-	triFace,
-	write,
-	fileExtension,
-	vtk
+    MeshedSurfaceProxy,
+    VTKsurfaceFormat,
+    triFace,
+    write,
+    fileExtension,
+    vtk
 );
+
+
 
 // write UnsortedMeshedSurface
 addNamedTemplatedToMemberFunctionSelectionTable
 (
-	UnsortedMeshedSurface,
-	VTKsurfaceFormat,
-	face,
-	write,
-	fileExtension,
-	vtk
+    UnsortedMeshedSurface,
+    VTKsurfaceFormat,
+    face,
+    write,
+    fileExtension,
+    vtk
 );
 addNamedTemplatedToMemberFunctionSelectionTable
 (
-	UnsortedMeshedSurface,
-	VTKsurfaceFormat,
-	triFace,
-	write,
-	fileExtension,
-	vtk
+    UnsortedMeshedSurface,
+    VTKsurfaceFormat,
+    triFace,
+    write,
+    fileExtension,
+    vtk
 );
 
 

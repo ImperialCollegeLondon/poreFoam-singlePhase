@@ -30,8 +30,8 @@ License
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
-GeometricBoundaryField
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
+Boundary
 (
 	const BoundaryMesh& bmesh,
 	const DimensionedField<Type, GeoMesh>& field,
@@ -44,8 +44,8 @@ GeometricBoundaryField
 	if (debug)
 	{
 		Info<< "GeometricField<Type, PatchField, GeoMesh>::"
-			   "GeometricBoundaryField::"
-			   "GeometricBoundaryField(const BoundaryMesh&, "
+			   "Boundary::"
+			   "Boundary(const BoundaryMesh&, "
 			   "const Field<Type>&, const word&)"
 			<< endl;
 	}
@@ -67,8 +67,8 @@ GeometricBoundaryField
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
-GeometricBoundaryField
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
+Boundary
 (
 	const BoundaryMesh& bmesh,
 	const DimensionedField<Type, GeoMesh>& field,
@@ -81,8 +81,8 @@ GeometricBoundaryField
 	if (debug)
 	{
 		Info<< "GeometricField<Type, PatchField, GeoMesh>::"
-			   "GeometricBoundaryField::"
-			   "GeometricBoundaryField(const BoundaryMesh&, "
+			   "Boundary::"
+			   "Boundary(const BoundaryMesh&, "
 			   "const Field<Type>&, const wordList&)"
 			<< endl;
 	}
@@ -92,8 +92,8 @@ GeometricBoundaryField
 		FatalErrorIn
 		(
 			"GeometricField<Type, PatchField, GeoMesh>::"
-			"GeometricBoundaryField::"
-			"GeometricBoundaryField(const BoundaryMesh&, "
+			"Boundary::"
+			"Boundary(const BoundaryMesh&, "
 			"const Field<Type>&, const wordList&)"
 		)   << "Incorrect number of patch type specifications given" << nl
 			<< "    Number of patches in mesh = " << bmesh.size()
@@ -119,8 +119,8 @@ GeometricBoundaryField
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
-GeometricBoundaryField
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
+Boundary
 (
 	const BoundaryMesh& bmesh,
 	const DimensionedField<Type, GeoMesh>& field,
@@ -133,8 +133,8 @@ GeometricBoundaryField
 	if (debug)
 	{
 		Info<< "GeometricField<Type, PatchField, GeoMesh>::"
-			   "GeometricBoundaryField::"
-			   "GeometricBoundaryField(const BoundaryMesh&, "
+			   "Boundary::"
+			   "Boundary(const BoundaryMesh&, "
 			   "const Field<Type>&, const PatchField<Type>List&)"
 			<< endl;
 	}
@@ -147,12 +147,12 @@ GeometricBoundaryField
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
-GeometricBoundaryField
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
+Boundary
 (
 	const DimensionedField<Type, GeoMesh>& field,
 	const typename GeometricField<Type, PatchField, GeoMesh>::
-	GeometricBoundaryField& btf
+	Boundary& btf
 )
 :
 	FieldField<PatchField, Type>(btf.size()),
@@ -161,8 +161,8 @@ GeometricBoundaryField
 	if (debug)
 	{
 		Info<< "GeometricField<Type, PatchField, GeoMesh>::"
-			   "GeometricBoundaryField::"
-			   "GeometricBoundaryField(const GeometricBoundaryField<Type, "
+			   "Boundary::"
+			   "Boundary(const Boundary<Type, "
 			   "PatchField, BoundaryMesh>&)"
 			<< endl;
 	}
@@ -176,15 +176,15 @@ GeometricBoundaryField
 
 // Construct as copy
 // Dangerous because Field may be set to a field which gets deleted.
-// Need new type of GeometricBoundaryField, one which IS part of a geometric
+// Need new type of Boundary, one which IS part of a geometric
 // field for which snGrad etc. may be called and a free standing
-// GeometricBoundaryField for which such operations are unavailable.
+// Boundary for which such operations are unavailable.
 template<class Type, template<class> class PatchField, class GeoMesh>
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
-GeometricBoundaryField
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
+Boundary
 (
 	const typename GeometricField<Type, PatchField, GeoMesh>::
-	GeometricBoundaryField& btf
+	Boundary& btf
 )
 :
 	FieldField<PatchField, Type>(btf),
@@ -193,8 +193,8 @@ GeometricBoundaryField
 	if (debug)
 	{
 		Info<< "GeometricField<Type, PatchField, GeoMesh>::"
-			   "GeometricBoundaryField::"
-			   "GeometricBoundaryField(const GeometricBoundaryField<Type, "
+			   "Boundary::"
+			   "Boundary(const Boundary<Type, "
 			   "PatchField, BoundaryMesh>&)"
 			<< endl;
 	}
@@ -202,8 +202,8 @@ GeometricBoundaryField
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
-GeometricBoundaryField
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
+Boundary
 (
 	const BoundaryMesh& bmesh,
 	const DimensionedField<Type, GeoMesh>& field,
@@ -216,8 +216,8 @@ GeometricBoundaryField
 	if (debug)
 	{
 		Info<< "GeometricField<Type, PatchField, GeoMesh>::"
-			   "GeometricBoundaryField::"
-			   "GeometricBoundaryField"
+			   "Boundary::"
+			   "Boundary"
 			   "(const BoundaryMesh&, const Field<Type>&, const dictionary&)"
 			<< endl;
 	}
@@ -257,13 +257,13 @@ GeometricBoundaryField
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-void Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+void Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 updateCoeffs()
 {
 	if (debug)
 	{
 		Info<< "GeometricField<Type, PatchField, GeoMesh>::"
-			   "GeometricBoundaryField::"
+			   "Boundary::"
 			   "updateCoeffs()" << endl;
 	}
 
@@ -275,13 +275,13 @@ updateCoeffs()
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-void Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+void Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 evaluate()
 {
 	if (debug)
 	{
 		Info<< "GeometricField<Type, PatchField, GeoMesh>::"
-			   "GeometricBoundaryField::"
+			   "Boundary::"
 			   "evaluate()" << endl;
 	}
 
@@ -335,7 +335,7 @@ evaluate()
 	}
 	else
 	{
-		FatalErrorIn("GeometricBoundaryField::evaluate()")
+		FatalErrorIn("Boundary::evaluate()")
 			<< "Unsuported communications type "
 			<< Pstream::commsTypeNames[Pstream::defaultCommsType()]
 			<< exit(FatalError);
@@ -344,13 +344,13 @@ evaluate()
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-void Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+void Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 evaluateCoupled()
 {
 	if (debug)
 	{
 		Info<< "GeometricField<Type, PatchField, GeoMesh>::"
-			   "GeometricBoundaryField::"
+			   "Boundary::"
 			   "evaluateCoupled()" << endl;
 	}
 
@@ -422,7 +422,7 @@ evaluateCoupled()
 	}
 	else
 	{
-		FatalErrorIn("GeometricBoundaryField::evaluateCoupled()")
+		FatalErrorIn("Boundary::evaluateCoupled()")
 			<< "Unsuported communications type "
 			<< Pstream::commsTypeNames[Pstream::defaultCommsType()]
 			<< exit(FatalError);
@@ -432,7 +432,7 @@ evaluateCoupled()
 
 template<class Type, template<class> class PatchField, class GeoMesh>
 Foam::wordList
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 types() const
 {
 	const FieldField<PatchField, Type>& pff = *this;
@@ -450,11 +450,11 @@ types() const
 
 template<class Type, template<class> class PatchField, class GeoMesh>
 typename
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 boundaryInternalField() const
 {
-	typename GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField
+	typename GeometricField<Type, PatchField, GeoMesh>::Boundary
 		BoundaryInternalField(*this);
 
 	forAll(BoundaryInternalField, patchi)
@@ -469,7 +469,7 @@ boundaryInternalField() const
 
 template<class Type, template<class> class PatchField, class GeoMesh>
 Foam::lduInterfaceFieldPtrsList
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 interfaces() const
 {
 	lduInterfaceFieldPtrsList interfaces(this->size());
@@ -492,7 +492,7 @@ interfaces() const
 
 template<class Type, template<class> class PatchField, class GeoMesh>
 typename Foam::BlockLduInterfaceFieldPtrsList<Type>::Type
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 blockInterfaces() const
 {
 	typename BlockLduInterfaceFieldPtrsList<Type>::Type interfaces
@@ -520,7 +520,7 @@ blockInterfaces() const
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-void Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+void Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 writeEntry(const word& keyword, Ostream& os) const
 {
 	os  << keyword << nl << token::BEGIN_BLOCK << incrIndent << nl;
@@ -538,7 +538,7 @@ writeEntry(const word& keyword, Ostream& os) const
 	// Check state of IOstream
 	os.check
 	(
-		"GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::"
+		"GeometricField<Type, PatchField, GeoMesh>::Boundary::"
 		"writeEntry(const word& keyword, Ostream& os) const"
 	);
 }
@@ -547,11 +547,11 @@ writeEntry(const word& keyword, Ostream& os) const
 // * * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * //
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-void Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+void Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 operator=
 (
 	const typename GeometricField<Type, PatchField, GeoMesh>::
-	GeometricBoundaryField& bf
+	Boundary& bf
 )
 {
 	FieldField<PatchField, Type>::operator=(bf);
@@ -559,7 +559,7 @@ operator=
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-void Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+void Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 operator=
 (
 	const FieldField<PatchField, Type>& ptff
@@ -570,7 +570,7 @@ operator=
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-void Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+void Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 operator=
 (
 	const Type& t
@@ -582,11 +582,11 @@ operator=
 
 // Forced assignments
 template<class Type, template<class> class PatchField, class GeoMesh>
-void Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+void Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 operator==
 (
 	const typename GeometricField<Type, PatchField, GeoMesh>::
-	GeometricBoundaryField& bf
+	Boundary& bf
 )
 {
 	forAll((*this), patchI)
@@ -597,7 +597,7 @@ operator==
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-void Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+void Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 operator==
 (
 	const FieldField<PatchField, Type>& ptff
@@ -611,7 +611,7 @@ operator==
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-void Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField::
+void Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::
 operator==
 (
 	const Type& t
@@ -631,7 +631,7 @@ Foam::Ostream& Foam::operator<<
 (
 	Ostream& os,
 	const typename GeometricField<Type, PatchField, GeoMesh>::
-	GeometricBoundaryField& bf
+	Boundary& bf
 )
 {
 	os << static_cast<const FieldField<PatchField, Type>&>(bf);

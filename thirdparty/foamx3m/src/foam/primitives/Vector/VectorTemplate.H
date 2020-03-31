@@ -88,7 +88,7 @@ public:
 	// Constructors
 
 		//- Construct null
-		inline Vector();
+		inline Vector() = default;
 
 		//- Construct given VectorSpace
 		inline Vector(const VectorSpace<Vector<Cmpt>, Cmpt, 3>&);

@@ -173,7 +173,7 @@ tmp<surfaceScalarField> limitedSurfaceInterpolationScheme<Type>::weights
 		  + (1.0 - pWeights[face])*pos(faceFlux_[face]);
 	}
 
-	surfaceScalarField::GeometricBoundaryField& bWeights =
+	surfaceScalarField::Boundary& bWeights =
 		Weights.boundaryField();
 
 	forAll(bWeights, patchI)

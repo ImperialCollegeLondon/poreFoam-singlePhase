@@ -44,8 +44,8 @@ tiff:
 #	cp libtiff/build/libtiff/libtiff*.so* $(psDir)/bin/
 
 foam:
-	ls $(psInstall)/lib/libfiniteVolume*.so || (cd foam-miniext-3.4 && ./AllMake)
-	ls $(psInstall)/lib/libfiniteVolume*.so || (cd foam-miniext-3.4 && ./AllInstall)
+	ls $(psInstall)/lib/libfiniteVolume*.so || (cd foamx3m && ./AllMake)
+	ls $(psInstall)/lib/libfiniteVolume*.so || (cd foamx3m && ./AllInstall)
 
 
 
@@ -53,5 +53,5 @@ clean:
 	(rm -rf libtiff/build)
 	(rm -rf zlib-1.2.11/build)
 	(rm -rf hypre-2.11.2/src/build)
-	(cd foam-miniext-3.4 && ./AllDistclean_keeplnInclude)
+	(cd foamx3m && ./AllDistclean_keeplnInclude)
 

@@ -104,7 +104,7 @@ void Foam::nearWallDist::doAll()
 
 Foam::nearWallDist::nearWallDist(const Foam::fvMesh& mesh)
 :
-	volScalarField::GeometricBoundaryField
+	volScalarField::Boundary
 	(
 		mesh.boundary(),
 		mesh.V(),		   // Dummy internal field,
@@ -128,7 +128,7 @@ void Foam::nearWallDist::correct()
 {
 	if (mesh_.changing())
 	{
-		// Update size of GeometricBoundaryField
+		// Update size of Boundary
 		forAll(mesh_.boundary(), patchI)
 		{
 			operator[](patchI).setSize(mesh_.boundary()[patchI].size());

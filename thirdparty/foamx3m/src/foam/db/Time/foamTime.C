@@ -251,7 +251,7 @@ Foam::Time::Time
 			"uniform",
 			*this,
 			IOobject::NO_READ,
-			IOobject::AUTO_WRITE
+			IOobject::NO_WRITE //aqr: was AUTO_WRITE,  spamming hard disk
 		),
 		*this
 	);
@@ -322,7 +322,7 @@ Foam::Time::Time
 			"uniform",
 			*this,
 			IOobject::NO_READ,
-			IOobject::AUTO_WRITE
+			IOobject::NO_WRITE //aqr: was AUTO_WRITE,  spamming hard disk
 		),
 		*this
 	);
@@ -389,7 +389,7 @@ Foam::Time::Time
 			"uniform",
 			*this,
 			IOobject::NO_READ,
-			IOobject::AUTO_WRITE
+			IOobject::NO_WRITE //aqr: was AUTO_WRITE
 		),
 		*this
 	);

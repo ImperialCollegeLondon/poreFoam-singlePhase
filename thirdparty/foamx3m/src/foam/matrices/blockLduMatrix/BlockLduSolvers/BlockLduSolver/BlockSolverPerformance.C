@@ -99,9 +99,9 @@ void Foam::BlockSolverPerformance<Type>::print() const
 
 		if (singular())
 		{
-			Info<< ":  solution singularity" << endl;
+			Info<< ":  solution singularity" << " ";
 		}
-		else
+		//else
 		{
 			Info<< ", Initial residual = " << initialResidual_
 				<< ", Final residual = " << finalResidual_

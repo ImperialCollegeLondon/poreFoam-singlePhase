@@ -253,7 +253,7 @@ Foam::tmp<Foam::volVectorField> Foam::SRF::SRFModel::Uabs() const
 	tUabs().internalField() += Urel_.internalField();
 
 	// Add Urel boundary contributions
-	const volVectorField::GeometricBoundaryField& bvf = Urel_.boundaryField();
+	const volVectorField::Boundary& bvf = Urel_.boundaryField();
 
 	forAll(bvf, i)
 	{

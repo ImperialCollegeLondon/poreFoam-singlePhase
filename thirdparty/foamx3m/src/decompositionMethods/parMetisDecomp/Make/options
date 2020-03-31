@@ -1,8 +1,10 @@
 include $(RULES)/mplib$(WM_MPLIB)
 
+PARMETIS_INCLUDE_DIR=/usr/include/parmetis
+
 EXE_INC = \
     $(PFLAGS) $(PINC) \
-    -I$(PARMETIS_INCLUDE_DIR) \
+    -I$(PARMETIS_INCLUDE_DIR)/ \
     -I../decompositionMethods/lnInclude \
     -I../metisDecomp/lnInclude \
     -I../scotchDecomp/lnInclude

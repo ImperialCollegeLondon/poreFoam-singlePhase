@@ -32,8 +32,7 @@ License
 template<class Type>
 Foam::wordList Foam::fvMotionSolver::cellMotionBoundaryTypes
 (
-	const typename GeometricField<Type, pointPatchField, pointMesh>::
-	GeometricBoundaryField& pmUbf
+	const typename GeometricField<Type, pointPatchField, pointMesh>::Boundary& pmUbf
 ) const
 {
 	wordList cmUbf = pmUbf.types();

@@ -106,7 +106,7 @@ tmp<surfaceScalarField> PhiScheme<Type, PhiLimiter>::limiter
 	}
 
 
-	surfaceScalarField::GeometricBoundaryField& bLimiter =
+	surfaceScalarField::Boundary& bLimiter =
 		Limiter.boundaryField();
 
 	forAll(bLimiter, patchI)

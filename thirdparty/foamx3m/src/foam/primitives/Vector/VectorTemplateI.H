@@ -31,9 +31,9 @@ namespace Foam
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 // Construct null
-template <class Cmpt>
-inline Vector<Cmpt>::Vector()
-{}
+//template <class Cmpt>
+//inline Vector<Cmpt>::Vector()
+//{}
 
 
 // Construct given VectorSpace

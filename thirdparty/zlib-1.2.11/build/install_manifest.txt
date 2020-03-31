@@ -1,0 +1,6 @@
+/home/ali/git/poreFoam-singlePhaseMiniFoam/lib/libzxx.a
+/home/ali/git/poreFoam-singlePhaseMiniFoam/include/zconf.h
+/home/ali/git/poreFoam-singlePhaseMiniFoam/include/zlib.h
+/home/ali/git/poreFoam-singlePhaseMiniFoam/include/zfstream.h
+/home/ali/git/poreFoam-singlePhaseMiniFoam/share/man/man3/zlib.3
+/home/ali/git/poreFoam-singlePhaseMiniFoam/share/pkgconfig/zlib.pc

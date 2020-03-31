@@ -36,7 +36,7 @@ Foam::GeometricField<Type, PatchField, GeoMesh>::null()
 template<class Type, template<class> class PatchField, class GeoMesh>
 inline
 const typename
-Foam::GeometricField<Type, PatchField, GeoMesh>::DimensionedInternalField&
+Foam::GeometricField<Type, PatchField, GeoMesh>::Internal&
 Foam::GeometricField<Type, PatchField, GeoMesh>::
 dimensionedInternalField() const
 {
@@ -55,8 +55,7 @@ Foam::GeometricField<Type, PatchField, GeoMesh>::internalField() const
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
-inline const typename Foam::GeometricField<Type, PatchField, GeoMesh>::
-GeometricBoundaryField&
+inline const typename Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary&
 Foam::GeometricField<Type, PatchField, GeoMesh>::boundaryField() const
 {
 	return boundaryField_;

@@ -1,7 +1,7 @@
-###  Foam-miniext-3.4 
+###  foamx3m
 This is a minified and intermediate version of foam-extend code derived
-from foam-extend-3.1 and 4.0, with minor additions for some compatibility 
-with OpenFOAM-1712, prepared by Ali Raeini for use in poreFoam codes.
+from foam-extend-3.1 and 4.0, with few additions from OpenFOAM-1712, 
+prepared by Ali Raeini for use in poreFoam codes.
 
 * See the file Changelog.current for the list of changes.
 
@@ -18,4 +18,18 @@ be edited before running, manually setting and creating the installation paths.
 The compiled libraries will have different names compared to that of OpenFOAM, 
 or foam-extend, so they can be installed simultanuously, but only after all 
 compilations are finished.
+
+
+### notes:
+
+For decomposepar utility to be compiled, you need to install 
+libscotch-dev in your system.
+
+Minifoam libraries do not have conflict with other versions of 
+openfoam, but the executables  can be duplicate.  So if you want to 
+`source $msRoot/src/script/bashrc`  while using another openfoam version, 
+delete whatever you don't need from $msRoot/bin/porefoam-ext-3/ 
+folder. $msRoot here stands for the upper folder where top level 
+Makefile and src/ folder exist.
+
 

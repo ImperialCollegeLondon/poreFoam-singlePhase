@@ -9,7 +9,7 @@ class snapShot_zt
 {
 	scalarField data_;
  public:
-	//~ static std::string Names[12];
+	//static std::string Names[12];
 	
  
     scalar& q(){return data_[0];};

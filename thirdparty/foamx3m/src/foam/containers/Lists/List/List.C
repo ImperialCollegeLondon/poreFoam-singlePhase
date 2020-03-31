@@ -204,7 +204,7 @@ Foam::List<T>::List(InputIterator first, InputIterator last)
 		++iter
 	)
 	{
-		this->operator[](s++) = iter();
+		this->operator[](s++) = *iter;
 	}
 }
 
@@ -269,6 +269,12 @@ Foam::List<T>::List(const SLList<T>& lst)
 	}
 }
 
+
+template<class T>
+Foam::List<T>::List(std::initializer_list<T> lst)
+:
+    List<T>(lst.begin(), lst.end())
+{}
 
 // Construct as copy of IndirectList<T>
 template<class T>

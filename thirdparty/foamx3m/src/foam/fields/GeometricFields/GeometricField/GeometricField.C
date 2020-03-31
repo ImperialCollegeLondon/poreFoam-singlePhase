@@ -49,7 +49,7 @@ template<class Type, template<class> class PatchField, class GeoMesh>
 Foam::tmp
 <
 	typename Foam::GeometricField<Type, PatchField, GeoMesh>::
-	GeometricBoundaryField
+	Boundary
 >
 Foam::GeometricField<Type, PatchField, GeoMesh>::readField
 (
@@ -58,9 +58,9 @@ Foam::GeometricField<Type, PatchField, GeoMesh>::readField
 {
 	DimensionedField<Type, GeoMesh>::readField(fieldDict, "internalField");
 
-	tmp<GeometricBoundaryField> tboundaryField
+	tmp<Boundary> tboundaryField
 	(
-		new GeometricBoundaryField
+		new Boundary
 		(
 			this->mesh().boundary(),
 			*this,
@@ -74,7 +74,7 @@ Foam::GeometricField<Type, PatchField, GeoMesh>::readField
 
 		Field<Type>::operator+=(fieldAverage);
 
-		GeometricBoundaryField& boundaryField = tboundaryField();
+		Boundary& boundaryField = tboundaryField();
 
 		forAll(boundaryField, patchi)
 		{
@@ -90,7 +90,7 @@ template<class Type, template<class> class PatchField, class GeoMesh>
 Foam::tmp
 <
 	typename Foam::GeometricField<Type, PatchField, GeoMesh>::
-	GeometricBoundaryField
+	Boundary
 >
 Foam::GeometricField<Type, PatchField, GeoMesh>::readField(Istream& is)
 {
@@ -696,9 +696,9 @@ Foam::GeometricField<Type, PatchField, GeoMesh>::~GeometricField()
 
 template<class Type, template<class> class PatchField, class GeoMesh>
 typename
-Foam::GeometricField<Type, PatchField, GeoMesh>::DimensionedInternalField&
-Foam::GeometricField<Type, PatchField, GeoMesh>::dimensionedInternalField()
-{
+Foam::GeometricField<Type, PatchField, GeoMesh>::Internal&
+Foam::GeometricField<Type, PatchField, GeoMesh>::ref()
+{ 
 	this->setUpToDate();
 	storeOldTimes();
 	return *this;
@@ -716,10 +716,10 @@ Foam::GeometricField<Type, PatchField, GeoMesh>::internalField()
 }
 
 
-// Return reference to GeometricBoundaryField
+// Return reference to Boundary
 template<class Type, template<class> class PatchField, class GeoMesh>
 typename
-Foam::GeometricField<Type, PatchField, GeoMesh>::GeometricBoundaryField&
+Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary&
 Foam::GeometricField<Type, PatchField, GeoMesh>::boundaryField()
 {
 	this->setUpToDate();
@@ -1126,7 +1126,7 @@ void Foam::GeometricField<Type, PatchField, GeoMesh>::operator=
 
     // only equate field contents not ID
 
-    dimensionedInternalField() = gf.dimensionedInternalField();
+    ref() = gf.dimensionedInternalField();
     boundaryField() = gf.boundaryField();
 }
 
@@ -1173,7 +1173,7 @@ void Foam::GeometricField<Type, PatchField, GeoMesh>::operator=
     const dimensioned<Type>& dt
 )
 {
-    dimensionedInternalField() = dt;
+    ref() = dt;
     boundaryField() = dt.value();
 }
 
@@ -1190,7 +1190,7 @@ void Foam::GeometricField<Type, PatchField, GeoMesh>::operator==
 
     // only equate field contents not ID
 
-    dimensionedInternalField() = gf.dimensionedInternalField();
+    ref() = gf.dimensionedInternalField();
     boundaryField() == gf.boundaryField();
 
     tgf.clear();
@@ -1203,7 +1203,7 @@ void Foam::GeometricField<Type, PatchField, GeoMesh>::operator==
     const dimensioned<Type>& dt
 )
 {
-    dimensionedInternalField() = dt;
+    ref() = dt;
     boundaryField() == dt.value();
 }
 
@@ -1218,7 +1218,7 @@ void Foam::GeometricField<Type, PatchField, GeoMesh>::operator op             \
 {                                                                             \
     checkField(*this, gf, #op);                                               \
                                                                               \
-    dimensionedInternalField() op gf.dimensionedInternalField();              \
+    ref() op gf.dimensionedInternalField();              \
     boundaryField() op gf.boundaryField();                                    \
 }                                                                             \
                                                                               \
@@ -1238,7 +1238,7 @@ void Foam::GeometricField<Type, PatchField, GeoMesh>::operator op             \
     const dimensioned<TYPE>& dt                                               \
 )                                                                             \
 {                                                                             \
-    dimensionedInternalField() op dt;                                         \
+    ref() op dt;                                                              \
     boundaryField() op dt.value();                                            \
 }
 

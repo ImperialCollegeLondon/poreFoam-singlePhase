@@ -16,11 +16,20 @@ fi
 
 
 # build OpenFOAM libraries and applications
-(cd wmake/src && make)
-src/Allwmake
-applications/Allwmake
 
-if [ "$1" = doc ]
-then
+(cd wmake/src && make)
+
+src/Allwmake
+
+if [ -f applications/Allwmake ] ; then 
+  applications/Allwmake
+fi
+
+if [ -f cfMesh/Allwmake ] ; then 
+  echo "(cd cfMesh && ./Allwmake)"
+  (cd cfMesh && ./Allwmake)
+fi
+
+if [ "$1" = doc ] ; then
     doc/Allwmake
 fi

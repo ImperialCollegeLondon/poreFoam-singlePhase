@@ -49,7 +49,7 @@
  }     
  
  
- //~ #include "mylib.h"
+ //#include "mylib.h"
 
 
 scalar volIntegrate(const volScalarField & vf)
@@ -57,10 +57,10 @@ scalar volIntegrate(const volScalarField & vf)
 	return (sum(vf*vf.mesh().V())).value();
 }
 
-//~ scalar volAverage(const volScalarField & vf,const volScalarField & clipV)
-//~ {
-	//~ return (sum(vf*clipV)/sum(clipV)).value();
-//~ }
+//scalar volAverage(const volScalarField & vf,const volScalarField & clipV)
+//{
+	//return (sum(vf*clipV)/sum(clipV)).value();
+//}
 
 scalar surfIntegrate(const surfaceScalarField & sf)
 {

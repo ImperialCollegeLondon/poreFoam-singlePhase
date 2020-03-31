@@ -47,6 +47,7 @@ SourceFiles
 #include "fvPatch.H"
 #include "DimensionedField.H"
 #include "debugSwitch.H"
+#include "Pstream.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

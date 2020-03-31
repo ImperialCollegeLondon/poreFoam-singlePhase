@@ -278,6 +278,10 @@ public:
 		//  in accuracy
 		static bool floatTransfer;
 
+		//- MPI buffer size
+		static int mpiBufferSize;
+
+
 		//- Number of processors at which the sum algorithm changes from linear
 		//  to tree
 		static const debug::optimisationSwitch nProcsSimpleSum;

@@ -342,7 +342,7 @@ void fvMesh::updatePhi(const scalarField& sweptVols) const
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-const volScalarField::DimensionedInternalField& fvMesh::V() const
+const volScalarField::Internal& fvMesh::V() const
 {
 	if (!VPtr_)
 	{
@@ -350,7 +350,7 @@ const volScalarField::DimensionedInternalField& fvMesh::V() const
 		{
 			InfoIn
 			(
-				"const volScalarField::DimensionedInternalField& "
+				"const volScalarField::Internal& "
 				"fvMesh::V() const"
 			)   << "Calculating cell volumes." << endl;
 		}
@@ -375,7 +375,7 @@ const volScalarField::DimensionedInternalField& fvMesh::V() const
 }
 
 
-const volScalarField::DimensionedInternalField& fvMesh::V0() const
+const volScalarField::Internal& fvMesh::V0() const
 {
 	if (!V0Ptr_)
 	{
@@ -418,7 +418,7 @@ DimensionedField<scalar, volMesh>& fvMesh::setV0()
 }
 
 
-const volScalarField::DimensionedInternalField& fvMesh::V00() const
+const volScalarField::Internal& fvMesh::V00() const
 {
 	if (!V00Ptr_)
 	{
@@ -443,7 +443,7 @@ const volScalarField::DimensionedInternalField& fvMesh::V00() const
 }
 
 
-tmp<volScalarField::DimensionedInternalField> fvMesh::Vsc() const
+tmp<volScalarField::Internal> fvMesh::Vsc() const
 {
 	if (moving() && time().subCycling())
 	{
@@ -471,7 +471,7 @@ tmp<volScalarField::DimensionedInternalField> fvMesh::Vsc() const
 }
 
 
-tmp<volScalarField::DimensionedInternalField> fvMesh::Vsc0() const
+tmp<volScalarField::Internal> fvMesh::Vsc0() const
 {
 	if (moving() && time().subCycling())
 	{

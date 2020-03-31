@@ -25,8 +25,8 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-inline Foam::quaternion::quaternion()
-{}
+//inline Foam::quaternion::quaternion()
+//{}
 
 inline Foam::quaternion::quaternion(const scalar w, const vector& v)
 :

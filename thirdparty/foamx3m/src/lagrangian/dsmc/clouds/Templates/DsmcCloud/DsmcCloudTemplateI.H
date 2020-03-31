@@ -120,7 +120,7 @@ inline Foam::Random& Foam::DsmcCloud<ParcelType>::rndGen()
 
 
 template<class ParcelType>
-inline Foam::volScalarField::GeometricBoundaryField&
+inline Foam::volScalarField::Boundary&
 Foam::DsmcCloud<ParcelType>::qBF()
 {
 	return q_.boundaryField();
@@ -128,7 +128,7 @@ Foam::DsmcCloud<ParcelType>::qBF()
 
 
 template<class ParcelType>
-inline Foam::volVectorField::GeometricBoundaryField&
+inline Foam::volVectorField::Boundary&
 Foam::DsmcCloud<ParcelType>::fDBF()
 {
 	return fD_.boundaryField();
@@ -136,7 +136,7 @@ Foam::DsmcCloud<ParcelType>::fDBF()
 
 
 template<class ParcelType>
-inline Foam::volScalarField::GeometricBoundaryField&
+inline Foam::volScalarField::Boundary&
 Foam::DsmcCloud<ParcelType>::rhoNBF()
 {
 	return rhoN_.boundaryField();
@@ -144,7 +144,7 @@ Foam::DsmcCloud<ParcelType>::rhoNBF()
 
 
 template<class ParcelType>
-inline Foam::volScalarField::GeometricBoundaryField&
+inline Foam::volScalarField::Boundary&
 Foam::DsmcCloud<ParcelType>::rhoMBF()
 {
 	return rhoM_.boundaryField();
@@ -152,7 +152,7 @@ Foam::DsmcCloud<ParcelType>::rhoMBF()
 
 
 template<class ParcelType>
-inline Foam::volScalarField::GeometricBoundaryField&
+inline Foam::volScalarField::Boundary&
 Foam::DsmcCloud<ParcelType>::linearKEBF()
 {
 	return linearKE_.boundaryField();
@@ -160,7 +160,7 @@ Foam::DsmcCloud<ParcelType>::linearKEBF()
 
 
 template<class ParcelType>
-inline Foam::volScalarField::GeometricBoundaryField&
+inline Foam::volScalarField::Boundary&
 Foam::DsmcCloud<ParcelType>::internalEBF()
 {
 	return internalE_.boundaryField();
@@ -168,7 +168,7 @@ Foam::DsmcCloud<ParcelType>::internalEBF()
 
 
 template<class ParcelType>
-inline Foam::volScalarField::GeometricBoundaryField&
+inline Foam::volScalarField::Boundary&
 Foam::DsmcCloud<ParcelType>::iDofBF()
 {
 	return iDof_.boundaryField();
@@ -176,7 +176,7 @@ Foam::DsmcCloud<ParcelType>::iDofBF()
 
 
 template<class ParcelType>
-inline Foam::volVectorField::GeometricBoundaryField&
+inline Foam::volVectorField::Boundary&
 Foam::DsmcCloud<ParcelType>::momentumBF()
 {
 	return momentum_.boundaryField();

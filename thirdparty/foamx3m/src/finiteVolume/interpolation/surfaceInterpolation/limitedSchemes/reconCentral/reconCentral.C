@@ -82,8 +82,7 @@ Foam::reconCentral<Type>::interpolate
 	}
 
 
-	typename GeometricField<Type, fvsPatchField, surfaceMesh>::
-		GeometricBoundaryField& bSf = sf.boundaryField();
+	typename GeometricField<Type, fvsPatchField, surfaceMesh>::Boundary& bSf = sf.boundaryField();
 
 	forAll(bSf, patchi)
 	{

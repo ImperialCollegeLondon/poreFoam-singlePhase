@@ -172,7 +172,7 @@ template
 	class GeoMesh
 >
 Foam::SlicedGeometricField<Type, PatchField, SlicedPatchField, GeoMesh>::
-DimensionedInternalField::DimensionedInternalField
+Internal::Internal
 (
 	const IOobject& io,
 	const Mesh& mesh,
@@ -353,7 +353,7 @@ template
 	class GeoMesh
 >
 Foam::SlicedGeometricField<Type, PatchField, SlicedPatchField, GeoMesh>::
-DimensionedInternalField::~DimensionedInternalField()
+Internal::~Internal()
 {
 	// Set the internalField storage pointer to NULL before its destruction
 	// to protect the field it a slice of.

@@ -1,5 +1,7 @@
+METIS_INCLUDE_DIR=/usr/include/metis
+
 EXE_INC = \
-    -I$(METIS_INCLUDE_DIR) \
+    -I$(METIS_INCLUDE_DIR)/ \
     -I../decompositionMethods/lnInclude \
     -I../scotchDecomp/lnInclude
 

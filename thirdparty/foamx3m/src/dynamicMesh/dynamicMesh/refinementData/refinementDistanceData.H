@@ -221,9 +221,10 @@ public:
 
 } // End namespace Foam
 
+#include "refinementDistanceDataI.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "refinementDistanceDataI.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

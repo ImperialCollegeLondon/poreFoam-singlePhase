@@ -32,12 +32,14 @@
 #
 #------------------------------------------------------------------------------
 
+
 export WM_PROJECT=foam
-export WM_FORK=miniext
 export WM_PROJECT_VERSION=3.4
 
-# helps to easily write #ifdefs to detect a dev-version
-export FOAM_DEV=1
+# use WM_FORK=-miniext-$WM_PROJECT_VERSION, for example, to enable versioning, 
+# currently deactivated as this fork is not going to be further developed
+export WM_FORK='x3m'  #miniext-$WM_PROJECT_VERSION  
+
 
 ###############################################################################
 # USER EDITABLE PART
@@ -48,7 +50,7 @@ export FOAM_DEV=1
 # Location of FOAM installation
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-foamInstall=$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )
+foamInstall=`cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd`
 #foamInstall=/opt/FOAM
 # foamInstall=~$WM_PROJECT
 # foamInstall=/usr/local/$WM_PROJECT
@@ -74,8 +76,8 @@ fi
 # Location of site/user files
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 export WM_PROJECT_INST_DIR=$FOAM_INST_DIR
-export WM_PROJECT_DIR=$WM_PROJECT_INST_DIR/$WM_PROJECT-$WM_FORK-$WM_PROJECT_VERSION
-export WM_PROJECT_USER_DIR=$HOME/$WM_PROJECT/$USER-$WM_PROJECT_VERSION
+export WM_PROJECT_DIR=$WM_PROJECT_INST_DIR/$WM_PROJECT$WM_FORK
+export WM_PROJECT_USER_DIR=$HOME/$WM_PROJECT/$USER$WM_FORK
 
 # Location of third-party software
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

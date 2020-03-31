@@ -9,6 +9,6 @@ wmake libso decompositionMethods
 echo "deactivated: metisDecomp parMetisDecomp scotchDecomp"
 #wmake libso metisDecomp
 #wmake libso parMetisDecomp
-#wmake libso scotchDecomp
+wmake libso scotchDecomp || echo "Scotch is not compiled"
 
 

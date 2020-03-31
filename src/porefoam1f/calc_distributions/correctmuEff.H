@@ -3,7 +3,7 @@
 
 	volVectorField gradP=	fvc::grad(p); 
 
-    volVectorField::GeometricBoundaryField& Ubf = U.boundaryField();
+    volVectorField::Boundary& Ubf = U.boundaryField();
 
     const fvBoundaryMesh& boundary = mesh.boundary();
     forAll(boundary, patchi)
@@ -11,7 +11,7 @@
         if (isA<fixedValueFvPatchVectorField>(Ubf[patchi]))
         { 
 
-			 //~ muEff.boundaryField()[patchi]+=cBC*mag(Ubf[patchi].patchInternalField())*mag(boundary[patchi].delta());
+			 //muEff.boundaryField()[patchi]+=cBC*mag(Ubf[patchi].patchInternalField())*mag(boundary[patchi].delta());
 			 muEff.boundaryField()[patchi]+=
 			 0.001*cBC* //1.0526315789474;
 			 (mag(gradP.boundaryField()[patchi].patchInternalField())) 

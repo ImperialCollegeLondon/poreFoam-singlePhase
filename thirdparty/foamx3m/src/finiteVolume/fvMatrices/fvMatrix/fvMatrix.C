@@ -710,8 +710,7 @@ void Foam::fvMatrix<Type>::completeAssembly()
 
 	assemblyCompleted_ = true;
 
-	typename GeometricField<Type, fvPatchField, volMesh>::
-		GeometricBoundaryField& bFields = psi_.boundaryField();
+	typename GeometricField<Type, fvPatchField, volMesh>::Boundary& bFields = psi_.boundaryField();
 
 	forAll(bFields, patchI)
 	{

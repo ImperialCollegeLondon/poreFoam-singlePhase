@@ -38,6 +38,7 @@ SourceFiles
 
 #include "labelField.H"
 #include "typeInfo.H"
+#include "Pstream.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

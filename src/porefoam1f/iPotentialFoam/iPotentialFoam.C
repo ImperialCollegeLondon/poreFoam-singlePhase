@@ -46,10 +46,10 @@ int main(int argc, char *argv[])
 	#include "initContinuityErrs.H"
 	#include "createFields.H"
 	#include "createTimeControls.H"
-	//#include "correctPhi.H"
+	//#include "correctPhi.H" // GAMGPCG:  Solving for p:  solution singularity !
 	#include "CourantNo.H"
 
-	//~ #include "setInitialDeltaT.H"
+	//#include "setInitialDeltaT.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 		fvm::laplacian(p) 
 	);
 	pEqn.setReference(pRefCell, pRefValue);
-	pEqn.solve(mesh.solutionDict().solver(p.name() + "Final"));
+	pEqn.solve(mesh.solutionDict().solver("pcorr"));
 }
 
 
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 
 
 
-	//~ #include  "correctmuEff.H"
+	//#include  "correctmuEff.H"
 	solve
 	(
 		fvm::laplacian(muEff, U) - fvm::div(rho*phi, U) /*  - fvm::div(rho*phi, U) is just to avoid OpenFOAM bug with solver selection*/
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 	<< nl<< nl << endl;
 
 	
-	#include  "correctmuEff.H"
+	//#include  "correctmuEff.H"
 	solve
 	(
 		fvm::laplacian(muEff, U) - fvm::div(rho*phi, U)
@@ -181,10 +181,10 @@ for (int ii=1;ii<10;++ii)
 	(
 		fvm::div(rho*phi, U) - fvm::laplacian(muEff, U)
 	);
-	scalar rlx=min((ii)/8.0,1.0);
+	scalar rlx=min((ii-0.9)/8.0,1.0);
 	volScalarField rAU = 1.0/UEqn().A();
 	surfaceScalarField rAUf = fvc::interpolate(rAU);
-	//~ rAUf = rlx*rAUf+(1.0-rlx)*fvc::interpolate(fvc::average(rAUf));
+	//rAUf = rlx*rAUf+(1.0-rlx)*fvc::interpolate(fvc::average(rAUf));
 	U = rAU*(UEqn().H());
 	phi = (fvc::interpolate(U) & mesh.Sf());
 	UEqn.clear();
@@ -271,14 +271,15 @@ for (int ii=1;ii<10;++ii)
 
 
 
+if(max(p).value()<100000000.0)
+{
 
+	U.write();
+	phi.write();
 
-U.write();
-phi.write();
+	p.write();
 
-p.write();
-
-
+}else Info<<"error too high p_max, exiting"<<endl;
 
 
 

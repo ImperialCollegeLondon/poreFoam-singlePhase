@@ -318,7 +318,7 @@ void Foam::MULES::limiter
 )
 {
 	const scalarField& psiIf = psi;
-	const volScalarField::GeometricBoundaryField& psiBf = psi.boundaryField();
+	const volScalarField::Boundary& psiBf = psi.boundaryField();
 
 	const scalarField& psi0 = psi.oldTime();
 
@@ -326,16 +326,16 @@ void Foam::MULES::limiter
 
 	const unallocLabelList& owner = mesh.owner();
 	const unallocLabelList& neighb = mesh.neighbour();
-	tmp<volScalarField::DimensionedInternalField> tVsc = mesh.Vsc();
+	tmp<volScalarField::Internal> tVsc = mesh.Vsc();
 	const scalarField& V = tVsc();
 	const scalar deltaT = mesh.time().deltaT().value();
 
 	const scalarField& phiBDIf = phiBD;
-	const surfaceScalarField::GeometricBoundaryField& phiBDBf =
+	const surfaceScalarField::Boundary& phiBDBf =
 		phiBD.boundaryField();
 
 	const scalarField& phiCorrIf = phiCorr;
-	const surfaceScalarField::GeometricBoundaryField& phiCorrBf =
+	const surfaceScalarField::Boundary& phiCorrBf =
 		phiCorr.boundaryField();
 
 	slicedSurfaceScalarField lambda
@@ -356,7 +356,7 @@ void Foam::MULES::limiter
 	);
 
 	scalarField& lambdaIf = lambda;
-	surfaceScalarField::GeometricBoundaryField& lambdaBf =
+	surfaceScalarField::Boundary& lambdaBf =
 		lambda.boundaryField();
 
 	scalarField psiMaxn(psiIf.size(), psiMin);
@@ -454,7 +454,7 @@ void Foam::MULES::limiter
 
 	if (mesh.moving())
 	{
-		tmp<volScalarField::DimensionedInternalField> V0 = mesh.Vsc0();
+		tmp<volScalarField::Internal> V0 = mesh.Vsc0();
 
 		psiMaxn =
 			V*((rho/deltaT - Sp)*psiMaxn - Su)

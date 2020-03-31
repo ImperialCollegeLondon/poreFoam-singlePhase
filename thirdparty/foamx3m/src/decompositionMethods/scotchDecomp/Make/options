@@ -1,8 +1,10 @@
 
-EXE_INC = \
-    -I$(SCOTCH_INCLUDE_DIR) \
-    -I../decompositionMethods/lnInclude
+SCOTCH_INCLUDE_DIR = /usr/include/scotch
 
+EXE_INC = \
+    -I$(SCOTCH_INCLUDE_DIR)/ \
+    -I../decompositionMethods/lnInclude \
+    -I../../decompositionMethods/lnInclude
 
 LIB_LIBS = \
     -L$(SCOTCH_LIB_DIR) -lscotch \

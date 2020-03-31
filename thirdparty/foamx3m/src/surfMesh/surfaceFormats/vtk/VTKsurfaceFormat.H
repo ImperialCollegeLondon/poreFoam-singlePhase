@@ -1,35 +1,36 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
-  \\      /  F ield         | foam-extend: Open Source CFD
-   \\    /   O peration     | Version:     4.0
-    \\  /    A nd           | Web:         http://www.foam-extend.org
-     \\/     M anipulation  | For copyright notice see file Copyright
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2011-2016 OpenFOAM Foundation
+     \\/     M anipulation  | Copyright (C) 2016-2017 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
-	This file is part of foam-extend.
+    This file is part of OpenFOAM.
 
-	foam-extend is free software: you can redistribute it and/or modify it
-	under the terms of the GNU General Public License as published by the
-	Free Software Foundation, either version 3 of the License, or (at your
-	option) any later version.
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	foam-extend is distributed in the hope that it will be useful, but
-	WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	General Public License for more details.
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with foam-extend.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-	Foam::fileFormats::VTKsurfaceFormat
+    Foam::fileFormats::VTKsurfaceFormat
 
 Description
-	Provide a means of writing VTK legacy format.
-	The output is never sorted by zone.
+    Read/write VTK legacy format (ASCII) for surfaces.
+
+    The output is never sorted by zone.
 
 SourceFiles
-	VTKsurfaceFormat.C
+    VTKsurfaceFormat.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -48,61 +49,78 @@ namespace Foam
 namespace fileFormats
 {
 
+/*---------------------------------------------------------------------------*\
+                Class fileFormats::VTKsurfaceFormat Declaration
+\*---------------------------------------------------------------------------*/
 
 template<class Face>
 class VTKsurfaceFormat
 :
-	public MeshedSurface<Face>,
-	public VTKsurfaceFormatCore
+    public MeshedSurface<Face>,
+    public VTKsurfaceFormatCore
 {
-	// Private Member Functions
+    // Private Member Functions
 
-		//- Write header information about number of polygon points
+        //- Write polygons
 		static void writeHeaderPolygons(Ostream&, const UList<Face>&);
 
-		//- Disallow default bitwise copy construct
-		VTKsurfaceFormat(const VTKsurfaceFormat<Face>&);
+        //- No copy construct
+        VTKsurfaceFormat(const VTKsurfaceFormat<Face>&) = delete;
 
-		//- Disallow default bitwise assignment
-		void operator=(const VTKsurfaceFormat<Face>&);
+        //- No copy assignment
+        void operator=(const VTKsurfaceFormat<Face>&) = delete;
 
 
 public:
 
-	// Constructors
+    // Constructors
 
-		//- Construct null
-		VTKsurfaceFormat();
-
-
-	// Destructor
-
-		virtual ~VTKsurfaceFormat()
-		{}
+        //- Construct from file name
+        VTKsurfaceFormat(const fileName& filename);
 
 
-	// Member Functions
+    //- Destructor
+    virtual ~VTKsurfaceFormat() = default;
+
+
+		static autoPtr<MeshedSurface<Face> > New(const fileName& name)
+		{
+			return autoPtr<MeshedSurface<Face> >
+			(
+				new VTKsurfaceFormat(name)
+			);
+		}
+    // Static Member Functions
+
+    // Member Functions
+
+        //- Read from file
+        virtual bool read(const fileName& filename);
 
 		// Write
 
-			//- Write surface mesh components by proxy
-			static void write
-			(
-				const fileName&, const MeshedSurfaceProxy<Face>&
-			);
+		//- Write surface mesh components by proxy
+		static void write(Ostream&, const MeshedSurfaceProxy<Face>&);
 
-			//- Write UnsortedMeshedSurface, the output remains unsorted
-			static void write
-			(
-				const fileName&, const UnsortedMeshedSurface<Face>&
-			);
+		static void write(const fileName&, const MeshedSurfaceProxy<Face>&);
+
+		//- Write UnsortedMeshedSurface, the output remains unsorted
+		static void write
+		(
+			const fileName&, const UnsortedMeshedSurface<Face>&
+		);
 
 
-			//- Write object
-			virtual void write(Ostream& os) const
-			{
-				write(os, MeshedSurfaceProxy<Face>(*this));
-			}
+		//- Write object
+		virtual void write(Ostream& os) const
+		{
+			write(os, MeshedSurfaceProxy<Face>(*this));
+		}
+
+		virtual void write(const fileName& name) const
+		{
+			write(name, MeshedSurfaceProxy<Face>(*this));
+		}
 };
 
 
@@ -114,7 +132,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#	include "VTKsurfaceFormat.C"
+    #include "VTKsurfaceFormat.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

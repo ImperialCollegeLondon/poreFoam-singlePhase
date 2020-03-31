@@ -35,8 +35,8 @@ SourceFiles
 #ifndef twoPhaseMixture_H
 #define twoPhaseMixture_H
 
-#include "incompressible/transportModel/transportModel.H"
-#include "incompressible/viscosityModels/viscosityModel/viscosityModel.H"
+#include "../transportModel/transportModel.H"
+#include "../viscosityModels/viscosityModel/viscosityModel.H"
 #include "dimensionedScalar.H"
 #include "volFields.H"
 

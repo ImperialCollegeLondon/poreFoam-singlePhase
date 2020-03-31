@@ -139,7 +139,7 @@ FieldField<Field, Type>::FieldField
 {
 	forAll(*this, i)
 	{
-		set(i, Field<Type>::New(type, ff[i]));
+		this->set(i, Field<Type>::New(type, ff[i]));
 	}
 }
 

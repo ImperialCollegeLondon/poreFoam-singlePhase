@@ -35,6 +35,7 @@ Description
 #include "sphericalTensorBlockCoeff.H"
 #include "symmTensorBlockCoeff.H"
 #include "tensorBlockCoeff.H"
+#include "PstreamReduceOps.H"
 
 namespace Foam
 {

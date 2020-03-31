@@ -33,6 +33,7 @@ Description
 #define fvPatchFieldMapper_H
 
 #include "primitiveFields.H"
+#include "FieldMapper.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

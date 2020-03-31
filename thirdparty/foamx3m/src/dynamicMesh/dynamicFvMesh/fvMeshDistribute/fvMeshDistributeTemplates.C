@@ -202,8 +202,8 @@ void Foam::fvMeshDistribute::addPatchFields(const word& patchFieldType)
 	{
 		const GeoField& fld = *iter();
 
-		typename GeoField::GeometricBoundaryField& bfld =
-			const_cast<typename GeoField::GeometricBoundaryField&>
+		typename GeoField::Boundary& bfld =
+			const_cast<typename GeoField::Boundary&>
 			(
 				fld.boundaryField()
 			);
@@ -243,8 +243,8 @@ void Foam::fvMeshDistribute::deleteTrailingPatchFields()
 	{
 		const GeoField& fld = *iter();
 
-		typename GeoField::GeometricBoundaryField& bfld =
-			const_cast<typename GeoField::GeometricBoundaryField&>
+		typename GeoField::Boundary& bfld =
+			const_cast<typename GeoField::Boundary&>
 			(
 				fld.boundaryField()
 			);
@@ -323,8 +323,8 @@ void Foam::fvMeshDistribute::mapBoundaryFields
 	)
 	{
 		const fldType& fld = *iter();
-		typename fldType::GeometricBoundaryField& bfld =
-			const_cast<typename fldType::GeometricBoundaryField&>
+		typename fldType::Boundary& bfld =
+			const_cast<typename fldType::Boundary&>
 			(
 				fld.boundaryField()
 			);
@@ -385,8 +385,8 @@ void Foam::fvMeshDistribute::initPatchFields
 	{
 		const GeoField& fld = *iter();
 
-		typename GeoField::GeometricBoundaryField& bfld =
-			const_cast<typename GeoField::GeometricBoundaryField&>
+		typename GeoField::Boundary& bfld =
+			const_cast<typename GeoField::Boundary&>
 			(
 				fld.boundaryField()
 			);

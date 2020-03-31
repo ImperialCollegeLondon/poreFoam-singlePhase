@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 		double porVol = gSum(mesh.V()*porosity.internalField());
 
 		Info << runTime.caseName()
-			<<"\teffPorosity= "<< porVol/(L[x_]*L[y_]*L[z_]) <<" \t"
+			<<"\t\t effPorosity=  "<<porVol/(L[x_]*L[y_]*L[z_])<<"                  = V_pore/(L_x*L_y*L_z)= "<<porVol<<" /( "<<L[x_]<<" "<<L[y_]<<" "<<L[z_]<<" )\n"
 			<<"\tK_"<<directions[iDir]<<"= "<<  K[iDir]<<" m^2 \t"
 			<<"\tDarcyVelocity= "<< VDarcy[iDir] <<" m/s \t"
 			<<"\tDelP= "<< dp[iDir] <<" Pa \t"
@@ -199,8 +199,7 @@ int main(int argc, char *argv[])
 			<<"\t\tK=( "<<  K[x_]<<"  "<<  K[y_]<<"  "<<  K[z_] <<" )"
 			<<" Pmax-Pmin: "<<  Pmax_min
 			<<" Umax= "<<  Umax
-			<<"\t\t effPorosity = "<<  "V_pore / (L_x*L_y*L_z) = "<<  porVol<<" / "<<" ("<<L[x_]<<"*"<<L[y_]<<"*"<<L[z_]<<") = "<<porVol/(L[x_]*L[y_]*L[z_])
-			<<"\t\t Re= "<<  "rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[iDir]<<" * sqrt("<<K[iDir]<<") / "<<mu.value()<<" ) = "<<Re 
+			<<"\t\t Re= "<<  "rho*VDarcy*sqrt(K)/mu= "<< rho.value() <<"*"<<VDarcy[iDir]<<"*sqrt("<<K[iDir]<<")/"<<mu.value()<<")= "<<Re 
 			<< "\n";
 		VDarcy[iDir]=max(1.0e-64,VDarcy[iDir]);
 		std::valarray<std::valarray<double> > ditribLogU = distribution(log10(max(1.0e-16,clip.internalField()*mag(U.internalField())/porosity.internalField()/VDarcy[iDir]) ), mesh.V()*porosity.internalField());
@@ -231,11 +230,11 @@ int main(int argc, char *argv[])
 		else Info<<"\n\nInfo: Skipping calc_FF in multi_region upscaling mdoe\n\n"<<endl;
 
 		Info	<< runTime.caseName()
-				<<"\n\neffPorosity=   "<< porVol/(L[x_]*L[y_]*L[z_]) <<"                  = "<<  "V_pore / (L_x*L_y*L_z) = "<<  porVol<<" / "<<" ("<<L[x_]<<"*"<<L[y_]<<"*"<<L[z_]<<")\n"
-				<<"K_"<<directions[iDir]<<"=           "<<  K[iDir]<<" m^2,          K=( "<<  K[x_]<<"  "<<  K[y_]<<"  "<<  K[z_] <<" ) \n";
+				<<"\n\neffPorosity=   "<<porVol/(L[x_]*L[y_]*L[z_])<<"                  = V_pore/(L_x*L_y*L_z)= "<<porVol<<" /( "<<L[x_]<<" "<<L[y_]<<" "<<L[z_]<<" )\n"
+				<<"K_"<<directions[iDir]<<"=           "<<  K[iDir]<<" m^2,        \t  K=( "<<K[x_]<<"  "<<K[y_]<<"  "<<K[z_]<<" ) \n";
 		if(nSams==1) Info <<"FF_"<<directions[iDir]<<"=          "<<  FF[iDir]<<" ";
 		Info	<<"\nDarcyVelocity= "<< VDarcy[iDir] <<" m/s,    \t   Umax= "<<  Umax <<"\t  DelP= "<< dp[iDir] <<" Pa "<<",  Pmax-Pmin: "<<  Pmax_min <<" \n"
-				<<"Re=            "<<Re<<  "             =  rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[iDir]<<" * sqrt("<<K[iDir]<<") / "<<mu.value()<<" )" 
+				<<"Re=            "<<Re<<  "             =rho*VDarcy*sqrt(K)/mu= "<< rho.value() <<" "<<VDarcy[iDir]<<" sqrt( "<<K[iDir]<<" )/ "<<mu.value()<<" )" 
 				<< "\n\n";
 
 
@@ -251,12 +250,12 @@ int main(int argc, char *argv[])
 			std::ofstream of("summary_"+title+".txt"/*,std::ios::app*/);
 			assert(of);
 
-			of  << runTime.caseName()
-				<<"\n\neffPorosity=   "<< porVol/(L[x_]*L[y_]*L[z_]) <<"                  = "<<  "V_pore / (L_x*L_y*L_z) = "<<  porVol<<" / "<<" ("<<L[x_]<<"*"<<L[y_]<<"*"<<L[z_]<<")\n"
+			of  << runTime.caseName()<<"  t="<<runTime.value()
+				<<"\n\neffPorosity=   "<< porVol/(L[x_]*L[y_]*L[z_]) <<"                  = V_pore/(L_x*L_y*L_z)= "<<porVol<<" /( "<<L[x_]<<" "<<L[y_]<<" "<<L[z_]<<" )\n"
 				<<"K_"<<directions[iDir]<<"=           "<<  K[iDir]<<" m^2,          K=( "<<  K[x_]<<"  "<<  K[y_]<<"  "<<  K[z_] <<" ) \n";
 			if(nSams==1) of	<<"FF_"<<directions[iDir]<<"=          "<<  FF[iDir]<<" ";
-			of	<<"\nDarcyVelocity= "<< VDarcy[iDir] <<" m/s,    \t   Umax= "<<  Umax <<"\t  DelP= "<< dp[iDir] <<" Pa "<<",  Pmax-Pmin: "<<  Pmax_min <<" \n"
-				<<"Re=            "<<Re<<  "             =  rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[iDir]<<" * sqrt("<<K[iDir]<<") / "<<mu.value()<<" )" 
+			of	<<"\nDarcyVelocity= "<< VDarcy[iDir] <<" m/s,    \t   Umax= "<<  Umax <<"\t  DelP= "<< dp[iDir] <<" Pa "<<",  Pmax-Pmin: "<<Pmax_min<<" \n"
+				<<"Re=            "<<Re<<  "             =  rho*VDarcy*sqrt(K)/mu= "<< rho.value()<<"*"<<VDarcy[iDir]<<"*sqrt("<<K[iDir]<<")/"<<mu.value()<<")" 
 				<< "\n\n";
 
 			of<<"\n\nx=mag(U)/U_D \t PDF \t dV/Vdx \t PDF(log10(x)) \t dV/Vd(log10(x))"<<std::endl;
@@ -272,7 +271,7 @@ int main(int argc, char *argv[])
 
 
 			of<<"\n\n distributions with uniform cbrt(U) interval "<<std::endl;
-			of<<"\n\nx=U_m/U_D dummy \t PDF \t dV/Vdx"<<std::endl;
+			of<<"\n\nx=U_m/U_D dummy \t PDF \t dV/Vdx \t distConstDelCbrtU:"<<std::endl;
 			ditribUmCbrt[1]=3.0*ditribUmCbrt[0]*ditribUmCbrt[0]*ditribUmCbrt[1];
 			ditribUmCbrt[2]=3.0*ditribUmCbrt[0]*ditribUmCbrt[0]*ditribUmCbrt[2];
 			ditribUmCbrt[0]=ditribUmCbrt[0]*ditribUmCbrt[0]*ditribUmCbrt[0];

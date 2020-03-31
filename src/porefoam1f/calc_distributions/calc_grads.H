@@ -30,7 +30,7 @@ Ali Q Raeini:    a.qaseminejad-raeini09@imperial.ac.uk
 
 
 
-//~ int PostProcess(const fvMesh& mesh)
+//int PostProcess(const fvMesh& mesh)
 {
 	Info<<endl;
 
@@ -53,10 +53,10 @@ Ali Q Raeini:    a.qaseminejad-raeini09@imperial.ac.uk
 	//int counter = 0;
 	vector uTotal(0.0,0.0,0.0);
 
-	//~ forAll(timeDirs, timeI)
-	//~ if (timeDirs[timeI]==0.0671834)
+	//forAll(timeDirs, timeI)
+	//if (timeDirs[timeI]==0.0671834)
 	{
-	//~ runTime.setTime(timeDirs[timeI], timeI);
+	//runTime.setTime(timeDirs[timeI], timeI);
 
 		snapShot_t data(CVBounds1.size());
 
@@ -103,7 +103,7 @@ Ali Q Raeini:    a.qaseminejad-raeini09@imperial.ac.uk
 
 			Info<<iSam<< "   Del x :"<< xSam1 <<" to "<< xSam2<< "   ";		
 
-			//~ clip1=0.0;
+			//clip1=0.0;
 			clip=0.0;
 			forAll(Cx,c) 
 			{ 

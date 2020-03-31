@@ -6,8 +6,8 @@ vector rhoPhiUE(0.0,0.0,0.0);
 
     
 {
-//~ scalar viscE(0.0);
-//~ scalar viscE_1(0.0);
+//scalar viscE(0.0);
+//scalar viscE_1(0.0);
 
     const fvBoundaryMesh& boundary = mesh.boundary();
 
@@ -19,7 +19,7 @@ vector rhoPhiUE(0.0,0.0,0.0);
 
 	surfaceScalarField BSurafce=fvcDelta(clip);
 	
-	volVectorField::GeometricBoundaryField& Ubf = U.boundaryField();
+	volVectorField::Boundary& Ubf = U.boundaryField();
 
     forAll(boundary, patchi) if (isA<fixedValueFvPatchVectorField>(Ubf[patchi]))
     {		

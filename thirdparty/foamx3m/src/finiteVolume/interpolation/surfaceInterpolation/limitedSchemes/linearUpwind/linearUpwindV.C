@@ -127,8 +127,7 @@ Foam::linearUpwindV<Type>::correction
 
 	// Added missing treatment of coupled boundaries.  HJ, 27/Jul/2011
 
-	typename GeometricField<Type, fvsPatchField, surfaceMesh>::
-		GeometricBoundaryField& bSfCorr = sfCorr.boundaryField();
+	typename GeometricField<Type, fvsPatchField, surfaceMesh>::Boundary& bSfCorr = sfCorr.boundaryField();
 
 	forAll(bSfCorr, patchi)
 	{

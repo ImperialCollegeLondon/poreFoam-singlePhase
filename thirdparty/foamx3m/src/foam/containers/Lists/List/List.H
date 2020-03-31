@@ -143,6 +143,9 @@ public:
 		//- Construct as copy of BiIndirectList<T>
 		List(const BiIndirectList<T>&);
 
+        //- Construct from an initializer list
+        List(std::initializer_list<T> lst);
+
 		//- Construct from Istream.
 		List(Istream&);
 

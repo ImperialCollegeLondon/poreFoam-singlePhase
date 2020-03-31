@@ -38,6 +38,7 @@ SourceFiles
 
 #include "IOstream.H"
 #include "keyType.H"
+#include "char.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

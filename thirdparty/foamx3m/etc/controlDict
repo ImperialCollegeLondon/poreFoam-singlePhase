@@ -190,7 +190,7 @@ DebugSwitches
     NonlinearKEShih     0;
     ODE                 0;
     ODESolver           0;
-    OFstream            0;
+    OFstream            1;
     ORourke             0;
     OSPRE               0;
     OSPREV              0;

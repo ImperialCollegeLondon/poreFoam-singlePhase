@@ -45,6 +45,7 @@ SourceFiles
 #include "DimensionedField.H"
 #include "fieldTypes.H"
 #include "autoPtr.H"
+#include "Pstream.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -77,6 +77,9 @@ public:
 
 		//- Construct from file name
 		OFFsurfaceFormat(const fileName&);
+	//- Destructor
+	virtual ~OFFsurfaceFormat()
+	{}
 
 
 	// Selectors
@@ -91,9 +94,8 @@ public:
 		}
 
 
-	//- Destructor
-	virtual ~OFFsurfaceFormat()
-	{}
+		//- Read from file
+		virtual bool read(const fileName&);
 
 
 	// Member Functions
@@ -101,8 +103,6 @@ public:
 		//- Write surface mesh components by proxy
 		static void write(const fileName&, const MeshedSurfaceProxy<Face>&);
 
-		//- Read from file
-		virtual bool read(const fileName&);
 
 		//- Write object
 		virtual void write(const fileName& name) const

@@ -558,15 +558,18 @@ void Foam::Pstream::addValidParOptions(HashTable<string>& validParOptions)
 
 bool Foam::Pstream::init(int& argc, char**& argv)
 {
-	MPI_Init(&argc, &argv);
+	int mpiInited=0;
+	MPI_Initialized(&mpiInited);
+	if(!mpiInited)
+		MPI_Init(&argc, &argv);
 
 	int numprocs;
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
-	int myRank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
 
 	if (debug)
 	{
+		int myRank;
+		MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
 		Pout<< "Pstream::init : initialised with numProcs:" << numprocs
 			<< " myRank:" << myRank << endl;
 	}
@@ -583,24 +586,16 @@ bool Foam::Pstream::init(int& argc, char**& argv)
 	setParRun(numprocs);
 
 #	ifndef SGIMPI
-	string bufferSizeName = getEnv("MPI_BUFFER_SIZE");
 
-	if (bufferSizeName.size())
-	{
-		int bufferSize = atoi(bufferSizeName.c_str());
-
-		if (bufferSize)
-		{
-			MPI_Buffer_attach(new char[bufferSize], bufferSize);
-		}
-	}
+	string bufSize = getEnv("MPI_BUFFER_SIZE");
+	if (bufSize.size()) 	mpiBufferSize = atoi(bufSize.c_str());
 	else
-	{
-		FatalErrorIn("Pstream::init(int& argc, char**& argv)")
-			<< "Pstream::init(int& argc, char**& argv) : "
-			<< "environment variable MPI_BUFFER_SIZE not defined"
-			<< Foam::abort(FatalError);
-	}
+		Info<<"Warning in "<<__FUNCTION__<<":"
+		    <<"  Environment variable MPI_BUFFER_SIZE not defined"
+		    <<"  MPI_BUFFER_SIZE="<<mpiBufferSize<<endl; 
+
+	if (mpiBufferSize)
+		MPI_Buffer_attach(new char[mpiBufferSize], mpiBufferSize);
 #	endif
 
 	//int processorNameLen;
@@ -914,6 +909,8 @@ bool Foam::Pstream::floatTransfer
 (
 	debug::optimisationSwitch("floatTransfer", 0)
 );
+
+int Foam::Pstream::mpiBufferSize(200000000);// will be intialized later from MPI_BUFFER_SIZE env variable
 
 // Number of processors at which the reduce algorithm changes from linear to
 // tree

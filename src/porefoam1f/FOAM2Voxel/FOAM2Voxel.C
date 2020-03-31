@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 	if(argc>2) nProcs = atoi(argv[2]);
 	if(argc>3) outputFormat = std::string (argv[3]); 
 	if(argc>4) writeVoltage = argv[4][0]=='t' || argv[4][0]=='T'; 
-	//~ if(argc>4) skipOutlet = std::string(argv[4]); 
+	//if(argc>4) skipOutlet = std::string(argv[4]); 
 	imgExt(outputFormat);
 	Info<<"FOAM2Voxel "<<headerName<<" "<<nProcs<<" "<<outputFormat<<" "<<writeVoltage<<endl;
 

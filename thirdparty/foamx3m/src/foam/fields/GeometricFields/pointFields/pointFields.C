@@ -33,13 +33,13 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-defineTemplateTypeNameAndDebug(pointScalarField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(pointVectorField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(pointSphericalTensorField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(pointSymmTensorField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(pointSymmTensor4thOrderField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(pointDiagTensorField::DimensionedInternalField, 0);
-defineTemplateTypeNameAndDebug(pointTensorField::DimensionedInternalField, 0);
+defineTemplateTypeNameAndDebug(pointScalarField::Internal, 0);
+defineTemplateTypeNameAndDebug(pointVectorField::Internal, 0);
+defineTemplateTypeNameAndDebug(pointSphericalTensorField::Internal, 0);
+defineTemplateTypeNameAndDebug(pointSymmTensorField::Internal, 0);
+defineTemplateTypeNameAndDebug(pointSymmTensor4thOrderField::Internal, 0);
+defineTemplateTypeNameAndDebug(pointDiagTensorField::Internal, 0);
+defineTemplateTypeNameAndDebug(pointTensorField::Internal, 0);
 
 defineTemplateTypeNameAndDebug(pointScalarField, 0);
 defineTemplateTypeNameAndDebug(pointVectorField, 0);

@@ -83,7 +83,7 @@ public:
 	// Constructors
 
 		//- Construct null
-		inline quaternion();
+		inline quaternion() = default;
 
 		//- Construct given scalar and vector parts
 		inline quaternion(const scalar w, const vector& v);
