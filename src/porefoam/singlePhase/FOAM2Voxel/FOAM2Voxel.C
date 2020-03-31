@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 	if(argc>3) outputFormat = std::string (argv[3]); 
 	if(argc>4) writeVoltage = argv[4][0]=='t' || argv[4][0]=='T'; 
 	//~ if(argc>4) skipOutlet = std::string(argv[4]); 
-	suffix(outputFormat);
+	imgExt(outputFormat);
 	Info<<"FOAM2Voxel "<<headerName<<" "<<nProcs<<" "<<outputFormat<<" "<<writeVoltage<<endl;
 
 	voxelImage vximage(headerName,2);
@@ -100,26 +100,26 @@ int main(int argc, char *argv[])
 	vxlResults<<"			</DataItem>"<<std::endl;
 	vxlResults<<"		</Geometry>"<<std::endl;
 	vxlResults<<"		<Attribute Name=\"rock\" Active=\"1\" AttributeType=\"Scalar\" Center=\"Cell\">"<<std::endl;
-	vxlResults<<"		  <DataItem Dimensions=\""<<n[2]<<" "<<n[1]<<" "<<n[0]<<"\" DataType=\"UChar\" Precision=\"4\" Format=\"Binary\">	vxlImage"+suffix()<<std::endl;
+	vxlResults<<"		  <DataItem Dimensions=\""<<n[2]<<" "<<n[1]<<" "<<n[0]<<"\" DataType=\"UChar\" Precision=\"4\" Format=\"Binary\">	vxlImage"+imgExt()<<std::endl;
 	vxlResults<<"		  </DataItem>"<<std::endl;
 	vxlResults<<"		</Attribute>"<<std::endl;
 	vxlResults<<"		<Attribute Name=\"pressure\" Active=\"1\" AttributeType=\"Scalar\" Center=\"Cell\">"<<std::endl;
-	vxlResults<<"		  <DataItem Dimensions=\""<<n[2]<<" "<<n[1]<<" "<<n[0]<<"\" DataType=\"Float\" Precision=\"4\" Format=\"Binary\">	p"+suffix()<<std::endl;
+	vxlResults<<"		  <DataItem Dimensions=\""<<n[2]<<" "<<n[1]<<" "<<n[0]<<"\" DataType=\"Float\" Precision=\"4\" Format=\"Binary\">	p"+imgExt()<<std::endl;
 	vxlResults<<"		  </DataItem>"<<std::endl;
 	vxlResults<<"		</Attribute>"<<std::endl;
 	vxlResults<<"		<Attribute Name=\"Uf\" Active=\"0\" AttributeType=\"Vector\" Center=\"Node\">"<<std::endl;
 	vxlResults<<"			<DataItem Dimensions=\""<<n[2]<<" "<<n[1]<<" "<<n[0]<<" 3\" ItemType=\"Function\"  Function=\"JOIN($0 , $1, $2)\" >"<<std::endl;
 	vxlResults<<"			 <DataItem ItemType=\"HyperSlab\"  Dimensions=\""<<n[2]<<" "<<n[1]<<" "<<n[0]<<"\"  Type=\"HyperSlab\">"<<std::endl;
 	vxlResults<<"				 <DataItem Dimensions=\"3 3\" Format=\"XML\">   0 0 0    1 1 1   "<<n[2]<<" "<<n[1]<<" "<<n[0]<<"   </DataItem>"<<std::endl;
-	vxlResults<<"				 <DataItem Dimensions=\""<<n[2]<<" "<<n[1]<<" "<<n[0]+1<<"\" DataType=\"Float\" Precision=\"4\" Format=\"Binary\">	Ufx"+suffix() +" </DataItem>"<<std::endl;
+	vxlResults<<"				 <DataItem Dimensions=\""<<n[2]<<" "<<n[1]<<" "<<n[0]+1<<"\" DataType=\"Float\" Precision=\"4\" Format=\"Binary\">	Ufx"+imgExt() +" </DataItem>"<<std::endl;
 	vxlResults<<"			 </DataItem>"<<std::endl;
 	vxlResults<<"			 <DataItem ItemType=\"HyperSlab\"  Dimensions=\""<<n[2]<<" "<<n[1]<<" "<<n[0]<<"\"  Type=\"HyperSlab\">"<<std::endl;
 	vxlResults<<"				 <DataItem Dimensions=\"3 3\" Format=\"XML\">   0 0 0    1 1 1   "<<n[2]<<" "<<n[1]<<" "<<n[0]<<"   </DataItem>		  "<<std::endl;
-	vxlResults<<"				 <DataItem Dimensions=\""<<n[2]<<" "<<n[1]+1<<" "<<n[0]<<"\" DataType=\"Float\" Precision=\"4\" Format=\"Binary\">	Ufy"+suffix() +" </DataItem>"<<std::endl;
+	vxlResults<<"				 <DataItem Dimensions=\""<<n[2]<<" "<<n[1]+1<<" "<<n[0]<<"\" DataType=\"Float\" Precision=\"4\" Format=\"Binary\">	Ufy"+imgExt() +" </DataItem>"<<std::endl;
 	vxlResults<<"		    </DataItem>"<<std::endl;
 	vxlResults<<"			 <DataItem ItemType=\"HyperSlab\"  Dimensions=\""<<n[2]<<" "<<n[1]<<" "<<n[0]<<"\"  Type=\"HyperSlab\">"<<std::endl;
 	vxlResults<<"				 <DataItem Dimensions=\"3 3\" Format=\"XML\">   0 0 0    1 1 1   "<<n[2]<<" "<<n[1]<<" "<<n[0]<<"   </DataItem>		  "<<std::endl;
-	vxlResults<<"				 <DataItem Dimensions=\""<<n[2]+1<<" "<<n[1]<<" "<<n[0]<<"\" DataType=\"Float\" Precision=\"4\" Format=\"Binary\">	Ufz"+suffix() +" </DataItem>"<<std::endl;
+	vxlResults<<"				 <DataItem Dimensions=\""<<n[2]+1<<" "<<n[1]<<" "<<n[0]<<"\" DataType=\"Float\" Precision=\"4\" Format=\"Binary\">	Ufz"+imgExt() +" </DataItem>"<<std::endl;
 	vxlResults<<"		    </DataItem>"<<std::endl;
 	vxlResults<<"		  </DataItem>"<<std::endl;
 	vxlResults<<"		</Attribute>"<<std::endl;
@@ -195,13 +195,13 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			vface0.writeNoHdr("./Ufx"+suffix());
-			vface1.writeNoHdr("./Ufy"+suffix());	
-			vface2.writeNoHdr("./Ufz"+suffix());	
-			pVoxel.writeNoHdr("./p"+suffix());
-			if(writeVoltage) peVoxel.writeNoHdr("./psi"+suffix());
-			vximage.writeNoHdr("./vxlImage"+suffix());
-			vximage.writeHeader("./vxlImage-"+suffix());
+			vface0.writeNoHdr("./Ufx"+imgExt());
+			vface1.writeNoHdr("./Ufy"+imgExt());	
+			vface2.writeNoHdr("./Ufz"+imgExt());	
+			pVoxel.writeNoHdr("./p"+imgExt());
+			if(writeVoltage) peVoxel.writeNoHdr("./psi"+imgExt());
+			vximage.writeNoHdr("./vxlImage"+imgExt());
+			vximage.writeHeader("./vxlImage-"+imgExt());
 		}
 
 
@@ -230,8 +230,8 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				 vximage.write("./vxlImage"+suffix());
-				 vximage.writeHeader("./vxlImage"+suffix());
+				 vximage.write("./vxlImage"+imgExt());
+				 vximage.writeHeader("./vxlImage"+imgExt());
 			}
 			
 			vximage.printInfo();
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 			if (outputFormat[0]=='o')//old
 				 pVoxel.writeAscii("./p.dat");
 			else
-				 pVoxel.writeNoHdr("./p"+suffix());
+				 pVoxel.writeNoHdr("./p"+imgExt());
 		}
 
 	///. voltage / concentrat
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
 			if (outputFormat[0]=='o')//old
 				 pVoxel.writeAscii("./psi.dat");
 			else
-				 pVoxel.writeNoHdr("./psi"+suffix());
+				 pVoxel.writeNoHdr("./psi"+imgExt());
 		}
 
 		{	voxelField<float> vface0(n[0]+1,n[1],n[2],0.0);
@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
 			if (outputFormat[0]=='o')//old
 				vface0.writeAscii("./Ux.dat", 0,n[0], 0,n[1], 0,n[2]);
 			else
-				vface0.writeNoHdr("./Ufx"+suffix());
+				vface0.writeNoHdr("./Ufx"+imgExt());
 		}
 
 		{	voxelField<float> vface1(n[0],n[1]+1,n[2],0.0);
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
 			if (outputFormat[0]=='o')//old
 				vface1.writeAscii("./Uy.dat", 0,n[0], 0,n[1], 0,n[2]);	
 			else
-				vface1.writeNoHdr("./Ufy"+suffix());	
+				vface1.writeNoHdr("./Ufy"+imgExt());	
 		}
 
 		{	voxelField<float> vface2(n[0],n[1],n[2]+1,0.0);
@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
 			if (outputFormat[0]=='o')//old
 				vface2.writeAscii("./Uz.dat", 0,n[0], 0,n[1], 0,n[2]);	
 			else
-				vface2.writeNoHdr("./Ufz"+suffix());	
+				vface2.writeNoHdr("./Ufz"+imgExt());	
 		}
 
 

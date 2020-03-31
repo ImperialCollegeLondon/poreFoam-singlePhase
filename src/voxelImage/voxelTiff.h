@@ -81,7 +81,7 @@ inline void getTifTags(dbl3& X0_, dbl3& dx_, TIFF *tif)
 			else if(str=="X0")	instrim >> X0_;
 		}
 	}
-	if(dx_[0]<1.0e-16) { std::cout<<"\n\n\tError: dx read from tif seems invalid\n"<<std::endl;}
+	if(dx_[0]<1.0e-16) (std::cout<<"\n !!! Error: dx read from tif seems invalid  !!! \n     ").flush();
 
 }
 
@@ -95,8 +95,8 @@ inline void setTifTags(const dbl3& X0_, const dbl3& dx_, TIFF *tif)
 	
 	std::ostringstream ostrim;
 	ostrim<<" dx "<<dx_;
-	if(mag(X0_)>1.0e-16) ostrim<<"  X0 "<<X0_;
-	ostrim<<" "<<std::endl;
+	if(mag(X0_)>1.0e-16) ostrim<<"  X0 "<<X0_<<" ";
+	//ostrim<<" ";
 	//const char* info = ostrim.str().c_str();//+" \0" \0 leads to Warning when reading 
 	(std::cout<<" tag: \""<<ostrim.str()<<"\" ").flush();
 	TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, ostrim.str().c_str());
@@ -105,7 +105,7 @@ inline void setTifTags(const dbl3& X0_, const dbl3& dx_, TIFF *tif)
 }
 
 
-template<typename Type>   int readTif(voxelField<Type>&  aa, std::string innam )
+template<typename T>   int readTif(voxelField<T>&  aa, std::string innam )
 {
 	uint32 nx, ny;
 	//uint16 samplesperpixel;
@@ -114,14 +114,14 @@ template<typename Type>   int readTif(voxelField<Type>&  aa, std::string innam )
 	//uint16 photometric;
 	//uint16* red, green, blue;
 	//tsize_t rowsize;
-	//register uint32 row;
-	//register tsample_t s;
+	//uint32 row;
+	//tsample_t s;
         
 
 	TIFF *tif = (TIFF *) NULL;
 	tif = TIFFOpen(innam.c_str(), "r");	 if (tif == NULL)	return (-1);
 
-	voxelImageT<Type>* vxls = dynamic_cast<voxelImageT<Type>*>(&aa);
+	voxelImageT<T>* vxls = dynamic_cast<voxelImageT<T>*>(&aa);
 	if(vxls) 		getTifTags(vxls->X0Ch(),vxls->dxCh(),tif);
 
 	TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &nx);
@@ -129,15 +129,15 @@ template<typename Type>   int readTif(voxelField<Type>&  aa, std::string innam )
 	//TIFFGetField(tif, TIFFTAG_PLANARCONFIG, &config);
 	int npages=TIFFNumberOfDirectories(tif);
 
-	aa.reset(nx,ny,npages,0);
+	aa.reset(nx,ny,npages,T(0.0));
 
-	std::cout<<"size:"<<aa.size3()<<" * "<<sizeof(Type)
+	std::cout<<"size:"<<aa.size3()<<" * "<<sizeof(T)
 	<<"  X0:"<<vxls->X0()<<"  dx:"<<vxls->dx()<<std::endl;;
 
 
 	for(int pn=0;pn<npages;++pn) {
 
-		TIFFReadEncodedStrip( tif, static_cast<tstrip_t>(0), static_cast<void *>(&aa(0,0,pn)), static_cast<tsize_t>(nx * ny) * sizeof(Type) );
+		TIFFReadEncodedStrip( tif, static_cast<tstrip_t>(0), static_cast<void *>(&aa(0,0,pn)), static_cast<tsize_t>(nx * ny) * sizeof(T) );
 		//for (row = 0; row < ny; row++) {		if (TIFFReadScanline(tif, &aa(0,row,pn), row, 0) < 0)		break;	}
 		TIFFReadDirectory(tif);
 	}
@@ -147,26 +147,26 @@ template<typename Type>   int readTif(voxelField<Type>&  aa, std::string innam )
 	return (0);
 }
 
-template<typename Type>   int writeTif(const voxelField<Type>&  aa, std::string outnam )
+template<typename T>   int writeTif(const voxelField<T>&  aa, std::string outnam )
 {
 
 	//uint32 rowsperstrip = uint32(-1);
 	uint32 nx=aa.size3()[0], ny=aa.size3()[1];
 	int pn=0, npages=aa.size3()[2];
-	int smplfrmt	 = tifDataType(Type());
+	int smplfrmt	 = tifDataType(T());
 	//uint16 samplesperpixel;
 	//uint16 bitspersample;
 	//uint16 config;
 	//uint16 photometric;
 	//uint16* red, green, blue;
 	//tsize_t rowsize;
-	//register uint32 row;
-	//register tsample_t s;
+	//uint32 row;
+	//tsample_t s;
 
 	TIFF * tif = (TIFF *) NULL;
 	tif = TIFFOpen(outnam.c_str(), "w8");		if (tif == NULL)	return (-2);
 
-	const voxelImageT<Type>* vxls = dynamic_cast<const voxelImageT<Type>*>(&aa);
+	const voxelImageT<T>* vxls = dynamic_cast<const voxelImageT<T>*>(&aa);
 	if(vxls) setTifTags(vxls->X0(),vxls->dx(),tif);
 	else std::cout<<"dxXo not set"<<std::endl;
 
@@ -179,7 +179,7 @@ template<typename Type>   int writeTif(const voxelField<Type>&  aa, std::string 
 		TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, nx);
 		TIFFSetField(tif, TIFFTAG_IMAGELENGTH, ny);
 
-		TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8*sizeof(Type));
+		TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8*sizeof(T));
 		TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1);
 		//TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 		//cpTags(tif, tif);
@@ -187,7 +187,7 @@ template<typename Type>   int writeTif(const voxelField<Type>&  aa, std::string 
 		TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK); ///. this is needed by stupid paraview!
 
 
-		if(sizeof(Type)==1) TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_LZW); /// For best compression, choose COMPRESSION_PACKBITS and manually compress as 7z. Other opts:COMPRESSION_NONE  COMPRESSION_DEFLATE COMPRESSION_PACKBITS
+		if(sizeof(T)==1) TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_LZW); /// For best compression, choose COMPRESSION_PACKBITS and manually compress as 7z. Other opts:COMPRESSION_NONE  COMPRESSION_DEFLATE COMPRESSION_PACKBITS
 		else TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_LZW);
 
 		//TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tif, ny));
@@ -196,8 +196,8 @@ template<typename Type>   int writeTif(const voxelField<Type>&  aa, std::string 
 
 		TIFFSetField(tif, TIFFTAG_PAGENUMBER, pn, npages);
 
-		Type aOrig=aa(nx/2,ny/2,pn);  //! Warn if image modified in libtiff
-		TIFFWriteEncodedStrip( tif, 0, const_cast<Type *>(&aa(0,0,pn)), nx * ny * sizeof(Type) ); 
+		T aOrig=aa(nx/2,ny/2,pn);  //! Warn if image modified in libtiff
+		TIFFWriteEncodedStrip( tif, 0, const_cast<T *>(&aa(0,0,pn)), nx * ny * sizeof(T) ); 
 		if(aOrig!=aa(nx/2,ny/2,pn)) std::cout<<"Warning image modified in libtiff"<<std::endl;
 
 
@@ -211,14 +211,14 @@ template<typename Type>   int writeTif(const voxelField<Type>&  aa, std::string 
 }
 
 
-template<typename Type>   int writeTif(const voxelField<Type>&  aa, std::string outnam, int iStart,int iEnd , int jStart,int jEnd , int kStart,int kEnd )
+template<typename T>   int writeTif(const voxelField<T>&  aa, std::string outnam, int iStart,int iEnd , int jStart,int jEnd , int kStart,int kEnd )
 {
 
-	voxelImageT<Type>  bb;
+	voxelImageT<T>  bb;
 	bb.reset({iEnd-iStart, jEnd-jStart, kEnd-kStart});
-	const voxelImageT<Type>* vxls = dynamic_cast<const voxelImageT<Type>*>(&aa);
+	const voxelImageT<T>* vxls = dynamic_cast<const voxelImageT<T>*>(&aa);
 	if(vxls) 	bb.setFrom(*vxls, iStart, jStart, kStart);
-	else     	bb.voxelField<Type>::setFrom(aa, iStart, jStart, kStart);
+	else     	bb.voxelField<T>::setFrom(aa, iStart, jStart, kStart);
 
 	return writeTif(bb, outnam);
 
@@ -231,22 +231,22 @@ template<typename Type>   int writeTif(const voxelField<Type>&  aa, std::string 
 	TIFF *tif;
 	uint32 nx=iEnd-iStart, ny=jEnd-jStart;
 	int pn=0, npages=aa.size3()[2];
-	int smplfrmt	 = tifDataType(Type());
+	int smplfrmt	 = tifDataType(T());
 	//uint16 samplesperpixel;
 	//uint16 bitspersample;
 	//uint16 config;
 	//uint16 photometric;
 	//uint16* red, green, blue;
 	//tsize_t rowsize;
-	register int row;
-	//register tsample_t s;
+	int row;
+	//tsample_t s;
 
   tif = (TIFF *) NULL;
 
 
 	tif = TIFFOpen(outnam.c_str(), "w8");		if (tif == NULL)	return (-2);
 
-	//const voxelImageT<Type>* vxls = dynamic_cast<const voxelImageT<Type>*>(&aa);
+	//const voxelImageT<T>* vxls = dynamic_cast<const voxelImageT<T>*>(&aa);
 	if(vxls) setTifTags(vxls->X0(),vxls->dx(),tif);
 
 
@@ -257,14 +257,14 @@ template<typename Type>   int writeTif(const voxelField<Type>&  aa, std::string 
 		TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, nx);
 		TIFFSetField(tif, TIFFTAG_IMAGELENGTH, ny);
 
-		TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8*sizeof(Type));
+		TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8*sizeof(T));
 		TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1);
 		//TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
 		TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK); ///. this is needed by stupid paraview!
 		TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, smplfrmt);
 
-		if(sizeof(Type)==1) TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_LZW); /// For best compression, choose COMPRESSION_PACKBITS and manually compress as 7z. Other opts:COMPRESSION_NONE  COMPRESSION_DEFLATE COMPRESSION_PACKBITS
+		if(sizeof(T)==1) TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_LZW); /// For best compression, choose COMPRESSION_PACKBITS and manually compress as 7z. Other opts:COMPRESSION_NONE  COMPRESSION_DEFLATE COMPRESSION_PACKBITS
 		else TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_LZW);
 
 
@@ -274,9 +274,9 @@ template<typename Type>   int writeTif(const voxelField<Type>&  aa, std::string 
 
 		TIFFSetField(tif, TIFFTAG_PAGENUMBER, pn, npages);
 
-		Type aOrig=aa(iStart+nx/2,jStart+ny/2,pn);  //! Warn if image modified in libtiff
+		T aOrig=aa(iStart+nx/2,jStart+ny/2,pn);  //! Warn if image modified in libtiff
 		for (row = jStart; row < jEnd; row++) {
-			if (TIFFWriteScanline(tif, const_cast<Type *>(&aa(iStart,row,kStart+pn)), row, 0) < 0)
+			if (TIFFWriteScanline(tif, const_cast<T *>(&aa(iStart,row,kStart+pn)), row, 0) < 0)
 				break;
 		}
 		if(aOrig!=aa(iStart+nx/2,jStart+ny/2,pn)) std::cout<<"Warning image modified in libtiff"<<std::endl;

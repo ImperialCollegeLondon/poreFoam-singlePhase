@@ -1,24 +1,20 @@
 /*-------------------------------------------------------------------------*\
+
 You can redistribute this code and/or modify this code under the
 terms of the GNU General Public License (GPL) as published by the
 Free Software Foundation, either version 3 of the License, or (at
 your option) any later version. see <http://www.gnu.org/licenses/>.
 
-
-The code has been developed by Ali Qaseminejad Raeini as a part his PhD
-at Imperial College London, under the supervision of Branko Bijeljic
-and Martin Blunt.
-
-Please see our website for relavant literature:
+Please see our website for relavant literature making use of this code:
 http://www3.imperial.ac.uk/earthscienceandengineering/research/perm/porescalemodelling
 
 For further information please contact us by email:
 Ali Q Raeini:    a.qaseminejad-raeini09@imperial.ac.uk
-Branko Bijeljic: b.bijeljic@imperial.ac.uk
-Martin J Blunt:  m.blunt@imperial.ac.uk
+
 \*-------------------------------------------------------------------------*/
 
-//~ #define _2D_
+
+//#define _2D_
 
 #include <sys/stat.h>
 
@@ -39,8 +35,8 @@ int usage()
 {
 	cout<<"convert micro-CT images to OpenFOAM mesh"<<endl;
 	cout<<"usage: example:"<<endl;
-	cout<<"	   rawToFoam imageName.mhd"<<endl;
-	cout<<"	   rawToFoam imageName.tif  #Note: Pysical size of image XRESOLUTION should be set"<<endl;
+	cout<<"	   voxelToFoam imageName.mhd"<<endl;
+	cout<<"	   voxelToFoam imageName.tif  #Note: Pysical size of image XRESOLUTION should be set"<<endl;
 	return 1;
 }
 
@@ -77,7 +73,7 @@ int main(int argc, char** argv)
 
 	vxlImg.FaceMedian06(1,5);
 
-	vxlImg.cropD({{1,1,1}},{{n[0]+1,n[1]+1,n[2]+1}},1,1);	//		 XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	vxlImg.cropD(int3(1,1,1),int3(n[0]+1,n[1]+1,n[2]+1),1,1);	//		 XXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
 	fixImage(vxlImg);
@@ -392,7 +388,7 @@ const int
 		fill(faces_bs[ib].begin(),faces_bs[ib].end(), array<int,6>{{-1,-1,-1,-1,-1,-1}});
 	}
 
-	voxelField<int3> ownerMapper(n[0]+1,n[1]+1,n[2]+1,array<int,3>{{-1,-1,-1}});
+	voxelField<int3> ownerMapper(n[0]+1,n[1]+1,n[2]+1,int3(-1,-1,-1));
 
 
 	cout<<"collecting faces"<<endl;
@@ -672,7 +668,7 @@ void fixImage(voxelImage& voxels)
 	 for ( int j=0; j<vxlImg.size3()[1] ; ++j )
 			vxlImg(nxmid,j,k)=vxlsMidCompresdReg[vxlsMidMap(0,j,k)];
 
-	forAlliii(voxels) if(voxels(iii)) vxlImg(iii)=sldN;
+	forAlliii_(voxels) if(voxels(iii)) vxlImg(iii)=sldN;
 
 	  for ( int k=2; k<vxlImg.size3()[2]-2 ; k++ )
 	   for ( int j=2; j<vxlImg.size3()[1]-2 ; ++j )
@@ -722,7 +718,7 @@ void fixImage(voxelImage& voxels)
 						{vxlImg(i,j,k)=vxlsMrgMap[minv]; ++nchanges;}
 					  else
 					  {
-						if(vxlsMrgMap[minv] < vxlsMrgMap[vv]) 
+						if(vxlsMrgMap[minv] < vxlsMrgMap[vv])
 							{ (cout<<vxlsMrgMap[vv]<<"->"<<vxlsMrgMap[minv]<<"    ").flush(); vxlsMrgMap[vv]=vxlsMrgMap[minv];   ++nchanges; }
 						else if(vxlsMrgMap[minv] > vxlsMrgMap[vv]) 
 							{ (cout<<vxlsMrgMap[minv]<<"->"<<vxlsMrgMap[vv]<<"!   ").flush(); vxlsMrgMap[minv]=vxlsMrgMap[vv];   ++nchanges; }

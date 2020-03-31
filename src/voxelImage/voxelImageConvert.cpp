@@ -1,35 +1,31 @@
-/*-------------------------------------------------------------------------*\	
+/*-------------------------------------------------------------------------*\
+
 You can redistribute this code and/or modify this code under the 
 terms of the GNU General Public License (GPL) as published by the  
 Free Software Foundation, either version 3 of the License, or (at 
 your option) any later version. see <http://www.gnu.org/licenses/>.
 
-
-The code has been developed by Ali Qaseminejad Raeini as a part his PhD 
-at Imperial College London, under the supervision of Branko Bijeljic 
-and Martin Blunt. 
-* 
-Please see our website for relavant literature:
+Please see our website for relavant literature making use of this code:
 http://www3.imperial.ac.uk/earthscienceandengineering/research/perm/porescalemodelling
 
 For further information please contact us by email:
-Ali Q Raeini:    a.qaseminejad-raeini09@imperial.ac.uk
-Branko Bijeljic: b.bijeljic@imperial.ac.uk
-Martin J Blunt:  m.blunt@imperial.ac.uk
+Ali Q Raeini: a.qaseminejad-raeini09@imperial.ac.uk
+
 \*-------------------------------------------------------------------------*/
 
-    #include <fstream>
-    #include <iostream>
-    #include <vector>
 
-    #include <assert.h>
+
 
 #include "voxelImage.h"
-//using namespace std;
+
+using namespace std;
+
+#ifndef MAIN
+
 
 int usage()
 {
-	std::cout<<"\nvoxelImageConvert:\n utility to read a 3D image\n run some commands on it (cropD, threshold, ...),"
+	cout<<"\nvoxelImageConvert:\n utility to read a 3D image\n run some image processing commands on it (cropD, threshold, ...),"
 	<<"\n and write it back to disk,\n in the same or in a different format\n .dat suffix is used for ascii files and .raw implies binary format"
 		<<"\nusages: \n"
 		<<"    voxelImageConvert inputMetaImage.mhd outPutFile.tif \n"
@@ -38,7 +34,21 @@ int usage()
 		<<"    voxelImageConvert inputMetaImage.tif outPutFile.raw \n"
 		<<"    voxelImageConvert inputMetaImage.mhd outPutFile.tif \n"
 		<<"    voxelImageConvert inputMetaImage.mhd NO_WRITE \n"
-		<< std::endl;
+		<<"Header file contents should be like: \n"
+		<<" ObjectType  = Image\n"
+		<<" NDims       = 3\n"
+		<<" ElementType = MET_SHORT\n"
+		<<'\n'
+		<<" DimSize     = 650  650  650\n"
+		<<" ElementSize = 5.0  5.0  5.0\n"
+		<<" Offset      = 0    0    0\n"
+		<<'\n'
+		<<" ElementDataFile = Berea.tif\n"
+		<< '\n'
+		<< "Optional keywords:\n"
+		<< VxlKeysHelp()<<endl;
+
+		cout<<"\nFor argumrntd of individual keywords run:\n"<<" vxlImageProcess ? <keyword name>\n"<<endl;
 	return -1;
 }
 
@@ -46,27 +56,31 @@ int usage()
 int main(int argc, char *argv[])
 {
 
-
 	if(argc<3) return usage();
 
+	string header(argv[1]);
+	string outputName(argc>2 ? argv[2] : "");
+	string extra(argc>3 ?  argv[3] : "" );
 
-	std::string headerName(argv[1]);
-	if(headerName.size()<4) return usage();
-	std::string outputName(argv[2]);
-	std::string outputFormat(argc>3 ?  argv[3] : "XXX" );
+	if(header.size()<4) return usage();
 
-	std::cout<<"voxelImageConvert "<<headerName<<"  "<<outputName<<std::endl;
+	if(header[0]=='?') {
+		cout<<outputName<<" "<<VxlKeysHelp(outputName,extra)<<endl;
+		return 0;}
 
-	std::unique_ptr<voxelImageTBase> vxlImage = readImage(headerName);
+	cout<<"//-*-C-*-\\ voxelImageConvert, in: "<<header<<",  out:"<<outputName<<endl;
+	if(!outputName.size()) cerr<<"\n\nWarning: no output (2nd argument) \n\n"<<endl;
 
-	if(outputFormat=="UChar")
+
+	std::unique_ptr<voxelImageTBase> vxlImage = readImage(header);
+
+	if(extra=="UChar")
 	{
-		voxelImage vImgUChar(vxlImage->sizeu3(), vxlImage->dx(), vxlImage->X0(), 0);
-		forAlliii(vImgUChar)			vImgUChar(iii) = vxlImage->getInt(iii);
+		voxelImage vImgUChar(vxlImage->size3(), vxlImage->dx(), vxlImage->X0(), 0);
+		forAlliii_(vImgUChar)			vImgUChar(iii) = vxlImage->getInt(iii);
 		vImgUChar.write(outputName);
 	}
-	else
-		vxlImage->write(outputName);
+	else if(outputName.size()) vxlImage->write(outputName);
 
 
 	std::cout<< "end" << std::endl;
@@ -77,4 +91,4 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-
+#endif

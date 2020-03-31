@@ -1,24 +1,20 @@
 /*-------------------------------------------------------------------------*\
-You can redistribute this code and/or modify this code under the
-terms of the GNU General Public License (GPL) as published by the
-Free Software Foundation, either version 3 of the License, or (at
+
+You can redistribute this code and/or modify this code under the 
+terms of the GNU General Public License (GPL) as published by the  
+Free Software Foundation, either version 3 of the License, or (at 
 your option) any later version. see <http://www.gnu.org/licenses/>.
 
-
-The code has been developed by Ali Qaseminejad Raeini as a part his PhD
-at Imperial College London, under the supervision of Branko Bijeljic
-and Martin Blunt.
-
-Please see our website for relavant literature:
+Please see our website for relavant literature making use of this code:
 http://www3.imperial.ac.uk/earthscienceandengineering/research/perm/porescalemodelling
 
 For further information please contact us by email:
-Ali Q Raeini:    a.qaseminejad-raeini09@imperial.ac.uk
-Branko Bijeljic: b.bijeljic@imperial.ac.uk
-Martin J Blunt:  m.blunt@imperial.ac.uk
+Ali Q Raeini: a.qaseminejad-raeini09@imperial.ac.uk
+
 \*-------------------------------------------------------------------------*/
 
-//~ #define _2D_
+
+//!\brief Converts 3D Image files into openfoam format for computing flow fields. 
 
 #include <sys/stat.h>
 
@@ -29,41 +25,45 @@ Martin J Blunt:  m.blunt@imperial.ac.uk
 #include <array>
 #include <valarray>
 #include <iostream>
-
-#include "voxelImage.h"
+#include <string>
+#include <sstream>
 
 using namespace std;
 
+
+#include "voxelImage.h"
+using namespace std;
+#include "voxelRegions.h"
 
 int usage()
 {
 	cout<<"converts micro-CT images to OpenFOAM serial or simple parallel meshes"<<endl;
 	cout<<"usage: example:"<<endl;
-	cout<<"	   rawToFoamPar imageName.mhd 1 1 1 resetX0 "<<endl;
-	cout<<"	   rawToFoamPar imageName.mhd 3 2 2 resetX0 "<<endl;
+	cout<<"    voxelToFoamPar imageName.mhd 1 1 1 resetX0 "<<endl;
+	cout<<"    voxelToFoamPar imageName.mhd 3 2 2 resetX0 "<<endl;
 	return 1;
 }
 
-void fixImage(voxelImage& vimage);
+
 void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int iProc, int jProc, int kProc);
 
 int main(int argc, char** argv)
-{
+{  //!- reads image, adds a boundary layers around it
 	int irg = 0;
 	if(argc<5)		return usage();
 	std::string headerName(argv[++irg]);
 	if(headerName.size()<4 || ( headerName.compare(headerName.size()-4,4,".mhd") != 0 && headerName.compare(headerName.size()-4,4,".tif") != 0) )
 		return usage();
-	int3 nPar={{1,1,1}};
+	int3 nPar(1,1,1);
 	nPar[0] = atoi(argv[++irg]);
 	nPar[1] = atoi(argv[++irg]);
 	nPar[2] = atoi(argv[++irg]);
 	char resetX0 = argc>1+irg ? argv[++irg][0] : 'F';
 	//char unit = argc>1+irg ? argv[++irg][0] : 'u';
 	if (nPar[2]*nPar[1]*nPar[0]<1) {cout<<"\nError: nPar[2]*nPar[1]*nPar[0]<1\n"; return usage();}
-	cout<<"rawToFoamPar "<<headerName<<"  "<<nPar[0]<<" "<<nPar[0]<<" "<<nPar[0]<<endl;
+	cout<<"voxelToFoamPar "<<headerName<<"  "<<nPar[0]<<" "<<nPar[0]<<" "<<nPar[0]<<endl;
 
-	voxelImage vimage(headerName);
+	voxelImage vimage;  readConvertFromHeader(vimage, headerName);
 	int3 n = vimage.size3();
 
 
@@ -73,20 +73,26 @@ int main(int argc, char** argv)
 
 	cout <<"finding connected parts of the image "<<endl;
 	vimage.threshold101(0,0);
-	vimage.growBox(1);
-	vimage.FaceMedian06(1,5);
-	vimage.FaceMedian06(1,5);
-	vimage.cropD({{1,1,1}},{{n[0]+1,n[1]+1,n[2]+1}},1,1);	//		 XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	//vimage.growBox(1);
+	//vimage.FaceMedian06(2,4);
+	//vimage.FaceMedian06(2,4);
+	//vimage.FaceMedian06(2,4);
+	//vimage.FaceMedian06(2,4);
+	//vimage.cropD(int3(1,1,1),int3(n[0]+1,n[1]+1,n[2]+1),1,1);	//		 XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	vimage.cropD(int3(0,0,0),n,1,1);	//		 XXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-	fixImage(vimage);
+	keepLargest0(vimage); //! CtrlF:isolated=254
 
 	vimage.printInfo();
-	cout <<"converting to OpenFOAM format "<<endl;
+	cout <<"Converting to OpenFOAM format "<<endl;
 
 	if(resetX0=='T' || resetX0=='t')		vimage.X0Ch()=-vimage.dx();
 
 
-	int nVVs=0;   forAllvv(vimage) nVVs =max(nVVs,int(vv));
+	//! solid phase should have the highest vv TODO: add multilabel
+	int nVVs=0;   forAllvv_seq(vimage) if(vv<240) nVVs =max(nVVs,int(vv));
+	cout<<" maxVxlvalue:"<<nVVs<<endl;
+	forAllvp_(vimage) if(*vp>nVVs) *vp=nVVs; //! set isolateds to last vv, CtrlF:isolated=254
 	++nVVs;
 	cout<<"nVVs:"<<int(nVVs)<<endl;
 
@@ -104,7 +110,6 @@ const int
 	vimage.setSlice('j',n[1]+1,0+1*Top   );
 	vimage.setSlice('k',0,     0+1*Back  );
 	vimage.setSlice('k',n[2]+1,0+1*Front );
-
 
 
 	voxelField<int> procIsijk(nPar[0]+2,nPar[1]+2,nPar[2]+2,-1);
@@ -127,33 +132,40 @@ const int
 		cout<<"jBs: "<<*jBs.begin()<<" ... "<<*jBs.rbegin()<<endl;
 		cout<<"kBs: "<<*kBs.begin()<<" ... "<<*kBs.rbegin()<<endl;
 
-		for (int iz=0;iz<nPar[2];iz++)
-		  for (int iy=0;iy<nPar[1];iy++)
-			for (int ix=0;ix<nPar[0];ix++)
+			OMPragma("omp parallel for")
+			for (int ixyz=0;ixyz<nPar[0]*nPar[1]*nPar[2];ixyz++)
 			{
+				int ix= ixyz%nPar[0];
+				int iz= ixyz/(nPar[0]*nPar[1]);
+				int iy=(ixyz/nPar[0])%nPar[1];
 				vimages(ix,iy,iz).reset(iBs[ix+1]-iBs[ix]+2, jBs[iy+1]-jBs[iy]+2, kBs[iz+1]-kBs[iz]+2,0);
 				vimages(ix,iy,iz).setFrom(vimage, iBs[ix], jBs[iy], kBs[iz]);
 				if(vimages(ix,iy,iz).volFraction(0,0)>1.0e-12)		procIsijk(ix+1,iy+1,iz+1)=++iProc;
 				cout<<"poro_"<<ix<<iy<<iz<<":"<<vimages(ix,iy,iz).volFraction(0,0)<<"  iBx"<<iBs[ix+1]-iBs[ix]+2<<endl;
 			};
 
+			cout<<"\n************** generating meshes ************"<<endl;
 		vimage.reset(0,0,0,0);
-		for (int iz=0;iz<nPar[2];iz++)
-		 for (int iy=0;iy<nPar[1];iy++)
-			for (int ix=0;ix<nPar[0];ix++)
+			OMPragma("omp parallel for")
+			for (int ixyz=0;ixyz<nPar[0]*nPar[1]*nPar[2];ixyz++)
+			{
+			 int ix= ixyz%nPar[0];
+			 int iz= ixyz/(nPar[0]*nPar[1]);
+			 int iy=(ixyz/nPar[0])%nPar[1];
 			 if(procIsijk(ix+1,iy+1,iz+1)>=0)
 			 {
 				cout<<"************* processor: "<<ix<<" "<<iy<<" "<<iz<<", Phi="<<100*vimages(ix,iy,iz).volFraction(0,0)<<" *************"<<endl;
 				toFoam(vimages(ix,iy,iz),nVVs, procIsijk, ix+1, iy+1, iz+1);
 				cout<<endl;
-			 };
+			 }
+			 }
 	} else cout<<"!!! npx x npy x npz = "<<nPar[2]*nPar[1]*nPar[0]<<endl;
 	cout<<":/"<<endl;
    return 0;
 }
 
 void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int iProc, int jProc, int kProc)
-{
+{ //!- generate an openfaom (processor) mesh similar to voxelToFoamPar.cpp
 	int myprocI=procIsijk(iProc,jProc,kProc);
 	int3 n=vxlImg.size3();n[0]-=2;n[1]-=2;n[2]-=2;
 	dbl3 X0=vxlImg.X0(); 
@@ -219,7 +231,7 @@ void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int 
 			//}
 
 
-	cout<<"nPoints: "<<iPoints+1;cout.flush();
+	cout<<"nPoints: "<<iPoints+1<<"\nwriting points";cout.flush();
 
 
 	ofstream pointsf((Folder+"/points").c_str());
@@ -246,7 +258,7 @@ void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int 
 			for (int ix=0;ix<point_mapper.size3()[0];ix++)
 			{
 				if(point_mapper(ix,iy,iz)>=0)
-				{	point_mapper(ix,iy,iz)=++iPoints;///. sort point_mapper
+				{	point_mapper(ix,iy,iz)=++iPoints;//. sort point_mapper
 					double x=ix*dx[0]+X0[0];
 					pointsf<< "("<<x<< ' '<<y<<' '<<z<<")\n";
 				}
@@ -280,7 +292,7 @@ void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int 
 
 	pointsf.close();
 }
-	cout <<" ,    "<<endl;
+	cout <<" :/"<<endl;
 //=======================================================================
 
 
@@ -302,11 +314,12 @@ const int
 	Back  =nVVs+4,
 	Front =nVVs+5;
 
-	array<std::string,255> B_nams;
+	std::array<std::string,255> B_nams;
 	B_nams[Internal]="Internal";
 	B_nams[Grainwalls]="Grainwalls";
 	int nBoundaries=5+nVVs;
-	for(int ib=2;ib<nVVs;++ib)  {B_nams[ib]="VV"+toStr(ib)+"B"; }
+	cout<<"ib:Nvvs: ";
+	for(int ib=2;ib<nVVs;++ib)  { (cout<<ib<<" ").flush();  B_nams[ib]="VV"+toStr(ib)+"B"; }
 	B_nams[Left]="Left";
 	B_nams[Right]="Right";
 	B_nams[Bottom]="Bottom";
@@ -314,12 +327,12 @@ const int
 	B_nams[Back]="Back";
 	B_nams[Front]="Front";
 
-	array<size_t,255> nFaces; nFaces.fill(0);
+	std::array<size_t,255> nFaces; nFaces.fill(0);
 
 
-	for (int iz=1;iz<=n[2];iz++)
-	 for (int iy=1;iy<=n[1];iy++)
-	  for (int ix=1;ix<=n[0];ix++)
+	for (int iz=1;iz<=n[2];++iz)
+	 for (int iy=1;iy<=n[1];++iy)
+	  for (int ix=1;ix<=n[0];++ix)
 	  {
 			if (!vxlImg(ix,iy,iz))
 			{
@@ -379,7 +392,7 @@ const int
 
 	(cout<<",  nCells: "<<nCells<<",    B:nFaces: ").flush();
 	for(int ib=0;ib<255;++ib)  if(nFaces[ib])  cout<< " "<<ib<<":"<<nFaces[ib]<<", ";
-
+	cout<<endl;
 
 	nBoundaries+=	int(procIsijk(iProc-1,jProc,kProc)>=0 && nFaces[Left])+ 
 						int(procIsijk(iProc+1,jProc,kProc)>=0 && nFaces[Right])+
@@ -479,7 +492,7 @@ const int
 
 
 
-	(cout<<". -").flush();
+	cout<<"creating faces"<<endl;
 
 
 	array<std::vector<array<int,6> >,255> faces_bs;
@@ -491,10 +504,10 @@ const int
 		fill(faces_bs[ib].begin(),faces_bs[ib].end(), array<int,6>{{-1,-1,-1,-1,-1,-1}});
 	}
 
-	voxelField<int3> ownerMapper(n[0]+1,n[1]+1,n[2]+1,array<int,3>{{-1,-1,-1}});
+	voxelField<int3> ownerMapper(n[0]+1,n[1]+1,n[2]+1,int3(-1,-1,-1));
 
 
-	cout<<" ."<<endl;
+	cout<<"collecting faces"<<endl;
 
 
 #define recordF_m( l10,l11,l20,l21,l30,l31,dir,ii,jj,kk,type )				   \
@@ -689,208 +702,4 @@ const int
 }
 
 
-
-void fixImage(voxelImage& voxels)
-{
-	//voxels.write("dump1.mhd");
-	int3 n = voxels.size3();
-	const unsigned int bigN=255*255*255*127; 
-	const unsigned int sldN=bigN+1; 
-
-
-	cout<<"removing disconected parts of the image "<<endl;
-	int nxmid=n[0]/2;
-	unsigned int vmax=n[1]*n[2]+1;
-	voxelImageT<unsigned int> vxlsMids(1,n[1], n[2],bigN);
-	voxelImageT<unsigned int> vxlsMidMap(1,n[1], n[2],vmax);
-	vector<unsigned int> vxlsMidCompresdReg(n[1]*n[2],bigN);
-	//std::valarray<unsigned int> vxlsMidMap(0,n[1]*n[2]);
-	//std::valarray<unsigned int> vxlsMidMapCount(0,n[1]*n[2]);
-	//for ( unsigned int i=0; i<vxlsMidMap->size() ; i++ )	vxlsMidMap[i]=i;
-
-	for ( int k=0; k<vxlsMidMap.size3()[2] ; k++ )
-	 for ( int j=0; j<vxlsMidMap.size3()[1] ; ++j )
-	  //if(voxels(nxmid,j,k)==0)
-		vxlsMidMap(0,j,k)=k*n[1]+j;
-	for ( int k=0; k<vxlsMids.size3()[2] ; k++ )
-	 for ( int j=0; j<vxlsMids.size3()[1] ; ++j )
-		vxlsMids(0,j,k)=voxels(nxmid,j,k);
-	long long nchanges=1;
-	while(nchanges)
-	{	nchanges = 0;
-		for ( int k=1; k<vxlsMids.size3()[2] ; k++ )
-		 for ( int j=1; j<vxlsMids.size3()[1] ; ++j )
-			if (vxlsMids(0,j,k)==0)
-			{
-				if (vxlsMids(0,j,k-1)==0 && vxlsMidMap(0,j,k)>vxlsMidMap(0,j,k-1))
-				{	vxlsMidMap(0,j,k)=vxlsMidMap(0,j,k-1); ++nchanges;	}
-				if (vxlsMids(0,j-1,k)==0 && vxlsMidMap(0,j,k)>vxlsMidMap(0,j-1,k))
-				{	vxlsMidMap(0,j,k)=vxlsMidMap(0,j-1,k); ++nchanges;	}
-			}
-		for ( int k=0; k<vxlsMids.size3()[2]-1 ; k++ )
-		 for ( int j=0; j<vxlsMids.size3()[1]-1 ; ++j )
-			if (vxlsMids(0,j,k)==0)
-			{
-				if (vxlsMids(0,j,k+1)==0 && vxlsMidMap(0,j,k)>vxlsMidMap(0,j,k+1))
-				{	vxlsMidMap(0,j,k)=vxlsMidMap(0,j,k+1); ++nchanges;	}
-				if (vxlsMids(0,j+1,k)==0 && vxlsMidMap(0,j,k)>vxlsMidMap(0,j+1,k))
-				{	vxlsMidMap(0,j,k)=vxlsMidMap(0,j+1,k); ++nchanges;	}
-			}
-		//cout<<nchanges<<endl;
-	}
-	//cout<<endl;
-	
-	unsigned int nRegs=1;
-	for ( int k=0; k<vxlsMids.size3()[2] ; k++ )
-	 for ( int j=0; j<vxlsMids.size3()[1] ; ++j )
-		if (vxlsMids(0,j,k)==0)
-		{
-			int jj= vxlsMidMap(0,j,k) % n[1];
-			int kk= vxlsMidMap(0,j,k) / n[1];
-			if(vxlsMids(0,jj,kk)!=0) cout<<"!"<<"  "<<k<<":"<<kk<<"    "<<j<<":"<<jj<<"    "<<vxlsMidMap(0,j,k)<<"  "<<endl;;
-			if (vxlsMidCompresdReg[vxlsMidMap(0,jj,kk)]==bigN) { vxlsMidCompresdReg[vxlsMidMap(0,jj,kk)]=nRegs; ++nRegs; };
-			vxlsMidCompresdReg[vxlsMidMap(0,j,k)]=vxlsMidCompresdReg[vxlsMidMap(0,jj,kk)];
-		}
-		//else vxlsMidMap(0,j,k)=bigN+1;
-	if (nRegs>bigN) {cout<<"Error: nRegs >bigN"<<endl; exit(-1);}
-	//for ( int k=0; k<vxlsMids.size3()[2] ; k++ )
-	 //for ( int j=0; j<vxlsMids.size3()[1] ; ++j )
-		//if (vxlsMids(0,j,k)==0)
-		//{
-			//int jj= vxlsMidMap(0,j,k) % n[1];
-			//int kk= vxlsMidMap(0,j,k) / n[1];
-			//if(vxlsMids(0,jj,kk)!=0) cout<<"!"<<"  "<<k<<":"<<kk<<"    "<<j<<":"<<jj<<"    "<<vxlsMidMap(0,j,k)<<"  "<<endl;;
-			//vxlsMidMap(0,j,k)=vxlsMidMap(0,jj,kk);
-		//}
-
-
-
-	voxelImageT<unsigned int> vxlImg(n[0],n[1],n[2],bigN);
-
-
-	//for ( int k=0; k<vxlImg.size3()[2] ; k++ )
-	 //for ( int j=0; j<vxlImg.size3()[1] ; ++j )
-		//for ( int i=0; i<vxlImg.size3()[0] ; ++i )
-			//vxlImg(i,j,k)=bigN;
-
-	for ( int k=0; k<vxlImg.size3()[2] ; k++ )
-	 for ( int j=0; j<vxlImg.size3()[1] ; ++j )
-			vxlImg(nxmid,j,k)=vxlsMidCompresdReg[vxlsMidMap(0,j,k)];
-
-	forAlliii(voxels) if(voxels(iii)) vxlImg(iii)=sldN;
-
-	  for ( int k=2; k<vxlImg.size3()[2]-2 ; k++ )
-	   for ( int j=2; j<vxlImg.size3()[1]-2 ; ++j )
-		 for (int iter=0; iter<2; ++iter)
-		 {
-		  for ( int i=nxmid-1; i<vxlImg.size3()[0]-1 ; ++i )
-		  { const unsigned int vv = vxlImg(i,j,k);
-		   if ( vv<bigN )
-		   {
-			  if (vxlImg(i+1,j,k)<sldN &&  vv<vxlImg(i+1,j,k)) vxlImg(i+1,j,k)=vv;
-		   }
-		  }
-		  for ( int i=nxmid+1; i>0 ; --i )///. Error unsigned
-		  { const unsigned int vv = vxlImg(i,j,k);
-		   if ( vv<bigN )
-		   {
-			  if (vxlImg(i-1,j,k)<sldN && vv<vxlImg(i-1,j,k)) vxlImg(i-1,j,k)=vv;
-		   }
-		  }
-		 }
-
-	vector<unsigned int> vxlsMrgMap(nRegs,1);
-	for ( unsigned int ii=0; ii<vxlsMrgMap.size() ; ++ii ) vxlsMrgMap[ii]=ii;
-
-	nchanges=1;
-	while(nchanges)
-	{ nchanges = 0;
-	  for ( int k=1; k<vxlImg.size3()[2]-1 ; ++k )
-	  {
-	    for ( int j=1; j<vxlImg.size3()[1]-1 ; ++j )
-			for ( int i=1; i<vxlImg.size3()[0]-1 ; ++i )
-			{	const unsigned int vv = vxlImg(i,j,k);
-				if (vv<sldN)
-				{
-					const unsigned int* vp = &vxlImg(i,j,k);
-					unsigned int minv = vv;
-					minv=min(minv,vxlImg.v_i(-1,vp));
-					minv=min(minv,vxlImg.v_i(1,vp));
-					minv=min(minv,vxlImg.v_j(-1,vp));
-					minv=min(minv,vxlImg.v_j(1,vp));
-					minv=min(minv,vxlImg.v_k(-1,vp));
-					minv=min(minv,vxlImg.v_k(1,vp));
-
-					if(vv!=minv)
-					{
-					  if(vv==bigN)
-						{vxlImg(i,j,k)=vxlsMrgMap[minv]; ++nchanges;}
-					  else
-					  {
-						if(vxlsMrgMap[minv] < vxlsMrgMap[vv]) 
-							{ (cout<<vxlsMrgMap[vv]<<"->"<<vxlsMrgMap[minv]<<"    ").flush(); vxlsMrgMap[vv]=vxlsMrgMap[minv];   ++nchanges; }
-						else if(vxlsMrgMap[minv] > vxlsMrgMap[vv]) 
-							{ (cout<<vxlsMrgMap[minv]<<"->"<<vxlsMrgMap[vv]<<"!   ").flush(); vxlsMrgMap[minv]=vxlsMrgMap[vv];   ++nchanges; }
-					  }
-					}
-				}
-			}
-	  }
-	  for ( int k=vxlImg.size3()[2]-2; k>0 ; --k )
-	  {
-	    for ( int j=vxlImg.size3()[1]-2; j>0 ; --j )
-			for ( int i=vxlImg.size3()[0]-2; i>0 ; --i )
-			{	const unsigned int vv = vxlImg(i,j,k);
-				if (vv<sldN)
-				{
-					const unsigned int* vp = &vxlImg(i,j,k);
-					unsigned int minv = vv;
-					minv=min(minv,vxlImg.v_i(-1,vp));
-					minv=min(minv,vxlImg.v_i(1,vp));
-					minv=min(minv,vxlImg.v_j(-1,vp));
-					minv=min(minv,vxlImg.v_j(1,vp));
-					minv=min(minv,vxlImg.v_k(-1,vp));
-					minv=min(minv,vxlImg.v_k(1,vp));
-
-					if(vv!=minv)
-					{
-					  if(vv==bigN)
-						{vxlImg(i,j,k)=vxlsMrgMap[minv]; ++nchanges;}
-					  else
-					  {
-						if(vxlsMrgMap[minv] < vxlsMrgMap[vv]) 
-							{ (cout<<vxlsMrgMap[vv]<<"->"<<vxlsMrgMap[minv]<<"    ").flush(); vxlsMrgMap[vv]=vxlsMrgMap[minv];   ++nchanges; }
-						else if(vxlsMrgMap[minv] > vxlsMrgMap[vv]) 
-							{ (cout<<vxlsMrgMap[minv]<<"->"<<vxlsMrgMap[vv]<<"!   ").flush(); vxlsMrgMap[minv]=vxlsMrgMap[vv];   ++nchanges; }
-					  }
-					}
-				}
-			}
-	  }
-
-
-	 cout<<": "<<nchanges<<"\n"; cout.flush();
-
-	}
-
-	std::valarray<unsigned int> vxlsMidMapCount(0u,nRegs);
-	forAllkji(vxlImg)
-		 if(vxlImg(i,j,k)<nRegs)
-		 { vxlImg(i,j,k) = vxlsMrgMap[vxlImg(i,j,k)];
-			++vxlsMidMapCount[vxlImg(i,j,k)];
-		 }
-
-	unsigned int maxReg=0; unsigned int maxRegCount=0;
-	for(unsigned int i=0; i < vxlsMidMapCount.size();++i) if(vxlsMidMapCount[i] > maxRegCount) {maxRegCount=vxlsMidMapCount[i]; maxReg=i; };
-
-	cout<<"maxReg  "<<maxReg<<"    maxRegCount:  "<<maxRegCount<<endl;
-	forAllkji(vxlImg)
-		if(vxlImg(i,j,k)==maxReg)
-			voxels(i,j,k)=0;
-		else if (voxels(i,j,k)==0)
-			voxels(i,j,k)=1;
-
-	//voxels.write("dump2.mhd");
-
-}
 

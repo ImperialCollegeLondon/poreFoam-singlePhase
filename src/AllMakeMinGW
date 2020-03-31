@@ -2,7 +2,7 @@
 
 echo "Run ./AllClean before running this script, when switching from Linux to Win or vise versa"
 export psCXX=x86_64-w64-mingw32-g++
-export psCFLAGS=-std=c++0x
+export psCFLAGS=-std=c++11
 export psLFLAGS=" -static -static-libstdc++ -static-libgcc "
 export OPT=.exe
 export preCC=x86_64-w64-mingw32-

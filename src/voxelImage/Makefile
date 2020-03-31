@@ -1,4 +1,4 @@
-all:  voxelImageConvert Ufraw2Uc rawToFoamPar rawToFoam 
+all:  voxelImageConvert Ufraw2Uc voxelToFoamPar voxelToFoam 
 # warning type clean, dependencies are not handelled yet
 
 
@@ -9,23 +9,23 @@ include  $(psDir)/Makefile.in
 
 
 
-#psCFLAGS := $(psCFLAGS)  -std=c++0x -DGCC_COMPILER -O3 -Wall -pedantic 
+#psCFLAGS := $(psCFLAGS)  -std=c++11 -DGCC_COMPILER -O3 -Wall -pedantic 
 
 
-rawToFoam.o:	rawToFoam.cpp
-	$(psCXX)  $(psCFLAGS) -O3 -Wall   -std=c++0x  -pedantic -c rawToFoam.cpp
-rawToFoam:	rawToFoam.o
-	$(psCXX)	-DGCC_COMPILER   -std=c++0x  rawToFoam.o  $(psLFLAGS) -o	$(psBinDir)/rawToFoam$(OPT)
+voxelToFoam.o:	voxelToFoam.cpp
+	$(psCXX)  $(psCFLAGS) -O3 -Wall   -std=c++11  -pedantic -c voxelToFoam.cpp
+voxelToFoam:	voxelToFoam.o
+	$(psCXX)	-DGCC_COMPILER   -std=c++11  voxelToFoam.o  $(psLFLAGS) -o	$(psBinDir)/voxelToFoam$(OPT)
 
 Ufraw2Uc.o:	Ufraw2Uc.cpp
 	$(psCXX) $(psCFLAGS) -DGCC_COMPILER -O3 -c Ufraw2Uc.cpp
 Ufraw2Uc:	Ufraw2Uc.o
 	$(psCXX) -DGCC_COMPILER  Ufraw2Uc.o  $(psLFLAGS) -o $(psBinDir)/Ufraw2Uc$(OPT)
 
-rawToFoamPar.o:	rawToFoamPar.cpp
-	$(psCXX)  $(psCFLAGS) -DGCC_COMPILER  -c rawToFoamPar.cpp
-rawToFoamPar:	rawToFoamPar.o
-	$(psCXX)	-DGCC_COMPILER rawToFoamPar.o $(psLFLAGS) -o	$(psBinDir)/rawToFoamPar$(OPT)
+voxelToFoamPar.o:	voxelToFoamPar.cpp
+	$(psCXX)  $(psCFLAGS) -DGCC_COMPILER  -c voxelToFoamPar.cpp
+voxelToFoamPar:	voxelToFoamPar.o
+	$(psCXX)	-DGCC_COMPILER voxelToFoamPar.o $(psLFLAGS) -o	$(psBinDir)/voxelToFoamPar$(OPT)
 
 
 
