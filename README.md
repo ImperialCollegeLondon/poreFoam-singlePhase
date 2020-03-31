@@ -1,5 +1,7 @@
 # poreFoam/singlePhase
 
+## Warning: this branch is no longer being updated, please use the [master branch](https://github.com/aliraeini/poreFoam-singlePhase) instead.
+
 ___
 
 Pre- and post-processing codes and a direct Naview-Stokes solver for simulating incompressible single-phase flow on 3D images of porous media using OpenFOAM
@@ -11,9 +13,6 @@ Pre- and post-processing codes and a direct Naview-Stokes solver for simulating 
 - OpenFOAM-v1612+
 - zlib-1.2.11 (optional)
 - voxelImage library (included)
-
-
-### If you are not familiar with openfoam, please consider using the branch [pore+miniFoamLibZTif](https://github.com/aliraeini/poreFoam-singlePhase/tree/pore+miniFoamLibZTif), which includes all the above prerequisites and hence easier to install. Moreover, it has a slightly lower memory (RAM) footprint. 
 
 
 ---
