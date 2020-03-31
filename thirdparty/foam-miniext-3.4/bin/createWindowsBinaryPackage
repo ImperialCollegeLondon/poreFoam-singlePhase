@@ -74,7 +74,7 @@ if [ ! -d $RELEASE_DIR ] ; then
     mkdir $RELEASE_DIR
 fi
 
-PACKAGE_DIR=$RELEASE_DIR/$WM_PROJECT-$WM_FORK-$WM_PROJECT_VERSION-win-x64
+PACKAGE_DIR=$RELEASE_DIR/$WM_PROJECT$WM_FORK-win-x64
 if [ -d $PACKAGE_DIR ] ; then
     echo "Removing previous $PACKAGE_DIR ..."
     rm -rf $PACKAGE_DIR

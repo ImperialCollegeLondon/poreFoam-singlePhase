@@ -2,6 +2,7 @@ ObjectType =  Image
 NDims =       3
 ElementType = MET_UCHAR
 ElementByteOrderMSB = False
+CompressedData = True
 HeaderSize = 0
 DimSize =    	1000	1000	1000
 ElementSize = 	1.6 	1.6 	1.6
@@ -9,7 +10,7 @@ Offset =      	0   	0   	0
 
 ElementDataFile = Image.raw.gz
 
-DefaultImageFormat = tif
+DefaultImageFormat = raw.gz
 
 //!______________  optional image processing  commands _________________
 //TODO: HeaderSize = -1
