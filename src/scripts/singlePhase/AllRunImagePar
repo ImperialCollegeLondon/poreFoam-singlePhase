@@ -12,11 +12,12 @@ usage()
 	echo "        or \"oldAscii\" (for compatibility with old codes)" 
 	echo ""
 	echo "Examples:" 
-	echo "$scriptName \"\$(ls *.mhd)\"  X  .tif " 
-	echo "$scriptName \"\$(ls *.mhd)\"  Z  .raw.gz " 
-	echo "$scriptName \"\$(ls *.mhd)\"  X  .dat " 
+	echo "  export nProcX=3;  export nProcY=3;  export nProcZ=3    " 
+	echo "  $scriptName \"\$(ls *.mhd)\"  X  .tif " 
+	echo "  $scriptName \"Berea.mhd Ketton.mhd\"  \"X Y Z\"  .dat " 
+	echo "  $scriptName \"\$(ls *.mhd)\"  Z  .raw.gz " 
 	echo "" 
-	echo "once the simulation is finished, you can run 'Ufraw2Ucdat' to"
+	echo "once the simulation is finished, you can run 'Ufraw2Uc ' to"
 	echo "generate the voxel-centred velocities, or velocity magnitude," 
 	echo "or convert to different file formats" 
 }
@@ -42,7 +43,7 @@ echo "nProcessors: $nProcX x $nProcY x $nProcZ "
 
 
 myCurrentDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )
-: ${psDir:=$myCurrentDIR} ; export psDir
+: ${msSrc:=$myCurrentDIR} ; export msSrc
 
 #dataFiles="Berea.mhd" 
 if [ -n "$1" ]; then  dataFiles=$1
@@ -58,15 +59,15 @@ echo "Images: $dataFiles"
 : ${outPutFormat:=tif}
   echo "outPutFormat=\"$outPutFormat\" "
 
+: ${detlaPs:="1"}
+  echo "detlaPs=\"$detlaPs\" "
+
 
 #~ maxDeltaT="2e-5"
 endTime=.1
 
 
-ps=" 1"
-
-
-. $psDir/scripts/singlePhase/initialize
+. $msSrc/script/initbash
 
 
 
@@ -82,7 +83,7 @@ for direction in $directions
 do
 echo "direction $direction"
 
-for p in $ps
+for p in $detlaPs
 do
 echo "p @ $direction : $p  Pa"
 
@@ -91,7 +92,6 @@ echo "p @ $direction : $p  Pa"
 	#~ LAM_MPI_SESSION_SUFFIX="$(echo $caseName | sed 's/\///g')"
 	#~ echo $LAM_MPI_SESSION_SUFFIX
 	#~ lamboot -v machines.txt 
-
 
 
 	if [ -d ./base ]; then 
@@ -122,38 +122,36 @@ echo "p @ $direction : $p  Pa"
 	  tmpp=$(more $dataFile.nhdr | grep directions |  sed 's/directions/ /' |  sed 's/space//'  |  sed 's/:/ /') 
 	  echo $tmpp
 	  echo  >>   $cpymhd
-	  echo "ElementSpacing =  $tmpp" | sed 's/\,/ /g' | sed 's/)/ /g' | sed 's/(/ /g' | sed 's/ 0 / /g' | sed 's/ 0 / /g' >>   $cpymhd
+	  echo "ElementSize =  $tmpp" | sed 's/\,/ /g' | sed 's/)/ /g' | sed 's/(/ /g' | sed 's/ 0 / /g' | sed 's/ 0 / /g' >>   $cpymhd
 	  echo "Offset = 0 0 0" >>   $cpymhd
 	  echo ""  >>   $cpymhd
-	  echo "ElementDataFile = $datFile"  >>   $cpymhd
+	  echo "ElementDataFile = ../../$datFile"  >>   $cpymhd
 	  echo ""  >>   $cpymhd
-	elif [ -f $dataFile.tif ]; then 
+	elif [ -f $dataFile.tif ] ||  [ -f $dataFile.am ] ; then 
 	  echo "ObjectType =  Image" >   $cpymhd
 	  echo "NDims =       3"     >>   $cpymhd
 	  echo "ElementType = MET_UCHAR"  >>   $cpymhd	   
 	  echo ""  >>   $cpymhd
 	  echo "ElementDataFile = ../../$datFile"  >>   $cpymhd
-	  echo ""  >>   $cpymhd
-	  echo "#ElementSpacing =  1  1  1 " >>   $cpymhd
-	  echo "#Offset = 0 0 0" >>   $cpymhd
 
 	  echo "Please check the content of $cpymhd if not correct, provide "
 	  echo "a similar but correct .mhd file in the current directory, i.e:"
-	  echo " cp $cpymhd $caseName.mhd     &&    rm $caseName"
+	  echo " cp $cpymhd $caseName.mhd   &&   rm -r $caseName/"
 	  echo "and try again"
 	else
-	  echo "can not find the file  $dataFile.mhd nor  $dataFile.nhdr nor  $dataFile.tif"
+	  echo "can not find the file  $dataFile.mhd/.nhdr/.tif/.am"
 	  exit
 	fi
 
 
 
-	(cd $caseName && runApplication voxelToFoamPar  ${dataFile}_input.mhd $nProcX $nProcY $nProcZ )
-	(cd $caseName &&  for processorDir in `ls -d processo*[0-9]` ; do  cp -r 0 "$processorDir" ;    done )
-	nlProc=`cd $caseName && ls -d -1 processo*[0-9] | sed 's/processor//g' | sort -n -r | head -n 1`
+	(cd $caseName && runApp voxelToFoamPar  ${dataFile}_input.mhd $nProcX $nProcY $nProcZ )
+	(cd $caseName &&  for processorDir in `ls -d processo*[0-9] 2>/dev/null` ; do  cp -r 0 "$processorDir" ;    done )
+	nlProc=`cd $caseName && ls -d -1 processo*[0-9] 2>/dev/null | sed 's/processor//g' | sort -n -r | head -n 1`
 	nProc=$[nlProc+1]
 	echo nProc $nProc
 	setKeywordValues numberOfSubdomains $nProc ./$caseName/system/decomposeParDict 
+	setKeywordValues n "($nProcX $nProcY $nProcZ)" ./$caseName/system/decomposeParDict 
 
 
 
@@ -164,8 +162,8 @@ echo "p @ $direction : $p  Pa"
 	setBoundaryCondition "$direction"  "value" "uniform  $p" ./$caseName/0/p 
 
 
-	#(cd $caseName && runParallel redistributePar $nProc -overwrite)
-	(cd $caseName && runParallel renumberMesh $nProc -overwrite)
+	#(cd $caseName && runMPI redistributePar $nProc -overwrite)
+	(cd $caseName && runMPI renumberMesh $nProc -overwrite)
 
 
 	setKeywordValues endTime $endTime ./$caseName/system/controlDict 
@@ -178,24 +176,23 @@ echo "p @ $direction : $p  Pa"
 	setSubKeywordValues relaxationFactors "U" "0.5" ./$caseName/system/fvSolution
 
 	setKeywordValues writeInterval 1000 ./$caseName/system/controlDict 
-	echo "..................Runing single phase flow code......................."
+	echo "..................Running single phase flow code......................."
 
-	#(cd $caseName && runParallel iPotentialFoam $nProc)
+	#(cd $caseName && runMPI iPotentialFoam $nProc)
 
-	[ -z "$skip_flow" ] && (cd $caseName && runParallel iInterFoam101SP $nProc)
-	(cd $caseName && mv log.iInterFoam101SP log.iInterFoam101SP.1)
+	[ -z "$skip_flow" ] && (cd $caseName && runMPI icoNSFoam $nProc)
+	(cd $caseName && mv log.icoNSFoam log.icoNSFoam.1)
 
 	#setSubKeywordValues relaxationFactors "U" "0.6" ./$caseName/system/fvSolution
 	#setKeywordValues writeInterval 500 ./$caseName/system/controlDict 
-	#(cd $caseName && runParallel iInterFoam101SP $nProc)
-	#(cd $caseName && mv log.iInterFoam101SP log.iInterFoam101SP.2)
+	#(cd $caseName && runMPI icoNSFoam $nProc)
+	#(cd $caseName && mv log.icoNSFoam log.icoNSFoam.2)
 
 
+	#(cd $caseName && runMPI calc_perms $nProc)
+	(cd $caseName && runMPI calc_distributions $nProc)
 
-	#(cd $caseName && runParallel calc_perms $nProc)
-	(cd $caseName && runParallel calc_distributions $nProc)
-
-	(cd $caseName && runApplication  FOAM2Voxel vxlImage.mhd "$nProc" $outPutFormat t)
+	(cd $caseName && runApp  FOAM2Voxel vxlImage.mhd "$nProc" "$outPutFormat" t)
 
 
 	echo "..................            END              ......................."

@@ -14,7 +14,7 @@ if [ "$1" == "-h" ]; then usage; exit; fi
 if [ "$1" == "--help" ]; then usage; exit; fi
 
 
-application="iInterFoam101SP"
+application="icoNSFoam"
 
 
 if [ -n "$1" ]; then
@@ -23,7 +23,7 @@ else
 	caseName="."
 fi
 myCurrentDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )
-: ${psDir:=$myCurrentDIR} ; export psDir
+: ${msSrc:=$myCurrentDIR} ; export msSrc
 
 
 : ${outPutFormat:=$2}
@@ -35,7 +35,7 @@ if  [ -f $caseName/system/controlDict ]; then
 	echo "running case: $(dirname $caseName) in parallel"
 
 
-. $psDir/scripts/singlePhase/initialize
+. $msSrc/script/initbash
 
 
 	processorDirs="$(cd $caseName/ && ls -d processo*[0-9])"	
@@ -54,13 +54,13 @@ if  [ -f $caseName/system/controlDict ]; then
 	#~ setSubKeywordValues relaxationFactors "U" "0.4" ./$caseName/system/fvSolution
 
     setKeywordValues writeInterval 100 ./$caseName/system/controlDict 
-    (cd $caseName && runParallel $application $nProc)
+    (cd $caseName && runMPI $application $nProc)
 
-	#(cd $caseName && runParallel calc_perms $nProc)
-	(cd $caseName && runParallel calc_distributions $nProc)
+	#(cd $caseName && runMPI calc_perms $nProc)
+	(cd $caseName && runMPI calc_distributions $nProc)
 
 	(cd $caseName &&  mv log.FOAM2Voxel log.FOAM2Voxel-)
-	(cd $caseName && runApplication  FOAM2Voxel vxlImage.mhd "$nProc" $outPutFormat)
+	(cd $caseName && runApp  FOAM2Voxel vxlImage.mhd "$nProc" $outPutFormat)
 
 
 	echo "..................            END              ......................."

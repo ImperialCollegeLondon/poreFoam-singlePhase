@@ -17,8 +17,8 @@ if [ -n "$1" ]; then  application=$1 ;  else  application="NO_APP_GIVEN"; fi
 if [ -n "$2" ] ; then  caseName=$2 ; shift; shift;  else  caseName="." ; shift;  fi
 
 myCurrentDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )
-: ${psDir:=$myCurrentDIR} ; export psDir
-. $psDir/scripts/singlePhase/initialize
+: ${msSrc:=$myCurrentDIR} ; export msSrc
+. $msSrc/script/initbash
 
 
 
@@ -44,7 +44,7 @@ if  [ -f $caseName/system/controlDict ]; then
 	
 	#source $iBashrcOF
 
-    (cd $caseName && runParallel $application $nProc $@)
+    (cd $caseName && runMPI $application $nProc $@)
 
 
 	echo "...... End: $application on $caseName ......"

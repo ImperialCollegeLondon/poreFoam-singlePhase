@@ -4,31 +4,41 @@ export scriptName=`basename "${BASH_SOURCE[0]}"`
 usage()
 {
 	echo "usage:"
-	echo ;  echo "$scriptName \"*.mhd\"  \"X\" binary";  echo
+	echo ;  echo "$scriptName \"*.mhd\"  \"X\" .raw.gz";  echo
 	echo "Arguments (all optional):"
 	echo "  arg1: name of images to run flow simulations on (defaults is *.mhd)"
 	echo "  arg2: flow direction(s):  any combination of X Y Z"
-	echo "  arg3: output format for FOAM2Voxel: \".dat\", \".raw\" , \".tif\" (default), "
-	echo "        or \"oldAscii\" (for compatibility with old IC codes)" 
-	echo "Example:" 
-	echo "$scriptName \"\$(ls *.mhd)\"" 
+	echo "  arg3: image output format: \".dat\", \".raw\", \".raw.gz\", \".tif\" (default), "
+	echo "        or \"oldAscii\" (for compatibility with old codes)"
+	echo ""
+	echo "Examples:"
+	echo "$scriptName \"\$(ls *.mhd)\"  X  .tif "
+	echo "$scriptName \"\$(ls *.mhd)\"  Z  .raw.gz "
+	echo "$scriptName \"\$(ls *.mhd)\"  X  .dat "
+	echo ""
+	echo "once the simulation is finished, you can run 'Ufraw2Uc ' to"
+	echo "generate the voxel-centred velocities, or velocity magnitude,"
+	echo "or convert to different file formats"
 }
 if [ "$1" == "" ]; then usage; fi
 if [ "$1" == "-h" ]; then usage; exit; fi
 if [ "$1" == "--help" ]; then usage; exit; fi
-if [ -n "$2" ]; then 
-	if [[ $2 != [XYZ] ]]; then echo "Error: \$2 ($2) can be X Y or Z only ";  exit; fi
+if [ -n "$2" ]; then
+	for cas in $2 ; do
+		if [[ "$cas" != [XYZ] ]]; then echo "Error: \$2 ($2) can be X Y or Z only ";  exit; fi
+	done
 fi
 echo $scriptName $@
 echo
 
 
-baseCase="base"
+
+
 
 myCurrentDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )
-: ${psDir:=$myCurrentDIR} ; export psDir
+: ${msSrc:=$myCurrentDIR} ; export msSrc
 
-#dataFiles="Berea.mhd" 
+#dataFiles="Berea.mhd"
 if [ -n "$1" ]; then  dataFiles=$1
 else                  dataFiles="$(ls *.mhd)"
 fi
@@ -50,7 +60,7 @@ endTime=.1
 ps=" 1"
 
 
-. $psDir/scripts/singlePhase/initialize
+. $msSrc/script/initbash
 
 
 
@@ -71,14 +81,13 @@ do
 echo "p @ $direction : $p  Pa"
 
   caseName="$prefix""$dataFile-$p""-$direction"
-  if  ! [ -d $caseName ]; then 
+  if  ! [ -d $caseName ]; then
 	#~ LAM_MPI_SESSION_SUFFIX="$(echo $caseName | sed 's/\///g')"
 	#~ echo $LAM_MPI_SESSION_SUFFIX
-	#~ lamboot -v machines.txt 
+	#~ lamboot -v machines.txt
 
 
-
-	if [ -d ./base ]; then 
+	if [ -d ./base ]; then
 		cp -r ./base $caseName
 	else
 		cp -r $SP_MACROS_DIR/base $caseName
@@ -92,10 +101,10 @@ echo "p @ $direction : $p  Pa"
 
 	cpymhd=$caseName/${dataFile}_input.mhd
 
-	if [ -f $dataFile.mhd ]; then 
+	if [ -f $dataFile.mhd ]; then
 	  cp $dataFile.mhd  $cpymhd
 	  sed -i 's/^ElementDataFile[ \t]*=[ \t]*/ElementDataFile = ..\/..\//' $cpymhd
-	elif [ -f $dataFile.nhdr ]; then 
+	elif [ -f $dataFile.nhdr ]; then
 	  echo "ObjectType =  Image" >   $cpymhd
 	  echo "NDims =       3"     >>   $cpymhd
 	  echo "ElementType = MET_UCHAR"  >>   $cpymhd
@@ -103,22 +112,22 @@ echo "p @ $direction : $p  Pa"
 	  tmpp=`more $dataFile.nhdr | grep sizes |  sed 's/sizes/ /'  |  sed 's/:/ /'`
 	  echo $tmpp
 	  echo "DimSize =  $tmpp" >>   $cpymhd
-	  tmpp=$(more $dataFile.nhdr | grep directions |  sed 's/directions/ /' |  sed 's/space//'  |  sed 's/:/ /') 
+	  tmpp=$(more $dataFile.nhdr | grep directions |  sed 's/directions/ /' |  sed 's/space//'  |  sed 's/:/ /')
 	  echo $tmpp
 	  echo  >>   $cpymhd
-	  echo "ElementSpacing =  $tmpp" | sed 's/\,/ /g' | sed 's/)/ /g' | sed 's/(/ /g' | sed 's/ 0 / /g' | sed 's/ 0 / /g' >>   $cpymhd
+	  echo "ElementSize =  $tmpp" | sed 's/\,/ /g' | sed 's/)/ /g' | sed 's/(/ /g' | sed 's/ 0 / /g' | sed 's/ 0 / /g' >>   $cpymhd
 	  echo "Offset = 0 0 0" >>   $cpymhd
-	  echo ""  >>   $cpymhd
-	  echo "ElementDataFile = $datFile"  >>   $cpymhd
-	  echo ""  >>   $cpymhd
-	elif [ -f $dataFile.tif ]; then 
-	  echo "ObjectType =  Image" >   $cpymhd
-	  echo "NDims =       3"     >>   $cpymhd
-	  echo "ElementType = MET_UCHAR"  >>   $cpymhd	   
 	  echo ""  >>   $cpymhd
 	  echo "ElementDataFile = ../../$datFile"  >>   $cpymhd
 	  echo ""  >>   $cpymhd
-	  echo "#ElementSpacing =  1  1  1 " >>   $cpymhd
+	elif [ -f $dataFile.tif ]; then
+	  echo "ObjectType =  Image" >   $cpymhd
+	  echo "NDims =       3"     >>   $cpymhd
+	  echo "ElementType = MET_UCHAR"  >>   $cpymhd	  
+	  echo ""  >>   $cpymhd
+	  echo "ElementDataFile = ../../$datFile"  >>   $cpymhd
+	  echo ""  >>   $cpymhd
+	  echo "#ElementSize =  1  1  1 " >>   $cpymhd
 	  echo "#Offset = 0 0 0" >>   $cpymhd
 
 	  echo "Please check the content of $cpymhd if not correct, provide "
@@ -132,7 +141,7 @@ echo "p @ $direction : $p  Pa"
 
 
 
-	(cd $caseName && runApplication voxelToFoam  ${dataFile}_input.mhd )
+	(cd $caseName && runApp voxelToFoam  ${dataFile}_input.mhd )
 
 
 
@@ -140,34 +149,36 @@ echo "p @ $direction : $p  Pa"
 
 
 
-	setBoundaryCondition "$direction"  "value" "uniform  $p" ./$caseName/0/p 
+	setBoundaryCondition "$direction"  "value" "uniform  $p" ./$caseName/0/p
 
 
-	(cd $caseName && runApplication renumberMesh -overwrite)
+	(cd $caseName && runApp renumberMesh -overwrite)
 
 
-	setKeywordValues endTime $endTime ./$caseName/system/controlDict 
+	setKeywordValues endTime $endTime ./$caseName/system/controlDict
 
-	#setKeywordValues writeFormat ascii ./$caseName/system/controlDict 
+	#setKeywordValues writeFormat ascii ./$caseName/system/controlDict
 
-	(cd $caseName && runApplication iPotentialFoam)
 
-	#setKeywordValues writeFormat binary ./$caseName/system/controlDict 
+	#setKeywordValues writeFormat binary ./$caseName/system/controlDict
 
 	setSubKeywordValues relaxationFactors "U" "0.5" ./$caseName/system/fvSolution
 
-	setKeywordValues writeInterval 1000 ./$caseName/system/controlDict 
-	echo "..................Runing single phase flow code......................."
-	(cd $caseName && runApplication iInterFoam101SP)
-	(cd $caseName && mv log.iInterFoam101SP log.iInterFoam101SP.1)
+	setKeywordValues writeInterval 1000 ./$caseName/system/controlDict
+	echo "..................Running single phase flow code......................."
+
+	(cd $caseName && runApp iPotentialFoam)
+
+	(cd $caseName && runApp icoNSFoam)
+	(cd $caseName && mv log.icoNSFoam log.icoNSFoam.1)
 
 
 
 
-	#(cd $caseName && runApplication calc_perms)
-	(cd $caseName && runApplication calc_distributions)
+	#(cd $caseName && runApp calc_perms)
+	(cd $caseName && runApp calc_distributions)
 
-	(cd $caseName && runApplication  FOAM2Voxel vxlImage.mhd 1 $outPutFormat)
+	(cd $caseName && runApp  FOAM2Voxel vxlImage.mhd 1 $outPutFormat)
 
 
 	echo "..................            END              ......................."
