@@ -24,11 +24,8 @@ The command `make distclean` removes all compiled libraries and executables.
 
 ### Instructions 
 
-To download using git run:
-
-`git clone -b pore+miniFoamLibZTif https://github.com/aliraeini/poreFoam-singlePhase.git`
-
-Please see the src/doc folder for [installation and usage](src/doc/porefoam_singlePhase.pdf),  and a sample input file -- [Image.mhd](src/doc/Image.mhd) -- for microCT images similar to those on [Imperial College pore-scale modelling website](http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling/micro-ct-images-and-networks/)
+Please see the src/doc folder for [installation and usage](src/doc/porefoam_singlePhase.pdf), 
+and a sample input file -- [Image.mhd](src/doc/Image.mhd) -- for microCT images similar to those on [Imperial College pore-scale modelling website](http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling/micro-ct-images-and-networks/)
 
 
 ### Contact and References
