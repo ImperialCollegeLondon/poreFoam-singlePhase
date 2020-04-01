@@ -29,12 +29,13 @@ Please see the src/doc folder for [installation and usage](doc/porefoam_singlePh
 In summary, you need to download a segmented micro-CT image (with a `image.mhd` header) and run in a bash terminal:
 ```shell
 
-    msApps # only once, to set up path to apps folder, see above
-    #cd PATH_TO_image.mhd_DIRECTORY
-    # set the number of processors (=$nProcX x $nProcY x $nProcZ) used to run the simulation 
-    # based on the size of image and number of processors your machine has:
+    source PATH/TO/src/script/bashrc # only once, change PATH/TO according to your porefoam installaion path
+    #cd PATH/TO/IMAGES/
+    # Set the number of processors (=$nProcX x $nProcY x $nProcZ) used to run the simulation,
+    # based on the size of image and number of processors your machine:
     export nProcX=2;  export nProcY=2;  export nProcZ=2  
-    AllRunImagePar image.mhd  "X Y Z"
+    # Run the simulations, here on all available mhd files in the current directory, in all 3 spatial directions.
+    AllRunImagePar "$(ls *.mhd)"  "X Y Z" 
 ```
  
 ### Contact and References
