@@ -1,7 +1,6 @@
 # porefoam1f 
 
- Porefoam1f code can simulate incompressible single-phase (1f) flow on 3D images of porous media using openfoam finite-volume library.
- This repository serves as a git module for my other (mostly private) applications, but you can use it as a standalone package as well.
+ Porefoam1f code solves for incompressible single-phase (1f) flow on 3D images of porous media using openfoam finite-volume library. The code computes and reports flow properties, such as the absolute permeability and formation factor, of the pore space.
 
 ---
 
