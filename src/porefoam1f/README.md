@@ -23,7 +23,7 @@ This repository is part of a larger group of partly independent packages. Please
  
 ### Running simulations
 
-Please see the src/doc folder for [installation and usage](doc/porefoam_singlePhase.pdf),  and a sample input header file -- [Image.mhd](src/doc/Image.mhd), which you can you in conjunction with segmented micro-CT image files in raw, raw.gz, tif, and amira (.am) files. For sample micro-CT images and their mhd header files, see [Imperial College pore-scale modelling website](http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling/micro-ct-images-and-networks/)
+Please see the src/doc folder for [installation and usage](doc/porefoam_singlePhase.pdf),  and a sample input header file -- [Image.mhd](src/doc/Image.mhd), which you can you in conjunction with segmented micro-CT image files in raw, raw.gz, tif, and amira (.am) files. For sample micro-CT images and their mhd header files, see [Imperial College pore-scale modelling website](http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling/micro-ct-images-and-networks/).
 
 
 In summary, you need to download a segmented micro-CT image (with a `image.mhd` header) and run in a bash terminal:
