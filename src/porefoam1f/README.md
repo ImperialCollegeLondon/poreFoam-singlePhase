@@ -10,7 +10,7 @@
  - A GNU Linux operating system (at least for compilation), tested on Ubuntu 18.04
  - GNU make, cmake, and a c++11 compiler (available in most Linux distributions or can be installed through their package manager)
  - MPI message passing interface.   In Ubuntu (18.04) MPI another foamx3m prerequisites can be installed by typing in a terminal:   
-      `sudo apt install mpi-default-dev  flex libscotch`    
+      `sudo apt install mpi-default-dev  flex libscotch-dev`    
  - [libvoxel] library 
  - A costomized foam-extend, [foamx3m]
  - libtiff and zlib (optional, both dependancies of [libvoxel])
