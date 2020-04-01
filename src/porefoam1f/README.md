@@ -24,7 +24,7 @@ This repository is part of a larger group of partly independent packages. Please
  
 ### Running simulations
 
-Please see the src/doc folder for [installation and usage](doc/porefoam_singlePhase.pdf),  and a sample input file -- [Image.mhd](src/doc/Image.mhd) -- for microCT images similar to those on [Imperial College pore-scale modelling website](http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling/micro-ct-images-and-networks/)
+Please see the src/doc folder for [installation and usage](doc/porefoam_singlePhase.pdf),  and a sample input file -- [Image.mhd](src/doc/Image.mhd). For the microCT images and their mhd header files, please see [Imperial College pore-scale modelling website](http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling/micro-ct-images-and-networks/)
 
 
 In summary, you need to download a segmented micro-CT image (with a `image.mhd` header) and run in a bash terminal:
@@ -37,7 +37,6 @@ In summary, you need to download a segmented micro-CT image (with a `image.mhd` 
     export nProcX=2;  export nProcX=2;  export nProcX=2  
     AllRunImagePar image.mhd  "X Y Z"
 ```
-For sample micro-CT images alongside their `.mhd` header files, please see the [micro-CT images on our website].
  
 ### Contact and References
 
@@ -49,9 +48,3 @@ http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/p
 License:
 [GPLv3](https://www.gnu.org/licenses/gpl-3.0.txt)
 
-### See also:
-
-[porefoam2f](https://github.com/aliraeini/porefoam2f), can be added as a module similar to porefoam1f above, to allow direct two-phase flow simulations at the pore scale.
-
-
-[micro-CT images on our website]:(http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling)
