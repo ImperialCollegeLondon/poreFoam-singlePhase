@@ -3,7 +3,7 @@
 
  ----------------------------------------------------------------    
  
- **Please see the [doc](doc) and [src/porefoam1f](src/porefoam1f) folders for further details**
+## Please see the [doc](doc) and [src/porefoam1f](src/porefoam1f) folders for more specific details
 
 See also README files for other modules  which are located in their own directories. 
 
