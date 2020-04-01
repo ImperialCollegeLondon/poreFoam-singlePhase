@@ -31,7 +31,7 @@ mgw: checkRoot
 clean: checkRoot
 	(cd ${ms3rd} && make -f ${msSrc}/script/makefile.3rd  clean)
 	(cd ${msSrc} && script/AllClean)
-	rm -rf  ${msRoot}/build  log.make
+	rm -rf  ${msRoot}/build ${msSrc}/*/__pycache__  log.make
 
 distclean: checkRoot clean
 	@echo "\n**********************************************************\nWarning:\n"
