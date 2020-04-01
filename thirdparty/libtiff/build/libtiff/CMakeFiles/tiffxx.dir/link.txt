@@ -1,2 +1,0 @@
-/usr/bin/ar qc libtiffxx.a  CMakeFiles/tiffxx.dir/tif_stream.cxx.o
-/usr/bin/ranlib libtiffxx.a

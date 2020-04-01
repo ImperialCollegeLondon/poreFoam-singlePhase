@@ -13,7 +13,7 @@ Ali Q Raeini: a.qaseminejad-raeini09@imperial.ac.uk
 \*-------------------------------------------------------------------------*/
 
 #include <sstream>
-//#include "shapeToVoxel.h"
+#include "shapeToVoxel.h"
 
 //#ifndef GLOBALS_SkipH
 //#define Dbg_SkipH
@@ -432,10 +432,9 @@ template<typename T> std::unordered_map<std::string,bool(*)( std::stringstream&,
 		{  "PointMedian026" , ProcessP(& PointMedian026 )},
 		{  "circleOut"  , ProcessP(& circleOut )},
 		{  "growLabel"  , ProcessP(& growLabel )},
-		{  "maskWriteFraction"  ,ProcessP(& maskWriteFraction )}
-		//,{  "shapeToVoxel"  ,ProcessP(& shapeToVoxel )},
-		//{  "shapeToVoxelAdd"  ,ProcessP(& shapeToVoxelAdd )},
-		};
+		{  "maskWriteFraction"  ,ProcessP(& maskWriteFraction )},
+		{  "shapeToVoxel"  ,ProcessP(& shapeToVoxel )},
+		{  "shapeToVoxelAdd"  ,ProcessP(& shapeToVoxelAdd )},	};
 }
 
 

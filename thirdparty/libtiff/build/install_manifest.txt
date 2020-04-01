@@ -1,8 +1,0 @@
-/home/ali/git/poreFoam-singlePhaseMiniFoam/lib/pkgconfig/libtiff-4.pc
-/home/ali/git/poreFoam-singlePhaseMiniFoam/lib/libtiff.a
-/home/ali/git/poreFoam-singlePhaseMiniFoam/include/tiff.h
-/home/ali/git/poreFoam-singlePhaseMiniFoam/include/tiffio.h
-/home/ali/git/poreFoam-singlePhaseMiniFoam/include/tiffvers.h
-/home/ali/git/poreFoam-singlePhaseMiniFoam/include/tiffconf.h
-/home/ali/git/poreFoam-singlePhaseMiniFoam/lib/libtiffxx.a
-/home/ali/git/poreFoam-singlePhaseMiniFoam/include/tiffio.hxx

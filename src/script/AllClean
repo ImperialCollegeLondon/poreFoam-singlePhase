@@ -15,24 +15,24 @@ if [ -n "$1" ]; then
 else
   cases="$(ls -d */ | grep -v [\ ] | grep  -v [\)-]/ | sed 's/\///g')"
 fi
-	
+
 
 
 
 for cas in $cases
 do
-	if [ -L "$cas" ]; then
-		 echo "rm $cas"
-		 rm $cas
-	elif [ -f $cas/Makefile ]; then
-		echo "$cas:"	
-		(cd $cas && make clean)
-	elif [ -f $cas/makefile ]; then
-		echo "$cas:"	
-		(cd $cas && make clean)
-	elif [ -d $cas ]; then
-			echo " skipping $cas"	
-	fi
+  if [ -L "$cas" ]; then
+    echo "rm $cas"
+    rm $cas
+  elif [ -f $cas/Makefile ]; then
+    echo "$cas:"  
+    (cd $cas && make clean)
+  elif [ -f $cas/makefile ]; then
+    echo "$cas:"  
+    (cd $cas && make clean)
+  elif [ -d $cas ]; then
+     echo " skipping $cas"  
+  fi
 done
 
 

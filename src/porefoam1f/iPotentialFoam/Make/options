@@ -5,6 +5,6 @@ EXE_INC = \
 
 
 
-EXE_LIBS = -L$(psLibDir) \
+EXE_LIBS = -L$(msLibDir) \
     -l:libfiniteVolume.$(SO) 
     

@@ -10,4 +10,9 @@ clean:
 	$(warning "running ${msSrc}/script/AllClean on $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))")
 	${msSrc}/script/AllClean
 
-test:;
+
+
+testDir = ${msSrc}/../test/Porefoam1f
+test:
+	mkdir -p ${testDir}
+	$(msSrc)/script/testApp "${testDir}"  python3 "${CURDIR}/test.py"

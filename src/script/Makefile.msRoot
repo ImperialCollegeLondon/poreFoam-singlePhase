@@ -56,7 +56,9 @@ checkRoot:
 #TODO ORGANISE tests (unify workflow)
 maketest= ( ! [ -d ${1} ] ) || (echo test ${1} && cd ${1} && make test)  ||  echo "Error failed in ${1} on make test"
 test: checkRoot
-	echo these are not yet released
+	mkdir -p test
+	@$(call maketest,src/porefoam1f)
+#	@$(call maketest,src/libvoxel)
 
 # not used yet
 installDir?=$(HOME)/.local/

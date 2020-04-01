@@ -2,8 +2,8 @@
 USE_ZLIB=1
 USE_TIFF=1
 USE_VXIMG=1
-msDir ?= $(abspath ../..)
-include  $(msDir)/script/Makefile.in
+msSrc ?= $(abspath ../..)
+include  $(msSrc)/script/Makefile.in
 
 
 

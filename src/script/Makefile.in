@@ -71,7 +71,7 @@ InDir=In $(notdir $(abspath $(dir $(PWD))))/$(notdir $(PWD)): ***
 psReleaseDate ?= \"$(shell date +'%Y.%m.%d')\"
 
 
-msCFLAGS := ${msCFLAGS} -I${msSrc}/include -I${msRoot}/include -I${msSrc}/include -DRELEASE_DATE=$(psReleaseDate)
+msCFLAGS := ${msCFLAGS} -I${msSrc}/include -I${msRoot}/include -I${msSrc}/include -DRELEASE_DATE=$(msReleaseDate)
 msLFLAGS := ${msLFLAGS} -L$(msLibDir)
 
 
