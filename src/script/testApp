@@ -20,7 +20,7 @@ checkErr()
   else echo "'$Er', in: $1"; printf "\n ***  Failed @$task" ;   fi
   if xhost >/dev/null 2>&1 ; then
     if [ -z "$Er" ]; then  notify-send "Succeed @$task"; 
-    else                     notify-send " Failed @$task"; geany "$1";  fi
+    else                   notify-send " Failed @$task"; geany "$1" || gedit "$1";  fi
   fi
 }
 
