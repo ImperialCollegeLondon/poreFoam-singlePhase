@@ -35,8 +35,9 @@ In summary, you need to download a segmented micro-CT image (with a `image.mhd` 
     # Set the number of processors (=$nProcX x $nProcY x $nProcZ) used to run the simulation,
     # based on the size of image and number of processors your machine:
     export nProcX=2;  export nProcY=2;  export nProcZ=2  
-    # Run the simulations, here on all available mhd files in the current directory, in all 3 spatial directions.
-    AllRunImagePar "$(ls *.mhd)"  "X Y Z" 
+    AllRunImagePar "$(ls *.mhd)"  "X Y Z" # Run the simulations, 
+    # This command runs flow simulations on all available mhd files in the current directory, in all 3 spatial directions, and will take a while.
+
 ```
 
  ### Simulation results
