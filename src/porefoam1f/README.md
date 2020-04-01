@@ -34,7 +34,7 @@ In summary, you need to download a segmented micro-CT image (with a `image.mhd` 
     #cd PATH_TO_image.mhd_DIRECTORY
     # set the number of processors (=$nProcX x $nProcY x $nProcZ) used to run the simulation 
     # based on the size of image and number of processors your machine has:
-    export nProcX=2;  export nProcX=2;  export nProcX=2  
+    export nProcX=2;  export nProcY=2;  export nProcZ=2  
     AllRunImagePar image.mhd  "X Y Z"
 ```
  
