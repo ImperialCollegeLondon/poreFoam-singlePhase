@@ -3,14 +3,9 @@
 
  ----------------------------------------------------------------    
  
- **Please see the src/doc and src/\*/doc folders for further details**
+ **Please see the [src/doc](src/doc) and [src/porefoam1f](src/porefoam1f) folders for further details**
 
- **See also README files for individual modules  which are located in 
- their own directories.**
-
-To see what README files are available run the command:
-
- `find . | grep README`
+See also README files for other modules  which are located in their own directories. 
 
  ----------------------------------------------------------------
 
@@ -78,5 +73,5 @@ For contacts and references please see:
 http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling    
 or contact Ali Q. Raeini, email: a.qaseminejad-raeini09@imperial.ac.uk
 
-More details are given in the apps/doc directory.
+More details are given in the src/doc directory.
 
