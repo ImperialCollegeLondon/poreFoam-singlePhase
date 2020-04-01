@@ -145,7 +145,7 @@ const int
 			};
 
 			cout<<"\n************** generating meshes ************"<<endl;
-		vimage.reset(0,0,0,0);
+			vimage.reset(0,0,0,0);
 			OMPragma("omp parallel for")
 			for (int ixyz=0;ixyz<nPar[0]*nPar[1]*nPar[2];ixyz++)
 			{
@@ -158,7 +158,7 @@ const int
 				toFoam(vimages(ix,iy,iz),nVVs, procIsijk, ix+1, iy+1, iz+1);
 				cout<<endl;
 			 }
-			 }
+			}
 	} else cout<<"!!! npx x npy x npz = "<<nPar[2]*nPar[1]*nPar[0]<<endl;
 	cout<<":/"<<endl;
    return 0;
@@ -168,7 +168,7 @@ void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int 
 { //!- generate an openfaom (processor) mesh similar to voxelToFoamPar.cpp
 	int myprocI=procIsijk(iProc,jProc,kProc);
 	int3 n=vxlImg.size3();n[0]-=2;n[1]-=2;n[2]-=2;
-	dbl3 X0=vxlImg.X0(); 
+	dbl3 X0=vxlImg.X0();
 	dbl3 dx=vxlImg.dx();
 	X0+=dx;
 
@@ -196,7 +196,7 @@ void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int 
 	forAllkji_1(vxlImg)
 		if (!vxlImg(i,j,k))
 		{
-				int* 
+				int*
 				dd=&point_mapper(i-1,j-1,k-1);
 				      if (*dd<0) *dd=++iPoints;
 				++dd; if (*dd<0) *dd=++iPoints;
@@ -305,8 +305,8 @@ void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int 
 
 const int
 
-	Internal     = 0, 
-	Grainwalls   = 1, 
+	Internal     = 0,
+	Grainwalls   = 1,
 	Left  =nVVs+0,
 	Right =nVVs+1,
 	Bottom=nVVs+2,
@@ -338,7 +338,7 @@ const int
 			{
 				nCells++;
 
-				unsigned char 
+				unsigned char
 				neiv=vxlImg(ix-1,iy,iz);
 				if (ix!=1)
 				{
@@ -394,13 +394,13 @@ const int
 	for(int ib=0;ib<255;++ib)  if(nFaces[ib])  cout<< " "<<ib<<":"<<nFaces[ib]<<", ";
 	cout<<endl;
 
-	nBoundaries+=	int(procIsijk(iProc-1,jProc,kProc)>=0 && nFaces[Left])+ 
+	nBoundaries+=	int(procIsijk(iProc-1,jProc,kProc)>=0 && nFaces[Left])+
 						int(procIsijk(iProc+1,jProc,kProc)>=0 && nFaces[Right])+
-						int(procIsijk(iProc,jProc-1,kProc)>=0 && nFaces[Bottom])+ 
+						int(procIsijk(iProc,jProc-1,kProc)>=0 && nFaces[Bottom])+
 						int(procIsijk(iProc,jProc+1,kProc)>=0 && nFaces[Top])+
-						int(procIsijk(iProc,jProc,kProc-1)>=0 && nFaces[Back])+ 
+						int(procIsijk(iProc,jProc,kProc-1)>=0 && nFaces[Back])+
 						int(procIsijk(iProc,jProc,kProc+1)>=0 && nFaces[Front]);
-						
+
 
 	array<size_t,255> iStartFaces; iStartFaces.fill(0);
 
@@ -448,8 +448,8 @@ const int
 			"		neighbProcNo    "<<neiId<<";"	  <<endl<<			         \
 			"	}"												 <<endl;						\
 			iLastFace += nFaces[name];					  }
-        
-        
+       
+       
 		boundary<< nBoundaries <<endl	<<'('<<endl;
 
 
@@ -528,12 +528,12 @@ const int
   }
 
 
-#define  kclockwiserecordF(type) recordF_m( 1,0,0,1,0,0, 2, ix-1,iy-1,iz-1, type)
-#define kuclockwiserecordF(type) recordF_m( 0,1,1,0,0,0, 2, ix-1,iy-1,iz  , type)
-#define  jclockwiserecordF(type) recordF_m( 0,1,0,0,1,0, 1, ix-1,iy-1,iz-1, type)
-#define juclockwiserecordF(type) recordF_m( 1,0,0,0,0,1, 1, ix-1,iy  ,iz-1, type)
-#define  iclockwiserecordF(type) recordF_m( 0,0,1,0,0,1, 0, ix-1,iy-1,iz-1, type)
-#define iuclockwiserecordF(type) recordF_m( 0,0,0,1,1,0, 0, ix  ,iy-1,iz-1, type)
+	#define  kclockwiserecordF(type) recordF_m( 1,0,0,1,0,0, 2, ix-1,iy-1,iz-1, type)
+	#define kuclockwiserecordF(type) recordF_m( 0,1,1,0,0,0, 2, ix-1,iy-1,iz  , type)
+	#define  jclockwiserecordF(type) recordF_m( 0,1,0,0,1,0, 1, ix-1,iy-1,iz-1, type)
+	#define juclockwiserecordF(type) recordF_m( 1,0,0,0,0,1, 1, ix-1,iy  ,iz-1, type)
+	#define  iclockwiserecordF(type) recordF_m( 0,0,1,0,0,1, 0, ix-1,iy-1,iz-1, type)
+	#define iuclockwiserecordF(type) recordF_m( 0,0,0,1,1,0, 0, ix  ,iy-1,iz-1, type)
 
 
 
@@ -552,7 +552,7 @@ const int
 
 				iCells++;
 
-				unsigned char 
+				unsigned char
 				neiv=vxlImg(ix-1,iy,iz);
 				if (ix!=1)
 				{
@@ -581,9 +581,9 @@ const int
 				neiv=vxlImg(ix,iy+1,iz);
 				if (iy!=n[1])
 				{
-				  if (neiv)    {juclockwiserecordF( neiv)} 
+				  if (neiv)    {juclockwiserecordF( neiv)}
 				  else                         {juclockwiserecordF( Internal);}
-				}else if (neiv) {juclockwiserecordF( neiv)} 
+				}else if (neiv) {juclockwiserecordF( neiv)}
 				else                           {juclockwiserecordF( Top)}
 				
 
@@ -638,7 +638,7 @@ const int
 	"	location	\""<<Folder+"\";\n"
 	"	object	  owner;\n"
 	"}\n\n";
- 
+
 	ofstream neighbour((Folder+"/neighbour").c_str());
 	assert(neighbour);
 	neighbour<<

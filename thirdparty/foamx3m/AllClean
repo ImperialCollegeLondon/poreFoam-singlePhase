@@ -14,7 +14,7 @@ if [ "$PWD" != "$WM_PROJECT_DIR" ] ; then
 fi
 
 rmdepall
-(cd cfMesh && ./Allwclean)
+[ -d cfMesh ] && (cd cfMesh && ./Allwclean)
 
 rm -rf `find . | grep Make/$WM_OPTIONS`
 ### from AllDistClean:

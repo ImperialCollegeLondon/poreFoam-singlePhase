@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# This code is part of sindopy.
-# sindopy is a Python interface to various models
 # developed by Ali Q. Raeini (2019).
 
 
@@ -11,29 +9,28 @@
 
 
 # python initializer for launching porefoam and network modelling apps
-import numpy
-from numpy import sqrt,prod,exp,log,dot,multiply,inf
-
+# import numpy
+# from numpy import sqrt,prod,exp,log,dot,multiply,inf.genfromtxt
+# from numpy import rint as fix
+# import numpy as np
 #try:
 #from scipy.linalg import schur as _schur
 #except ImportError:
 #pass
-import numpy as np
+# import unittest
+# from scipy.special import gamma
+
+#from pylab import *
+#import pandas as pd
+# import pdb
+# import matplotlib.pyplot  as plt
+# from matplotlib.backends.backend_pdf import PdfPages
+# from matplotlib import rc
+# from matplotlib import ticker
 import math
 from math import exp, expm1, floor
 import os,sys,copy,time, subprocess
 from sys import stdin,stdout,stderr
-import unittest
-# from scipy.special import gamma
-from numpy import rint as fix
-from numpy import genfromtxt
-#from pylab import *
-#import pandas as pd
-import pdb
-import matplotlib.pyplot  as plt
-# from matplotlib.backends.backend_pdf import PdfPages
-from matplotlib import rc
-from matplotlib import ticker
 import re
 import io
 import inspect
