@@ -1,6 +1,7 @@
 ## Description of  upscaled results
 
-### The direct single-phase flow simulation results are post-processed by `calc_distributions` code and its results are written in a file named **summary_CASENAME.txt**, where case name is the name of the folder in which the simulations are performed, which is in the format of `IMAGENAME-DelP-FLOWDIR`, e.g. `Berea-1-X`.   The  following are short descriptions of various data written in this file:
+The direct single-phase flow simulation results are post-processed by `calc_distributions` code and its results are written in a file named **summary_CASENAME.txt**, where case name is the name of the folder in which the simulations are performed, which is in the format of `IMAGENAME-DelP-FLOWDIR`, e.g. `Berea-1-X`.   The  following are short descriptions of various data written in this file:
+
 
 - `effPorosity`:    	effective (largest connected path) porosity, computed based on the connected path bounding box, not the total image. Bounding box used are also provided in case a different definition is desired.
 
