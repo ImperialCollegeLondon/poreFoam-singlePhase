@@ -14,7 +14,7 @@ Please see our website for relavant literature:
 http://www3.imperial.ac.uk/earthscienceandengineering/research/perm/porescalemodelling
 
 For further information please contact us by email:
-Ali Q Raeini:    a.qaseminejad-raeini09@imperial.ac.uk
+Ali Q Raeini:    a.q.raeini@imperial.ac.uk
 
 \*-------------------------------------------------------------------------*/
 

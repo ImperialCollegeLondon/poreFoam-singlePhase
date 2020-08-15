@@ -43,7 +43,7 @@ This library is not actively developed by itself, it is however kept syncronised
 The code and executables are provided as is, without any kind of warranty;
 use at your own risk.
 
-For further information contact me by email:   a.qaseminejad-raeini09@imperial.ac.uk
+For further information contact me by email:   a.q.raeini@imperial.ac.uk
 
 
 ### References

@@ -11,7 +11,7 @@ Please see our website for relavant publications:
 https://www.imperial.ac.uk/engineering/departments/earth-science/research/research-groups/perm/research/pore-scale-modelling/
 
 For further information please contact me by email:
-Ali Qaseminejad Raeini:    a.qaseminejad-raeini09@imperial.ac.uk
+Ali Qaseminejad Raeini:    a.q.raeini@imperial.ac.uk
 \*-------------------------------------------------------------------------*/
 
 #include <fstream>

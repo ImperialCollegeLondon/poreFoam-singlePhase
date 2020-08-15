@@ -95,7 +95,7 @@ runDistributed()
     else
         echo "Running $APP_NAME $@  >  $PWD/$LOG_NAME , using $np processes"
         ( mpirun.openmpi -x LD_LIBRARY_PATH -x PATH -x WM_PROJECT_DIR -x WM_PROJECT_INST_DIR -x MPI_BUFFER_SIZE \
-          --mca btl_tcp_if_exclude lo,eth0:avahi --hostfile $SP_MACROS_DIR/machines.txt \
+          --mca btl_tcp_if_exclude lo,eth0:avahi --hostfile $SP_SCRIPTS/machines.txt \
           -np $np $APP_RUN  -parallel "$@" < /dev/null > $LOG_NAME 2>&1 )
         #~ ( mpirun -np $np $APP_RUN  -parallel "$@" < /dev/null > $LOG_NAME 2>&1 )
         [[ $? == 0 ]] || echo "Error: $APP_RUN -parallel $@,  exit status: $?, see $(pwd)/$LOG_NAME" >&2

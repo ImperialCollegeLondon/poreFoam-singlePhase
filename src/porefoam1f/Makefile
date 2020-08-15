@@ -6,7 +6,7 @@ all:
 	${msSrc}/script/AllMake
 
 
-clean: 
+clean:
 	$(warning "running ${msSrc}/script/AllClean on $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))")
 	${msSrc}/script/AllClean
 

@@ -16,7 +16,11 @@ To compile, open a terminal in the upper most directory and run:
 
  `make -j`
 
-once everything compiled successfully, to clean the temporary files, type:
+To test the compilation, run:    
+
+ `make tst`
+
+Once everything compiled successfully, to clean the temporary files, type:
 
  `make clean`
 
@@ -71,7 +75,7 @@ solvers.
 
 For contacts and references please see:    
 http://www.imperial.ac.uk/earth-science/research/research-groups/perm/research/pore-scale-modelling    
-or contact Ali Q. Raeini, email: a.qaseminejad-raeini09@imperial.ac.uk
+or contact Ali Q. Raeini, email: a.q.raeini@imperial.ac.uk
 
 More details are given in the src/doc directory.
 
