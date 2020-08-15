@@ -96,7 +96,7 @@ echo "p @ $direction : $p  Pa"
 	if [ -d ./base ]; then 
 		cp -r ./base $caseName
 	else
-		cp -r $SP_MACROS_DIR/base $caseName
+		cp -r $SP_SCRIPTS/base $caseName
 	fi
 
 	(cd $caseName/0 && mv p.$direction p)
