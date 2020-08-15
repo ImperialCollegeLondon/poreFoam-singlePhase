@@ -32,29 +32,25 @@ Ali Qaseminejad Raeini:    a.qaseminejad-raeini09@imperial.ac.uk
 #include "AverageData.h"
 
 using namespace Foam;
+typedef std::valarray<double> Dbls; // warning weird initialization of valarray
 
-std::ostream & operator << (std::ostream & outstream, const std::valarray<std::valarray<double> >& vecvec)
+std::ostream & operator << (std::ostream & out, const std::valarray<Dbls>& vecvec)
 {
-	for (size_t i=0; i<vecvec[0].size();++i)
-	{
-		for (size_t j=0; j<vecvec.size();++j) outstream << vecvec[j][i] << ' ';
-		outstream << '\n';
+	for (size_t i=0; i<vecvec[0].size();++i)	{
+		for (size_t j=0; j<vecvec.size();++j) out << vecvec[j][i] << ' ';
+		out << '\n';
 	}
-	outstream << '\n';
-	return outstream;
+	out << '\n';
+	return out;
 }
 
-std::valarray<std::valarray<double> > distribution(const scalarField & UcompNormed, const scalarField & Vol, double minmax=6)
+std::valarray<Dbls> distribution(const scalarField & UcompNormed, const scalarField & Vol, double minmax=6)
 {
-
-
-	std::valarray<std::valarray<double> > distrib(std::valarray<double>(0.0, 128),3);
+	std::valarray<Dbls> distrib(Dbls(0.0, 128),3);
 
 
 	double minU=gMin(UcompNormed);
-	double maxU=max(gMax(UcompNormed),minmax);
-	double spanU=(maxU-minU);
-	double deltaU=spanU/128.0+1.0e-72;
+	double deltaU=(max(gMax(UcompNormed),minmax)-minU)/128.0+1.0e-72;
 
 	for (int i=0; i<128; ++i)	distrib[0][i] = minU+deltaU/2+i*deltaU;
 
@@ -77,7 +73,6 @@ std::valarray<std::valarray<double> > distribution(const scalarField & UcompNorm
 
 	distrib[1]/=distrib[1].sum()*deltaU;
 	distrib[2]/=distrib[2].sum()*deltaU;
-
 
 	return distrib;
 }
@@ -202,19 +197,19 @@ int main(int argc, char *argv[])
 			<<"\t\t Re= "<<  "rho*VDarcy*sqrt(K)/mu= "<< rho.value() <<"*"<<VDarcy[iDir]<<"*sqrt("<<K[iDir]<<")/"<<mu.value()<<")= "<<Re 
 			<< "\n";
 		VDarcy[iDir]=max(1.0e-64,VDarcy[iDir]);
-		std::valarray<std::valarray<double> > ditribLogU = distribution(log10(max(1.0e-16,clip.internalField()*mag(U.internalField())/porosity.internalField()/VDarcy[iDir]) ), mesh.V()*porosity.internalField());
-		std::valarray<std::valarray<double> > ditribU  = distribution(clip.internalField()*mag(U.internalField())/porosity.internalField()/VDarcy[iDir], mesh.V());
-		std::valarray<std::valarray<double> > ditribUx = distribution(clip.internalField()*U.internalField().component(vector::X)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
-		std::valarray<std::valarray<double> > ditribUy = distribution(clip.internalField()*U.internalField().component(vector::Y)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
-		std::valarray<std::valarray<double> > ditribUz = distribution(clip.internalField()*U.internalField().component(vector::Z)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
+		std::valarray<Dbls> ditribLogU = distribution(log10(max(1.0e-16,clip.internalField()*mag(U.internalField())/porosity.internalField()/VDarcy[iDir]) ), mesh.V()*porosity.internalField());
+		std::valarray<Dbls> ditribU  = distribution(clip.internalField()*mag(U.internalField())/porosity.internalField()/VDarcy[iDir], mesh.V());
+		std::valarray<Dbls> ditribUx = distribution(clip.internalField()*U.internalField().component(vector::X)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
+		std::valarray<Dbls> ditribUy = distribution(clip.internalField()*U.internalField().component(vector::Y)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
+		std::valarray<Dbls> ditribUz = distribution(clip.internalField()*U.internalField().component(vector::Z)/porosity.internalField()/VDarcy[iDir], mesh.V()*porosity.internalField());
 
-		std::valarray<std::valarray<double> > ditribUmCbrt = distribution(cbrt(clip.internalField()*mag(U.internalField())/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
-		std::valarray<std::valarray<double> > ditribUxCbrt = distribution(cbrt(clip.internalField()*U.internalField().component(0)/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
-		std::valarray<std::valarray<double> > ditribUyCbrt = distribution(cbrt(clip.internalField()*U.internalField().component(1)/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
-		std::valarray<std::valarray<double> > ditribUzCbrt = distribution(cbrt(clip.internalField()*U.internalField().component(2)/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
+		std::valarray<Dbls> ditribUmCbrt = distribution(cbrt(clip.internalField()*mag(U.internalField())/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
+		std::valarray<Dbls> ditribUxCbrt = distribution(cbrt(clip.internalField()*U.internalField().component(0)/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
+		std::valarray<Dbls> ditribUyCbrt = distribution(cbrt(clip.internalField()*U.internalField().component(1)/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
+		std::valarray<Dbls> ditribUzCbrt = distribution(cbrt(clip.internalField()*U.internalField().component(2)/porosity.internalField()/VDarcy[iDir]), mesh.V()*porosity.internalField(),-1.0e9);
 
 
-		std::valarray<std::valarray<double> > ditribLogUPlus(ditribLogU[0],5);
+		std::valarray<Dbls> ditribLogUPlus(ditribLogU[0],5);
 		ditribLogUPlus[0]=std::pow(10.0,ditribLogU[0]);
 		ditribLogUPlus[1]=ditribLogU[1]/ditribLogUPlus[0]/Foam::log(10.0);
 		ditribLogUPlus[2]=ditribLogU[2]/ditribLogUPlus[0]/Foam::log(10.0);
@@ -243,10 +238,10 @@ int main(int argc, char *argv[])
 		{
 			std::string title=runTime.caseName();
 
-			size_t slashloc=title.find_last_of("\\/"); if (slashloc<title.size()) title.erase(slashloc, std::string::npos);
-			slashloc=title.find_last_of("\\/"); if (slashloc<title.size()) title=title.substr(slashloc+1);
+			size_t sl=title.find_last_of("\\/"); if (sl<title.size()) title.erase(sl, std::string::npos);
+			sl=title.find_last_of("\\/"); if (sl<title.size()) title=title.substr(sl+1);
 			Info <<"title: " <<title<<endl;
-			if(nSams>1)  title=title+toStr(iSam);
+			if(nSams>1)  title=title+_s(iSam);
 			std::ofstream of("summary_"+title+".txt"/*,std::ios::app*/);
 			assert(of);
 
@@ -269,33 +264,44 @@ int main(int argc, char *argv[])
 			of<<"\n\nx=mag(U)/U_D \t PDF \t dV/Vdx"<<std::endl;
 			of<<ditribU<<std::endl;
 
-
+			///See  https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function
+			/// Note: numerical derivative is used for dXrDy, as it is more accurate and has no division by zero problem
+			#define pow3(_U_) ((_U_)*(_U_)*(_U_))
+			double dUo2; Dbls dXrDy;
+			dUo2=0.5*(ditribUmCbrt[0][1]-ditribUmCbrt[0][0]);	dXrDy=2.0*dUo2/(pow3(ditribUmCbrt[0]+dUo2)-pow3(ditribUmCbrt[0]-dUo2));
 			of<<"\n\n distributions with uniform cbrt(U) interval "<<std::endl;
 			of<<"\n\nx=U_m/U_D dummy \t PDF \t dV/Vdx \t distConstDelCbrtU:"<<std::endl;
-			ditribUmCbrt[1]=3.0*ditribUmCbrt[0]*ditribUmCbrt[0]*ditribUmCbrt[1];
-			ditribUmCbrt[2]=3.0*ditribUmCbrt[0]*ditribUmCbrt[0]*ditribUmCbrt[2];
+			dUo2=0.5*(ditribUmCbrt[0][1]-ditribUmCbrt[0][0]);	dXrDy=2.0*dUo2/(pow3(ditribUmCbrt[0]+dUo2)-pow3(ditribUmCbrt[0]-dUo2));
+			ditribUmCbrt[1]=dXrDy*ditribUmCbrt[1];
+			ditribUmCbrt[2]=dXrDy*ditribUmCbrt[2];
 			ditribUmCbrt[0]=ditribUmCbrt[0]*ditribUmCbrt[0]*ditribUmCbrt[0];
 			of<<ditribUmCbrt<<std::endl;
 
 			of<<"\n\nx=U_x/U_D dummy \t PDF \t dV/Vdx"<<std::endl;
-			ditribUxCbrt[1]=3.0*ditribUxCbrt[0]*ditribUxCbrt[0]*ditribUxCbrt[1];
-			ditribUxCbrt[2]=3.0*ditribUxCbrt[0]*ditribUxCbrt[0]*ditribUxCbrt[2];
+			dUo2=0.5*(ditribUxCbrt[0][1]-ditribUxCbrt[0][0]);	dXrDy=2.0*dUo2/(pow3(ditribUxCbrt[0]+dUo2)-pow3(ditribUxCbrt[0]-dUo2));
+			ditribUxCbrt[1]=dXrDy*ditribUxCbrt[1];
+			ditribUxCbrt[2]=dXrDy*ditribUxCbrt[2];
 			ditribUxCbrt[0]=ditribUxCbrt[0]*ditribUxCbrt[0]*ditribUxCbrt[0];
 			of<<ditribUxCbrt<<std::endl;
 
 			of<<"\n\nx=U_y/U_D dummy \t PDF \t dV/Vdx"<<std::endl;
-			ditribUyCbrt[1]=3.0*ditribUyCbrt[0]*ditribUyCbrt[0]*ditribUyCbrt[1];
-			ditribUyCbrt[2]=3.0*ditribUyCbrt[0]*ditribUyCbrt[0]*ditribUyCbrt[2];
+			dUo2=0.5*(ditribUyCbrt[0][1]-ditribUyCbrt[0][0]);	dXrDy=2.0*dUo2/(pow3(ditribUyCbrt[0]+dUo2)-pow3(ditribUyCbrt[0]-dUo2));
+			ditribUyCbrt[1]=dXrDy*ditribUyCbrt[1];
+			ditribUyCbrt[2]=dXrDy*ditribUyCbrt[2];
 			ditribUyCbrt[0]=ditribUyCbrt[0]*ditribUyCbrt[0]*ditribUyCbrt[0];
 			of<<ditribUyCbrt<<std::endl;
 
 			of<<"\n\nx=U_z/U_D dummy \t PDF \t dV/Vdx"<<std::endl;
-			ditribUzCbrt[1]=3.0*ditribUzCbrt[0]*ditribUzCbrt[0]*ditribUzCbrt[1];
-			ditribUzCbrt[2]=3.0*ditribUzCbrt[0]*ditribUzCbrt[0]*ditribUzCbrt[2];
+			dUo2=0.5*(ditribUzCbrt[0][1]-ditribUzCbrt[0][0]);	dXrDy=2.0*dUo2/(pow3(ditribUzCbrt[0]+dUo2)-pow3(ditribUzCbrt[0]-dUo2));
+			ditribUzCbrt[1]=dXrDy*ditribUzCbrt[1];
+			ditribUzCbrt[2]=dXrDy*ditribUzCbrt[2];
 			ditribUzCbrt[0]=ditribUzCbrt[0]*ditribUzCbrt[0]*ditribUzCbrt[0];
 			of<<ditribUzCbrt<<std::endl;
 			
 			of.close();
+
+
+
 		}
 	}
 
