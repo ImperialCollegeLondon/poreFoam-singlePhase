@@ -18,7 +18,7 @@ To compile, open a terminal in the upper most directory and run:
 
 To test the compilation, run:    
 
- `make tst`
+ `make test`
 
 Once everything compiled successfully, to clean the temporary files, type:
 
