@@ -32,15 +32,18 @@ using namespace std;
 
 
 #include "voxelImage.h"
-using namespace std;
 #include "voxelRegions.h"
+
 
 int usage()
 {
 	cout<<"converts micro-CT images to OpenFOAM serial or simple parallel meshes"<<endl;
-	cout<<"usage: example:"<<endl;
-	cout<<"    voxelToFoamPar imageName.mhd 1 1 1 resetX0 "<<endl;
-	cout<<"    voxelToFoamPar imageName.mhd 3 2 2 resetX0 "<<endl;
+	cout<<"usage:"<<endl;
+	cout<<"  voxelToFoamPar image-header nProcY nProcY nProcY  F/T:resetX0 F/T:keepBCs"<<endl;
+	cout<<"  examples:"<<endl;
+	cout<<"    voxelToFoamPar imageName.mhd 3 2 2 T "<<endl;
+	cout<<"    voxelToFoamPar imageName.mhd 1 1 1 T "<<endl;
+	cout<<"    voxelToFoamPar imageName.mhd 1 1 1 "<<endl;
 	return 1;
 }
 
@@ -51,42 +54,40 @@ int main(int argc, char** argv)
 {  //!- reads image, adds a boundary layers around it
 	int irg = 0;
 	if(argc<5)		return usage();
-	std::string headerName(argv[++irg]);
-	if(headerName.size()<4 || ( headerName.compare(headerName.size()-4,4,".mhd") != 0 && headerName.compare(headerName.size()-4,4,".tif") != 0) )
+	std::string hdr(argv[++irg]); // mhd header name
+	if(hdr.size()<4 || ( hdr.compare(hdr.size()-4,4,".mhd")!=0 && hdr.compare(hdr.size()-4,4,".tif")!=0) )
 		return usage();
-	int3 nPar(1,1,1);
-	nPar[0] = atoi(argv[++irg]);
-	nPar[1] = atoi(argv[++irg]);
-	nPar[2] = atoi(argv[++irg]);
+	int3 nPar(1,1,1); 	nPar.x= atoi(argv[++irg]);  nPar.y= atoi(argv[++irg]);  nPar.z= atoi(argv[++irg]);
 	char resetX0 = argc>1+irg ? argv[++irg][0] : 'F';
+	char keepBCs = argc>1+irg ? argv[++irg][0] : 'F';
 	//char unit = argc>1+irg ? argv[++irg][0] : 'u';
-	if (nPar[2]*nPar[1]*nPar[0]<1) {cout<<"\nError: nPar[2]*nPar[1]*nPar[0]<1\n"; return usage();}
-	cout<<"voxelToFoamPar "<<headerName<<"  "<<nPar[0]<<" "<<nPar[0]<<" "<<nPar[0]<<endl;
+	if (nPar.z*nPar.y*nPar.x<1) { cout<<"\nError: nPar.z*nPar.y*nPar.x<1\n"; return usage(); }
 
-	voxelImage vimage;  readConvertFromHeader(vimage, headerName);
+	cout<<"voxelToFoamPar "<<hdr<<"  "<<nPar<<"  "<<resetX0<<"  "<<keepBCs<<endl;
+
+	voxelImage vimage;  readConvertFromHeader(vimage, hdr);
 	int3 n = vimage.size3();
 
+	if(resetX0=='T' || resetX0=='t')
+		vimage.X0Ch()=0.0;
 
 	vimage.printInfo();
 
 	vimage.writeHeader("vxlImage.mhd");
 
 	cout <<"finding connected parts of the image "<<endl;
-	vimage.threshold101(0,0);
-	//vimage.growBox(1);
-	//vimage.FaceMedian06(2,4);
-	//vimage.FaceMedian06(2,4);
-	//vimage.FaceMedian06(2,4);
-	//vimage.FaceMedian06(2,4);
-	//vimage.cropD(int3(1,1,1),int3(n[0]+1,n[1]+1,n[2]+1),1,1);	//		 XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	if(keepBCs!='T' && keepBCs!='t')
+		vimage.threshold101(0,0);
+	cout <<" X0: "<<vimage.X0()<<endl;
 	vimage.cropD(int3(0,0,0),n,1,1);	//		 XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	cout <<" X0: "<<vimage.X0()<<endl;
 
 	keepLargest0(vimage); //! CtrlF:isolated=254
+	cout <<" X0: "<<vimage.X0()<<endl;
 
 	vimage.printInfo();
 	cout <<"Converting to OpenFOAM format "<<endl;
 
-	if(resetX0=='T' || resetX0=='t')		vimage.X0Ch()=-vimage.dx();
 
 
 	//! solid phase should have the highest vv TODO: add multilabel
@@ -104,28 +105,27 @@ const int
 	Top   =nVVs+3,
 	Back  =nVVs+4,
 	Front =nVVs+5;
-	vimage.setSlice('i',0,     0+1*Left  );
-	vimage.setSlice('i',n[0]+1,0+1*Right );
-	vimage.setSlice('j',0,     0+1*Bottom);
-	vimage.setSlice('j',n[1]+1,0+1*Top   );
-	vimage.setSlice('k',0,     0+1*Back  );
-	vimage.setSlice('k',n[2]+1,0+1*Front );
+	vimage.setSlice('i',0,    0+1*Left  );
+	vimage.setSlice('i',n.x+1,0+1*Right );
+	vimage.setSlice('j',0,    0+1*Bottom);
+	vimage.setSlice('j',n.y+1,0+1*Top   );
+	vimage.setSlice('k',0,    0+1*Back  );
+	vimage.setSlice('k',n.z+1,0+1*Front );
 
 
-	voxelField<int> procIsijk(nPar[0]+2,nPar[1]+2,nPar[2]+2,-1);
-	int iProc=-1;
-	if (nPar[2]*nPar[1]*nPar[0]==1)
+	voxelField<int> procIsijk(nPar.x+2,nPar.y+2,nPar.z+2,-1);
+	if (nPar.z*nPar.y*nPar.x==1)
 		toFoam(vimage,nVVs, procIsijk, 1, 1, 1);
-	else if (nPar[2]*nPar[1]*nPar[0]>1)
+	else if (nPar.z*nPar.y*nPar.x>1)
 	{
-		voxelField<voxelImage>  vimages(nPar[0],nPar[1],nPar[2],voxelImage());
+		voxelField<voxelImage>  vimages(nPar.x,nPar.y,nPar.z,voxelImage());
 
-		vector<int> iBs(nPar[0]+1,n[0]);
-		vector<int> jBs(nPar[1]+1,n[1]);
-		vector<int> kBs(nPar[2]+1,n[2]);
-		for (int iz=0;iz<nPar[2];iz++)	kBs[iz]=int(n[2]/nPar[2])*iz;
-		for (int iy=0;iy<nPar[1];iy++)	jBs[iy]=int(n[1]/nPar[1])*iy;
-		for (int ix=0;ix<nPar[0];ix++)	iBs[ix]=int(n[0]/nPar[0])*ix;
+		vector<int> iBs(nPar.x+1,n.x);
+		vector<int> jBs(nPar.y+1,n.y);
+		vector<int> kBs(nPar.z+1,n.z);
+		for (int iz=0;iz<nPar.z;iz++)	kBs[iz]=int(n.z/nPar.z)*iz;
+		for (int iy=0;iy<nPar.y;iy++)	jBs[iy]=int(n.y/nPar.y)*iy;
+		for (int ix=0;ix<nPar.x;ix++)	iBs[ix]=int(n.x/nPar.x)*ix;
 
 
 		cout<<"iBs: "<<*iBs.begin()<<" ... "<<*iBs.rbegin()<<endl;
@@ -133,33 +133,35 @@ const int
 		cout<<"kBs: "<<*kBs.begin()<<" ... "<<*kBs.rbegin()<<endl;
 
 			OMPragma("omp parallel for")
-			for (int ixyz=0;ixyz<nPar[0]*nPar[1]*nPar[2];ixyz++)
+			for (int ixyz=0;ixyz<nPar.x*nPar.y*nPar.z;ixyz++)
 			{
-				int ix= ixyz%nPar[0];
-				int iz= ixyz/(nPar[0]*nPar[1]);
-				int iy=(ixyz/nPar[0])%nPar[1];
+				int ix= ixyz%nPar.x;
+				int iz= ixyz/(nPar.x*nPar.y);
+				int iy=(ixyz/nPar.x)%nPar.y;
 				vimages(ix,iy,iz).reset(iBs[ix+1]-iBs[ix]+2, jBs[iy+1]-jBs[iy]+2, kBs[iz+1]-kBs[iz]+2,0);
 				vimages(ix,iy,iz).setFrom(vimage, iBs[ix], jBs[iy], kBs[iz]);
-				if(vimages(ix,iy,iz).volFraction(0,0)>1.0e-12)		procIsijk(ix+1,iy+1,iz+1)=++iProc;
-				cout<<"poro_"<<ix<<iy<<iz<<":"<<vimages(ix,iy,iz).volFraction(0,0)<<"  iBx"<<iBs[ix+1]-iBs[ix]+2<<endl;
+				(cout<<"poro_"+_s(ix)+_s(iy)+_s(iz)+":"+_s(vimages(ix,iy,iz).volFraction(0,0))+"  iBx"+_s(iBs[ix+1]-iBs[ix]+2)+"\n").flush();
 			};
+			int iProc=-1;
+			forAllkji(vimages)
+				if(vimages(i,j,k).volFraction(0,0)>1.0e-12)		procIsijk(i+1,j+1,k+1)=++iProc;
 
 			cout<<"\n************** generating meshes ************"<<endl;
 			vimage.reset(0,0,0,0);
 			OMPragma("omp parallel for")
-			for (int ixyz=0;ixyz<nPar[0]*nPar[1]*nPar[2];ixyz++)
+			for (int ixyz=0;ixyz<nPar.x*nPar.y*nPar.z;ixyz++)
 			{
-			 int ix= ixyz%nPar[0];
-			 int iz= ixyz/(nPar[0]*nPar[1]);
-			 int iy=(ixyz/nPar[0])%nPar[1];
+			 int ix= ixyz%nPar.x;
+			 int iz= ixyz/(nPar.x*nPar.y);
+			 int iy=(ixyz/nPar.x)%nPar.y;
 			 if(procIsijk(ix+1,iy+1,iz+1)>=0)
 			 {
-				cout<<"************* processor: "<<ix<<" "<<iy<<" "<<iz<<", Phi="<<100*vimages(ix,iy,iz).volFraction(0,0)<<" *************"<<endl;
+				(cout<<"************* processor: "+_s(ix)+_s(iy)+_s(iz)+", Phi="+_s(100*vimages(ix,iy,iz).volFraction(0,0))+" *************\n").flush();
 				toFoam(vimages(ix,iy,iz),nVVs, procIsijk, ix+1, iy+1, iz+1);
 				cout<<endl;
 			 }
 			}
-	} else cout<<"!!! npx x npy x npz = "<<nPar[2]*nPar[1]*nPar[0]<<endl;
+	} else cout<<"!!! npx x npy x npz = "<<nPar.z*nPar.y*nPar.x<<endl;
 	cout<<":/"<<endl;
    return 0;
 }
@@ -167,16 +169,15 @@ const int
 void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int iProc, int jProc, int kProc)
 { //!- generate an openfaom (processor) mesh similar to voxelToFoamPar.cpp
 	int myprocI=procIsijk(iProc,jProc,kProc);
-	int3 n=vxlImg.size3();n[0]-=2;n[1]-=2;n[2]-=2;
+	int3 n=vxlImg.size3();n.x-=2;n.y-=2;n.z-=2;
 	dbl3 X0=vxlImg.X0();
 	dbl3 dx=vxlImg.dx();
 	X0+=dx;
 
 
 
-	string Folder = myprocI>=0 ?  "processor"+toStr(myprocI)  :  ".";
-	cout<<"procIs, size: "<<procIsijk.size3()<<" "<<",  ijk: "<<iProc<<"  "<<jProc<<"  "<<kProc<<endl;
-	cout<<Folder<<"  N: "<<n[0] <<" "<<n[1] <<" "<< n[2]<<endl;
+	string Folder = myprocI>=0 ?  "processor"+_s(myprocI)  :  ".";
+	(cout<<"procIs, size: "+_s(procIsijk.size3())+",   ijk: "+_s(int3(iProc,jProc,kProc))+"  >> "+Folder+"  N: "+_s(n)+"  X0: "+_s(X0)+"\n").flush();
 	::mkdir(Folder.c_str(),0777);
 	::mkdir((Folder+"/constant").c_str(),0777);
 	Folder=Folder+"/constant/polyMesh";
@@ -185,14 +186,14 @@ void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int 
 
 //=======================================================================
 
-	voxelField<int> point_mapper(n[0]+1,n[1]+1,n[2]+1,-1);
+	voxelField<int> point_mapper(n.x+1,n.y+1,n.z+1,-1);
 
 
 
 
 {
 
-	register int iPoints=-1;
+	int iPoints=-1;
 	forAllkji_1(vxlImg)
 		if (!vxlImg(i,j,k))
 		{
@@ -200,29 +201,29 @@ void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int 
 				dd=&point_mapper(i-1,j-1,k-1);
 				      if (*dd<0) *dd=++iPoints;
 				++dd; if (*dd<0) *dd=++iPoints;
-				dd+=n[0];
+				dd+=n.x;
 						if (*dd<0) *dd=++iPoints;
 				++dd; if (*dd<0) *dd=++iPoints;
 
 				dd=&point_mapper(i-1,j-1,k);
 				      if (*dd<0) *dd=++iPoints;
 				++dd; if (*dd<0) *dd=++iPoints;
-				dd+=n[0];
+				dd+=n.x;
 						if (*dd<0) *dd=++iPoints;
 				++dd; if (*dd<0) *dd=++iPoints;
 		}
 
-	//for (int iz=0;iz<vxlImg.size3()[2]-1;++iz)
-		//for (int iy=0;iy<vxlImg.size3()[1]-1;++iy)
-			//for (int ix=0;ix<vxlImg.size3()[0]-1;++ix)
+	//for (int iz=0;iz<vxlImg.nz()-1;++iz)
+		//for (int iy=0;iy<vxlImg.ny()-1;++iy)
+			//for (int ix=0;ix<vxlImg.nx()-1;++ix)
 			//{
 				//unsigned char* dd=&vxlImg(ix,iy,iz);
 				//if (*dd!=0 && *(dd+1)!=0)
-				//{ dd+=vxlImg.size3()[0];
+				//{ dd+=vxlImg.nx();
 					//if(*dd!=0 && *(dd+1)!=0)
 					//{	dd=&vxlImg(ix,iy,iz+1);
 						//if(*dd!=0 && *(dd+1)!=0)
-						//{	dd+=vxlImg.size3()[0];
+						//{	dd+=vxlImg.nx();
 							//if(*dd!=0 && *(dd+1)!=0) continue;
 						//}
 					//}
@@ -231,10 +232,10 @@ void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int 
 			//}
 
 
-	cout<<"nPoints: "<<iPoints+1<<"\nwriting points";cout.flush();
+	cout<<"writing  points; nPoints: "+_s(iPoints+1)+";\n";cout.flush();
 
 
-	ofstream pointsf((Folder+"/points").c_str());
+	ofstream pointsf(Folder+"/points");
 	assert(pointsf);
 
 
@@ -249,13 +250,13 @@ void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int 
 	"}\n\n";
 
 	pointsf<<iPoints+1<<endl<<"("<<endl;
-	pointsf.precision(8);;
+	pointsf.precision(8);
 	iPoints=-1;
-	for (int iz=0;iz<point_mapper.size3()[2];++iz)
+	for (int iz=0;iz<point_mapper.nz();++iz)
 	{	double z=iz*dx[2]+X0[2];
-		for (int iy=0;iy<point_mapper.size3()[1];iy++)
+		for (int iy=0;iy<point_mapper.ny();iy++)
 		{	double y=iy*dx[1]+X0[1];
-			for (int ix=0;ix<point_mapper.size3()[0];ix++)
+			for (int ix=0;ix<point_mapper.nx();ix++)
 			{
 				if(point_mapper(ix,iy,iz)>=0)
 				{	point_mapper(ix,iy,iz)=++iPoints;//. sort point_mapper
@@ -265,19 +266,19 @@ void toFoam(voxelImage& vxlImg, int nVVs, const voxelField<int>& procIsijk, int 
 			}
 		}
 	}
-	//for (int iz=0;iz<vxlImg.size3()[2]-1;++iz)
+	//for (int iz=0;iz<vxlImg.nz()-1;++iz)
 	//{  double z=iz*dx[2]+X0[2];
-		//for (int iy=0;iy<vxlImg.size3()[1]-1;iy++)
+		//for (int iy=0;iy<vxlImg.ny()-1;iy++)
 		//{  double y=iy*dx[1]+X0[1];
-			//for (int ix=0;ix<vxlImg.size3()[0]-1;ix++)
+			//for (int ix=0;ix<vxlImg.nx()-1;ix++)
 			//{
 				//unsigned char* dd=&vxlImg(ix,iy,iz);
 				//if (*dd!=0 && *(dd+1)!=0)
-				//{ dd+=vxlImg.size3()[0];
+				//{ dd+=vxlImg.nx();
 					//if(*dd!=0 && *(dd+1)!=0)
 					//{	dd=&vxlImg(ix,iy,iz+1);
 						//if(*dd!=0 && *(dd+1)!=0)
-						//{	dd+=vxlImg.size3()[0];
+						//{	dd+=vxlImg.nx();
 							//if(*dd!=0 && *(dd+1)!=0) continue;
 						//}
 					//}
@@ -319,7 +320,7 @@ const int
 	B_nams[Grainwalls]="Grainwalls";
 	int nBoundaries=5+nVVs;
 	cout<<"ib:Nvvs: ";
-	for(int ib=2;ib<nVVs;++ib)  { (cout<<ib<<" ").flush();  B_nams[ib]="VV"+toStr(ib)+"B"; }
+	for(int ib=2;ib<nVVs;++ib)  { (cout<<ib<<" ").flush();  B_nams[ib]="VV"+_s(ib)+"B"; }
 	B_nams[Left]="Left";
 	B_nams[Right]="Right";
 	B_nams[Bottom]="Bottom";
@@ -330,9 +331,9 @@ const int
 	std::array<size_t,255> nFaces; nFaces.fill(0);
 
 
-	for (int iz=1;iz<=n[2];++iz)
-	 for (int iy=1;iy<=n[1];++iy)
-	  for (int ix=1;ix<=n[0];++ix)
+	for (int iz=1;iz<=n.z;++iz)
+	 for (int iy=1;iy<=n.y;++iy)
+	  for (int ix=1;ix<=n.x;++ix)
 	  {
 			if (!vxlImg(ix,iy,iz))
 			{
@@ -348,7 +349,7 @@ const int
 				else            ++nFaces[Left];
 
 				neiv=vxlImg(ix+1,iy,iz);
-				if (ix!=n[0])
+				if (ix!=n.x)
 				{
 				  if (neiv)     ++nFaces[neiv];
 				  else          ++nFaces[Internal];
@@ -364,7 +365,7 @@ const int
 				else            ++nFaces[Bottom];
 
 				neiv=vxlImg(ix,iy+1,iz);
-				if (iy!=n[1])
+				if (iy!=n.y)
 				{
 				  if (neiv)     ++nFaces[neiv];
 				  else          ++nFaces[Internal];
@@ -381,7 +382,7 @@ const int
 				else            ++nFaces[Back];
 
 				neiv=vxlImg(ix,iy,iz+1);
-				if (iz!=n[2])
+				if (iz!=n.z)
 				{
 				  if (neiv)     ++nFaces[neiv];
 				  else          ++nFaces[Internal];
@@ -390,8 +391,8 @@ const int
 		}
 	  }
 
-	(cout<<",  nCells: "<<nCells<<",    B:nFaces: ").flush();
-	for(int ib=0;ib<255;++ib)  if(nFaces[ib])  cout<< " "<<ib<<":"<<nFaces[ib]<<", ";
+	(cout<<",  nCells: "+_s(nCells)+",    B:nFaces: ").flush();
+	for(int ib=0;ib<255;++ib)  if(nFaces[ib])  cout<< " "+_s(ib)+":"<<nFaces[ib]<<", ";
 	cout<<endl;
 
 	nBoundaries+=	int(procIsijk(iProc-1,jProc,kProc)>=0 && nFaces[Left])+
@@ -436,7 +437,7 @@ const int
 			iStartFaces[name] = iLastFace;										\
 			if (nFaces[name] >0)                                       \
 			boundary<<		                                                \
-			"	"<<  "processor"+	toStr(myId)+"to"+toStr(neiId)	<<endl<<	   \
+			"	"<<  "processor"+	_s(myId)+"to"+_s(neiId)	<<endl<<	   \
 			"	{"												 <<endl<<		         \
 			"		type			processor;"				  <<endl<<			      \
 			"		inGroups        1(processor);"	  <<endl<<			      \
@@ -448,8 +449,8 @@ const int
 			"		neighbProcNo    "<<neiId<<";"	  <<endl<<			         \
 			"	}"												 <<endl;						\
 			iLastFace += nFaces[name];					  }
-       
-       
+
+
 		boundary<< nBoundaries <<endl	<<'('<<endl;
 
 
@@ -492,7 +493,7 @@ const int
 
 
 
-	cout<<"creating faces"<<endl;
+	cout<<"creating faces  "<<endl;
 
 
 	array<std::vector<array<int,6> >,255> faces_bs;
@@ -504,10 +505,10 @@ const int
 		fill(faces_bs[ib].begin(),faces_bs[ib].end(), array<int,6>{{-1,-1,-1,-1,-1,-1}});
 	}
 
-	voxelField<int3> ownerMapper(n[0]+1,n[1]+1,n[2]+1,int3(-1,-1,-1));
+	voxelField<int3> ownerMapper(n.x+1,n.y+1,n.z+1,int3(-1,-1,-1));
 
 
-	cout<<"collecting faces"<<endl;
+	cout<<"collecting faces  "<<endl;
 
 
 #define recordF_m( l10,l11,l20,l21,l30,l31,dir,ii,jj,kk,type )				   \
@@ -543,65 +544,64 @@ const int
 
 	array<int,255> iFaces; iFaces.fill(-1);
 
-	for (int iz=1;iz<=n[2];iz++)
+	for (int iz=1;iz<=n.z;iz++)
 	{  cout<<(iz%80 ? '.' : '\n');cout.flush();
-		for (int iy=1;iy<=n[1];iy++)
-		 for (int ix=1;ix<=n[0];ix++)
+		for (int iy=1;iy<=n.y;iy++)
+		 for (int ix=1;ix<=n.x;ix++)
 		  if (!vxlImg(ix,iy,iz))
 		  {
-
 				iCells++;
 
 				unsigned char
 				neiv=vxlImg(ix-1,iy,iz);
 				if (ix!=1)
 				{
-				  if (neiv)    {iclockwiserecordF( neiv)}
-				  else                         {iclockwiserecordF( Internal);}
-				}else if (neiv) {iclockwiserecordF( neiv)}
-				else                           {iclockwiserecordF( Left);}
+				  if (neiv)     {iclockwiserecordF(neiv) }
+				  else          {iclockwiserecordF(Internal) }
+				}else if (neiv) {iclockwiserecordF(neiv) }
+				else            {iclockwiserecordF(Left) }
 
 				neiv=vxlImg(ix+1,iy,iz);
-				if (ix!=n[0])
+				if (ix!=n.x)
 				{
-				  if (neiv)    {iuclockwiserecordF( neiv)}
-				  else                         {iuclockwiserecordF( Internal);}
-				}else if (neiv) {iuclockwiserecordF( neiv)}
-				else                           {iuclockwiserecordF( Right); }
+				  if (neiv)     {iuclockwiserecordF(neiv) }
+				  else          {iuclockwiserecordF(Internal) }
+				}else if (neiv) {iuclockwiserecordF(neiv) }
+				else            {iuclockwiserecordF(Right) }
 
 
 				neiv=vxlImg(ix,iy-1,iz);
 				if (iy!=1)
 				{
-				  if (neiv)    {jclockwiserecordF( neiv)}
-				  else                         {jclockwiserecordF( Internal);}
-				}else if (neiv) {jclockwiserecordF( neiv)}
-				else                           {jclockwiserecordF( Bottom)}
+				  if (neiv)     {jclockwiserecordF(neiv) }
+				  else          {jclockwiserecordF(Internal) }
+				}else if (neiv) {jclockwiserecordF(neiv) }
+				else            {jclockwiserecordF(Bottom) }
 
 				neiv=vxlImg(ix,iy+1,iz);
-				if (iy!=n[1])
+				if (iy!=n.y)
 				{
-				  if (neiv)    {juclockwiserecordF( neiv)}
-				  else                         {juclockwiserecordF( Internal);}
-				}else if (neiv) {juclockwiserecordF( neiv)}
-				else                           {juclockwiserecordF( Top)}
+				  if (neiv)     {juclockwiserecordF(neiv) }
+				  else          {juclockwiserecordF(Internal) }
+				}else if (neiv) {juclockwiserecordF(neiv) }
+				else            {juclockwiserecordF(Top) }
 				
 
 				neiv=vxlImg(ix,iy,iz-1);
 				if (iz!=1)
 				{
-				  if (neiv)    {kclockwiserecordF(neiv)}
-				  else                         {kclockwiserecordF( Internal);}
-				}else if (neiv) {kclockwiserecordF( neiv)}
-				else                           {kclockwiserecordF( Back)}
+				  if (neiv)     {kclockwiserecordF(neiv) }
+				  else          {kclockwiserecordF(Internal) }
+				}else if (neiv) {kclockwiserecordF(neiv) }
+				else            {kclockwiserecordF(Back) }
 
 				neiv=vxlImg(ix,iy,iz+1);
-				if (iz!=n[2])
+				if (iz!=n.z)
 				{
-				  if (neiv)    {kuclockwiserecordF( neiv)}
-				  else                         {kuclockwiserecordF( Internal);}
-				}else if (neiv) {kuclockwiserecordF( neiv)}
-				else                           {kuclockwiserecordF( Front)}
+				  if (neiv)     {kuclockwiserecordF(neiv) }
+				  else          {kuclockwiserecordF(Internal) }
+				}else if (neiv) {kuclockwiserecordF(neiv) }
+				else            {kuclockwiserecordF(Front) }
 
 		  }
 	}

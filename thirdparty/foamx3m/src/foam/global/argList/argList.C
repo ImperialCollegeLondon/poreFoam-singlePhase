@@ -351,16 +351,16 @@ Foam::argList::argList
 			<< endl;
 	}
 
-	jobInfo.add("startDate", dateString);
-	jobInfo.add("startTime", timeString);
-	jobInfo.add("userName", userName());
-	jobInfo.add("foamVersion", word(FOAMversion));
-	jobInfo.add("foamBuild", Foam::FOAMbuild);
-	jobInfo.add("code", executable_);
-	jobInfo.add("argList", argListString);
-	jobInfo.add("currentDir", cwd());
-	jobInfo.add("PPID", ppid());
-	jobInfo.add("PGID", pgid());
+	jobInfo.add("startDate", dateString,true);
+	jobInfo.add("startTime", timeString,true);
+	jobInfo.add("userName", userName(),true);
+	jobInfo.add("foamVersion", word(FOAMversion),true);
+	jobInfo.add("foamBuild", Foam::FOAMbuild,true);
+	jobInfo.add("code", executable_,true);
+	jobInfo.add("argList", argListString,true);
+	jobInfo.add("currentDir", cwd(),true);
+	jobInfo.add("PPID", ppid(),true);
+	jobInfo.add("PGID", pgid(),true);
 
 
 	// Case is a single processor run unless it is running parallel
@@ -642,9 +642,9 @@ Foam::argList::argList
 		}
 	}
 
-	jobInfo.add("root", rootPath_);
-	jobInfo.add("case", globalCase_);
-	jobInfo.add("nProcs", nProcs);
+	jobInfo.add("root", rootPath_,true);
+	jobInfo.add("case", globalCase_,true);
+	jobInfo.add("nProcs", nProcs,true);
 	if (slaveProcs.size())
 	{
 		jobInfo.add("slaves", slaveProcs);

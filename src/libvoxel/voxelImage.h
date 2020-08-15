@@ -58,14 +58,17 @@ inline const std::string& imgExt(const std::string& defSuffix="")
 }
 
 
+template<typename T>
+using intOr = typename std::conditional<(sizeof(T) > sizeof(short)),T,int>::type;
+#define Tint  intOr<T>
 
 
 
-template <typename T> class voxelField  //! 3D voxel data, on Cartesian uniform grids, with efficient access functions, and I/O into  .tif, .raw.gz .am, .raw, .dat file formats 
+template <typename T> class voxelField  //! 3D voxel data, on Cartesian uniform grids, with efficient access functions, and I/O into  .tif, .raw.gz .am, .raw, .dat file formats.
 {
  protected:
  public:
-	long long nij_; 
+	long long nij_;
 	int3  nnn_;
 	std::vector<T> data_;
 	voxelField(): nij_(0), nnn_(0,0,0) {};
@@ -91,7 +94,7 @@ template <typename T> class voxelField  //! 3D voxel data, on Cartesian uniform 
 	void writeAscii(std::string fileName,int iBgn,int iEndp1 , int jBgn,int jEndp1 , int kBgn,int kEndp1) const;
 	void writeRotatedXZ(std::ofstream& of) const;
 
-	void writeHeader(std::string fileName, int3 iBgn, int3 iEnd, dbl3 dx=dbl3(1.,1.,1.), dbl3 X0=dbl3(0.,0.,0.)) const;
+	void writeHeader(std::string fileName, int3 iBgn, int3 iEnd, dbl3 dx, dbl3 X0) const;
 
 	void setLayer(int k, const T* Values);
 	void setSlice(char dir, int ijk, T vv);
@@ -103,23 +106,23 @@ template <typename T> class voxelField  //! 3D voxel data, on Cartesian uniform 
 
 
 
-	size_t index(const int i, const int j, const size_t k) const { return k*nij_+j*nnn_[0]+i; }
-	const T& operator()(const int i, const int j, const size_t k) const { return data_[k*nij_+j*nnn_[0]+i]; }
-	      T& operator()(const int i, const int j, const size_t k)       { return data_[k*nij_+j*nnn_[0]+i]; }
+	size_t index(const int i, const int j, const size_t k) const { return k*nij_+j*nnn_.x+i; }
+	const T& operator()(const int i, const int j, const size_t k) const { return data_[k*nij_+j*nnn_.x+i]; }
+	      T& operator()(const int i, const int j, const size_t k)       { return data_[k*nij_+j*nnn_.x+i]; }
 	const T& operator()(const size_t iii) const     { return data_[iii]; }
 	      T& operator()(const size_t iii)           { return data_[iii]; }
 	      T& operator()(long long ii, const size_t k){return data_[k*nij_+ii]; }
 	const T& v_i(const int i, const T* vr) const    { return *(vr+i); }
-	const T& v_j(const int j, const T* vr) const    { return *(vr+j*nnn_[0]); }
+	const T& v_j(const int j, const T* vr) const    { return *(vr+j*nnn_.x); }
 	const T& v_k(const int k, const T* vr) const    { return *(vr+k* nij_); }
 	      T& v_i(const int i, T* vr)                { return *(vr+i); }
-	      T& v_j(const int j, T* vr)                { return *(vr+j*nnn_[0]); }
+	      T& v_j(const int j, T* vr)                { return *(vr+j*nnn_.x); }
 	      T& v_k(const int k, T* vr)                { return *(vr+k*nij_); }
 	const T* p_i(const int i, const T* vr)    const { return (vr+i); }
-	const T* p_j(const int j, const T* vr)    const { return (vr+j*nnn_[0]); }
+	const T* p_j(const int j, const T* vr)    const { return (vr+j*nnn_.x); }
 	const T* p_k(const int k, const T* vr)    const { return (vr+k*nij_); }
 	size_t I_i(const int i, const size_t iii) const { return (iii+i); }
-	size_t I_j(const int j, const size_t iii) const { return (iii+j*nnn_[0]); }
+	size_t I_j(const int j, const size_t iii) const { return (iii+j*nnn_.x); }
 	size_t I_k(const int k, const size_t iii) const { return (iii+k*nij_); }
 
 	T* begin()              { return &*data_.begin(); };
@@ -130,6 +133,9 @@ template <typename T> class voxelField  //! 3D voxel data, on Cartesian uniform 
 	//T* operator()()   const { return begin(); };
 
 	const int3& size3() const   {  return nnn_;  };
+	int nx() const   {  return nnn_.x;  };
+	int ny() const   {  return nnn_.y;  };
+	int nz() const   {  return nnn_.z;  };
 	void getSize(int& n1, int& n2, int& n3) const;
 	virtual ~voxelField() {};
 
@@ -144,35 +150,34 @@ public:
 	virtual ~voxelImageTBase() {};
 	virtual void write(std::string fileName) const = 0;
 	virtual void printInfo() const {};
-	virtual int getInt(int i, int j, int k) const = 0;
-	virtual int getInt(size_t iii) const = 0;
-	virtual double getDbl(int i, int j, int k) const = 0;
-	virtual double getDbl(size_t iii) const = 0;
-	virtual double vv_mp5(double i, double j, double k) const = 0;
+	//virtual int getInt(int i, int j, int k) const = 0;
+	//virtual int getInt(size_t iii) const = 0;
+	//virtual double getDbl(int i, int j, int k) const = 0;
+	//virtual double getDbl(size_t iii) const = 0;
+	//virtual double vv_mp5(double i, double j, double k) const = 0;
 	virtual const int3& size3() const = 0;
 	virtual const dbl3& dx() const = 0;
 	virtual const dbl3& X0() const = 0;
-
+	virtual void readFromHeader(std::istream& headerFile, const std::string& headerName, int processKeys, std::string fileName) = 0;
 };
 
 
 template <typename T>
 class voxelImageT: public voxelImageTBase, public voxelField<T>   //!  3D image data with different data types (float, char, int...)
 {
-
 	dbl3	X0_, dx_;
 
  public:
 
-	voxelImageT():X0_(0.0,0.0,0.0),dx_(1,1,1) {};
+	voxelImageT():X0_(0.,0.,0.),dx_(1,1,1) {};
 
 
 	voxelImageT(int n1, int n2, int n3, T value)
-	: voxelField<T>( n1,  n2,  n3,  value),  X0_(0.0,0.0,0.0), dx_(1,1,1) {}
+	: voxelField<T>( n1,  n2,  n3,  value),  X0_(0.,0.,0.), dx_(1,1,1) {}
 
 
 	voxelImageT(int3 n, dbl3 dx, dbl3 xmin, T value)
-	: voxelField<T>( n[0],  n[1],  n[2],  value), X0_(xmin),dx_(dx) {}
+	: voxelField<T>( n.x,  n.y,  n.z,  value), X0_(xmin),dx_(dx) {}
 
 	voxelImageT(const voxelImageT & vm)
 	:  voxelField<T>(vm), X0_(vm.X0_), dx_(vm.dx_) {}
@@ -180,7 +185,7 @@ class voxelImageT: public voxelImageTBase, public voxelField<T>   //!  3D image 
 
 
 	voxelImageT(const std::string& headerName, int processKeys=1, std::string fileName="")
-	: X0_(0.0,0.0,0.0),dx_(1,1,1)  {readFromHeader(headerName, processKeys,fileName);}
+	: X0_(0.,0.,0.),dx_(1,1,1)  {readFromHeader(headerName, processKeys,fileName);}
 	void readFromHeader(const std::string& headerName, int processKeys=1, std::string fileName="")
 	{	if (!headerName.empty() && headerName!="NO_READ")
 		{	std::cout<<"Openning header: "<<headerName<<std::endl;
@@ -199,9 +204,9 @@ class voxelImageT: public voxelImageTBase, public voxelField<T>   //!  3D image 
 	bool readAscii(std::string fileName);
 	void  readRLE(std::string fileName);
 
-	void cropD( int3 cropBegin,  int3 cropEnd,int emptylyrs=0, T emptylyrsValue=1) ;
-	void crop( int cropBegin[3],  int cropEnd[3],int emptylyrs=0, T emptylyrsValue=1) ;
-	void crop(int iBgn, int iEnd,  int jBgn, int jEnd,  int kBgn, int kEnd,  int emptylyrs=0,T emptylyrsValue=1);
+	void cropD( int3 frm,  int3 to,int emptylyrs=0, T eLyrsValue=1, bool verbose=true) ;
+	void cropOld( int cropBgn[3],  int cropEnd[3],int emptylyrs=0, T eLyrsValue=1) ;
+	void cropOld(int iBgn, int iEnd, int jBgn, int jEnd, int kBgn, int kEnd, int emptylyrs=0,T eLyrsValue=1);
 
 	void writeHeader(std::string fileName) const;
 	void writeHeader(std::string fileName, int3 iBgn, int3 iEnd) const { voxelField<T>::writeHeader(fileName,iBgn,iEnd,dx_,X0_); };
@@ -210,9 +215,10 @@ class voxelImageT: public voxelImageTBase, public voxelField<T>   //!  3D image 
 
 	void erodeLayer(int i);
 	void rotate(char direction);
-	void PointMedian026(int thereshold0,int thereshold1);
-	void FaceMedian06(int thereshold0,int thereshold1);
-	void mode(short nNeist);
+	void PointMedian032(int nAdj0, int nAdj1, T lbl0, T lbl1);
+	unsigned long long  FaceMedian06(int nTresh0,int nTresh1);
+	void mode(short nNeist, bool verbose=false);
+	void zeroGrad(int nlyr);
 
 	void AND(const voxelImageT& data2);
 	void NOT(const voxelImageT& data2);
@@ -246,10 +252,7 @@ class voxelImageT: public voxelImageTBase, public voxelField<T>   //!  3D image 
 	const dbl3& dx  ()  const { return dx_; };
 	dbl3&       dxCh()        { return dx_; };
 	const int3& size3() const { return voxelField<T>::size3(); };
-	int    getInt(int i, int j, int k) const { return (*this)(i,j,k); };
-	int    getInt(size_t iii) const          { return (*this)(iii);   };
-	double getDbl(int i, int j, int k) const { return (*this)(i,j,k); };
-	double getDbl(size_t iii) const          { return (*this)(iii);   };
+
 	double vv_mp5(double i, double j, double k) const /// set i,j,k -=0.5 before passing them here
 	{
 		const int i0=i-1e-12, j0=j-1e-12, k0=k-1e-12; ///. note neg fracs round to zero

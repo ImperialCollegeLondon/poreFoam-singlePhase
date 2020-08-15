@@ -83,8 +83,7 @@ bool triSurface::readOBJ(const fileName& OBJfileName)
 
 			lineStream >> group;
 
-			HashTable<label>::const_iterator findGroup =
-				groupToPatch.find(group);
+			HashTable<label>::const_iterator findGroup =	groupToPatch.find(group);
 
 			if (findGroup != groupToPatch.end())
 			{
@@ -175,12 +174,7 @@ bool triSurface::readOBJ(const fileName& OBJfileName)
 	}
 	else
 	{
-		for
-		(
-			HashTable<label>::const_iterator iter = groupToPatch.begin();
-			iter != groupToPatch.end();
-			++iter
-		)
+		for ( HashTable<label>::const_iterator iter = groupToPatch.begin();  iter != groupToPatch.end();  ++iter	)
 		{
 			patches[iter()] = geometricSurfacePatch
 			(

@@ -1,8 +1,7 @@
 /*-------------------------------------------------------------------------*\
-
-You can redistribute this code and/or modify this code under the 
-terms of the GNU General Public License (GPL) as published by the  
-Free Software Foundation, either version 3 of the License, or (at 
+You can redistribute this code and/or modify this code under the
+terms of the GNU General Public License (GPL) as published by the 
+Free Software Foundation, either version 3 of the License, or (at
 your option) any later version. see <http://www.gnu.org/licenses/>.
 
 Please see our website for relavant literature making use of this code:
@@ -25,8 +24,8 @@ using namespace std;
 
 int usage()
 {
-	cout<<"\nvoxelImageConvert:\n utility to read a 3D image\n run some image processing commands on it (cropD, threshold, ...),"
-	<<"\n and write it back to disk,\n in the same or in a different format\n .dat suffix is used for ascii files and .raw implies binary format"
+	cout<<"\nvoxelImageConvert:\n utility to read a 3D image\n optionally run some image processing commands on it (cropD, threshold, ...),"
+	<<"\n and write it back to disk,\n in the same or in a different format\n .dat suffix is used for ascii files and .raw implies binary format. \n Other image formats supported are .tif and .am  and compressed .raw.gz"
 		<<"\nusages: \n"
 		<<"    voxelImageConvert inputMetaImage.mhd outPutFile.tif \n"
 		<<"    voxelImageConvert inputMetaImage.tif outPutFile.mhd UChar\n"
@@ -46,7 +45,7 @@ int usage()
 		<<" ElementDataFile = Berea.tif\n"
 		<< '\n'
 		<< "Optional keywords:\n"
-		<< VxlKeysHelp()<<endl;
+		<< VxlKeysHelp("","")<<endl;
 
 		cout<<"\nFor argumrntd of individual keywords run:\n"<<" vxlImageProcess ? <keyword name>\n"<<endl;
 	return -1;
@@ -56,7 +55,7 @@ int usage()
 int main(int argc, char *argv[])
 {
 
-	if(argc<3) return usage();
+	if(argc<2 || argc>4) return usage();
 
 	string header(argv[1]);
 	string outputName(argc>2 ? argv[2] : "");
@@ -77,7 +76,8 @@ int main(int argc, char *argv[])
 	if(extra=="UChar")
 	{
 		voxelImage vImgUChar(vxlImage->size3(), vxlImage->dx(), vxlImage->X0(), 0);
-		forAlliii_(vImgUChar)			vImgUChar(iii) = vxlImage->getInt(iii);
+		//forAlliii_(vImgUChar)			vImgUChar(iii) = vxlImage->getInt(iii);
+		resetFromImageT<unsigned char,short,unsigned short,int,unsigned int,float,double, char,unsigned char>(vImgUChar,vxlImage.get());
 		vImgUChar.write(outputName);
 	}
 	else if(outputName.size()) vxlImage->write(outputName);

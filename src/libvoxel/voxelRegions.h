@@ -50,26 +50,38 @@ voxelImageT<int> labelImage(const voxelImageT<T>& vImage, const T minvv=0, const
 	forAllk_vp_(lbls)  if(*vp<bigN) *vp=min5Nei(lbls,vp);
 	forAllkvp_(lbls)  if(*vp<bigN) *vp=min5Nei(lbls,vp);
 
-	OMPragma("omp parallel for")
-	for ( int k=1; k<(lbls).size3()[2]-1 ; ++k )
-	{	int mxl=lbls.nij_+1;
-		vector<int> lblMap(lbls.nij_,mxl);
-		vector<int> lblMapp(lbls.nij_,mxl);
-		for(auto* vp=&lbls(0,0,k), *_ve_=&lbls(0,0,k+1); vp<_ve_; ++vp )
-			 if(*vp<bigN) { int lmin=recurseMin(lblMap,min5Nei(lbls,vp)); lblMap[*vp] = lmin;  *vp=lmin; }
 
-		int nReg=1;
-		for(auto& lbl: lblMap) if(lbl<mxl) { lbl=recurseMin(lblMap,lbl); if(lblMapp[lbl]>nReg) lblMapp[lbl]=++nReg; }
-
-		for(auto* vp=&lbls(0,0,k), *_ve_=&lbls(0,0,k+1); vp<_ve_; ++vp )
-			 if(*vp<mxl) *vp=lblMapp[lblMap[*vp]];
+	{ // accumulate slice labels 2020-06-20
+		forAllkvp_(lbls)  if(*vp<bigN) *vp=min(*vp,*(vp-1));
+		int oldvv=-1, il=0;
+		forAllkji(lbls)   //RLE compress
+		{	int vv = lbls(i,j,k);
+			if(vv<bigN) { if(vv!=oldvv) { oldvv=lbls(i,j,k); lbls(i,j,k) = ++il; } else lbls(i,j,k) = il; }
+			else oldvv=-1;
+		} 
+		cout<<"max_il: "<<il<<endl;
 	}
 
-	///. restore global lbl ind
-	vector<int> max_kLbls(n_2[2]+2,0);
-	forAllkvp_(lbls) if(*vp<bigN) { *vp=min5Nei(lbls,vp); max_kLbls[k]=max(max_kLbls[k],*vp); }
-	{int sumLbl(0);	for(auto& lblb: max_kLbls) {sumLbl+=lblb+2; lblb=sumLbl; }}
-	forAllkvp_(lbls) if(*vp<bigN) (*vp)+=max_kLbls[k];
+	//OMPragma("omp parallel for")
+	//for ( int k=1; k<(lbls).nz()-1 ; ++k )
+	//{	int mxl=lbls.nij_+1;
+		//vector<int> lblMap(lbls.nij_,mxl);
+		//vector<int> lblMapp(lbls.nij_,mxl);
+		//for(auto* vp=&lbls(0,0,k), *_ve_=&lbls(0,0,k+1); vp<_ve_; ++vp )
+			 //if(*vp<bigN) { int lmin=recurseMin(lblMap,min5Nei(lbls,vp)); lblMap[*vp] = lmin;  *vp=lmin; }
+
+		//int nReg=1;
+		//for(auto& lbl: lblMap) if(lbl<mxl) { lbl=recurseMin(lblMap,lbl); if(lblMapp[lbl]>nReg) lblMapp[lbl]=++nReg; }
+
+		//for(auto* vp=&lbls(0,0,k), *_ve_=&lbls(0,0,k+1); vp<_ve_; ++vp )
+			 //if(*vp<mxl) *vp=lblMapp[lblMap[*vp]];
+	//}
+
+	///////. restore global lbl ind
+	//vector<int> max_kLbls(n_2[2]+2,0);
+	//forAllkvp_(lbls) if(*vp<bigN) { *vp=min5Nei(lbls,vp); max_kLbls[k]=max(max_kLbls[k],*vp); }
+	//{int sumLbl(0);	for(auto& lblb: max_kLbls) {sumLbl+=lblb+2; lblb=sumLbl; }}
+	//forAllkvp_(lbls) if(*vp<bigN) (*vp)+=max_kLbls[k];
 	//cout<<"max_kLbls: "<<max_kLbls<<endl;
 
 	//lbls.write("lll3.raw");
@@ -141,7 +153,7 @@ voxelImageT<int> labelImage(const voxelImageT<T>& vImage, const T minvv=0, const
 
 	forAllvp_(lbls)  if(*vp>=bigN) *vp=-1;
 
-	lbls.cropD(int3(1,1,1),int3(n_2[0]+1,n_2[1]+1,n_2[2]+1));
+	lbls.cropD(int3(1,1,1),int3(n_2[0]+1,n_2[1]+1,n_2[2]+1),0,0,false);
 	return lbls;
 
 }

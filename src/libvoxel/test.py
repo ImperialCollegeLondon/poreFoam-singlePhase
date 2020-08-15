@@ -2,7 +2,7 @@
 import os; ''' ========== set up paths  =========== '''
 if not ("msRoot" in os.environ): 
   print("try again after running:\nsource .../src/bashrc"); exit(-1);
-import msrc ;   from psutils import * ;   from psplots import *
+from msrc  import *
 DbgMsg('============ Ignore above messages ===============')
 
 

@@ -46,9 +46,9 @@ Foam::label Foam::primitiveMesh::getEdge
 	{
 		label eI = pe[pointI][ppI];
 
-		const edge& e = es[eI];
+		const edge& ej = es[eI];
 
-		if (e.start() == nextPointI || e.end() == nextPointI)
+		if (ej.start() == nextPointI || ej.end() == nextPointI)
 		{
 			return eI;
 		}
@@ -137,7 +137,7 @@ void Foam::primitiveMesh::calcEdges() const
 		// EDGE CALCULATION
 
 		edgesPtr_ = new edgeList(maxEdges);
-		edgeList& e = *edgesPtr_;
+		edgeList& es = *edgesPtr_;
 		label nEdges = 0;
 
 		forAll (pf, pointI)
@@ -293,13 +293,13 @@ void Foam::primitiveMesh::calcEdges() const
 					fe[curFgn[fgnI]][curEofgn[fgnI]] = nEdges;
 				}
 
-				e[nEdges] = edge(pointI, addedNeighbours[edgeI]);
+				es[nEdges] = edge(pointI, addedNeighbours[edgeI]);
 				nEdges++;
 			}
 		}
 
 		// reset the size
-		e.setSize(nEdges);
+		es.setSize(nEdges);
 	}
 }
 

@@ -36,14 +36,14 @@ namespace MCTProcessing
 	virtual ~shape() {}; 
 	virtual int value(dbl3)=0;
 	template<typename T> void setIn(voxelImageT<T> & vxlImage)
-	{
+	{	(cout <<__FUNCTION__<<": "<<insidev<<",  ").flush();
 		dbl3 xmin = vxlImage.X0();
 		dbl3 dx = vxlImage.dx();
 		forAllkji_(vxlImage)
 		{  int vv = this->value(dbl3(i+0.5,j+0.5,k+0.5)*dx+xmin);  if(vv!=shape::invalidv) vxlImage(i,j,k)  = vv; }
 	}
 	template<typename T> void addTo(voxelImageT<T> & vxlImage)
-	{
+	{	(cout <<__FUNCTION__<<": "<<insidev<<",  ").flush();
 		dbl3 xmin = vxlImage.X0();
 		dbl3 dx = vxlImage.dx();
 		forAllkji_(vxlImage)
@@ -64,7 +64,7 @@ namespace MCTProcessing
 		cout <<"cylinder: p1:"<<p1<<"    p2="<<p2<<"   r ="<<rr<<"   inside "<<insidev<<"   outside: "<<outsidev<<endl;
 	};
 
-	int value(dbl3 ij) { return ( mag((ij-p1)^(ij-p2))/mag_p12 <= rr )  ?  insidev : outsidev; }
+	int value(dbl3 ij) { return ( mag((ij-p1)^(ij-p2)) <= rr*mag_p12 )  ?  insidev : outsidev; }
  };
 
  class paraPlates : public shape

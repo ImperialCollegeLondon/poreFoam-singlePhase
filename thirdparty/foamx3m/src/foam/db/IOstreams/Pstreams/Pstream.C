@@ -910,7 +910,7 @@ bool Foam::Pstream::floatTransfer
 	debug::optimisationSwitch("floatTransfer", 0)
 );
 
-int Foam::Pstream::mpiBufferSize(200000000);// will be intialized later from MPI_BUFFER_SIZE env variable
+int Foam::Pstream::mpiBufferSize(500000000);// will be intialized later from MPI_BUFFER_SIZE env variable
 
 // Number of processors at which the reduce algorithm changes from linear to
 // tree

@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# run tests using this script to allow report failure/success of the test
+
 #set -ex # exit on any error
 
 tstDir=$1;   tstApp=$2;  tstInp=$3;  apsDir=$4
@@ -19,8 +22,8 @@ checkErr()
   if [ -z "$Er" ]; then    printf "\n *** Succeed @$task"; 
   else echo "'$Er', in: $1"; printf "\n ***  Failed @$task" ;   fi
   if xhost >/dev/null 2>&1 ; then
-    if [ -z "$Er" ]; then  notify-send "Succeed @$task"; 
-    else                   notify-send " Failed @$task"; geany "$1" || gedit "$1";  fi
+    if [ -z "$Er" ]; then  notify-send "Succeed @$task" & 
+    else                   notify-send " Failed @$task" & geany "$1" || gedit "$1";  fi
   fi
 }
 

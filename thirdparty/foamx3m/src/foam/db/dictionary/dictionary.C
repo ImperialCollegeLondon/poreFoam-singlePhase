@@ -622,12 +622,7 @@ void Foam::dictionary::add(const keyType& k, const word& w, bool overwrite)
 }
 
 
-void Foam::dictionary::add
-(
-	const keyType& k,
-	const Foam::string& s,
-	bool overwrite
-)
+void Foam::dictionary::add(const keyType& k, const Foam::string& s, bool overwrite)
 {
 	add(new primitiveEntry(k, token(s)), overwrite);
 }
@@ -645,12 +640,7 @@ void Foam::dictionary::add(const keyType& k, const scalar s, bool overwrite)
 }
 
 
-void Foam::dictionary::add
-(
-	const keyType& k,
-	const dictionary& d,
-	bool mergeEntry
-)
+void Foam::dictionary::add(const keyType& k, const dictionary& d, bool mergeEntry)
 {
 	add(new dictionaryEntry(k, *this, d), mergeEntry);
 }

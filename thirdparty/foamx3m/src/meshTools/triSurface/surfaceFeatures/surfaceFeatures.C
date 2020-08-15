@@ -496,6 +496,7 @@ void Foam::surfaceFeatures::findFeatures(const scalar includedAngle)
 			(180.0-includedAngle)
 		  * mathematicalConstant::pi/180.0
 		);
+		Info<<"findFeatures::minCos: "<<minCos<<endl;
 
 	const labelListList& edgeFaces = surf_.edgeFaces();
 	const vectorField& faceNormals = surf_.faceNormals();

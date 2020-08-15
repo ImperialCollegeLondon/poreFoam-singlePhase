@@ -34,15 +34,13 @@ const Foam::labelListList& Foam::primitiveMesh::edgeFaces() const
 	{
 		if (debug)
 		{
-			Pout<< "primitiveMesh::edgeFaces() : calculating edgeFaces"
-				<< endl;
+			Pout<< "primitiveMesh::edgeFaces() : calculating edgeFaces"<< endl;
 
 			if (debug == -1)
 			{
 				// For checking calls:abort so we can quickly hunt down
 				// origin of call
-				FatalErrorIn("primitiveMesh::edgeFaces()")
-					<< abort(FatalError);
+				FatalErrorIn("primitiveMesh::edgeFaces()")<<abort(FatalError);
 			}
 		}
 

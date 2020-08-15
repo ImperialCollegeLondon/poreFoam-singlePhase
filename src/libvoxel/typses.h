@@ -33,6 +33,12 @@
 	#define  epsT(Typ)  std::numeric_limits<Typ>::epsilon()
 #endif
 
+#if (__cplusplus < 201403L )
+	template< bool B, class T = void >
+	using enable_if_t = typename std::enable_if<B,T>::type;
+#else
+	using std::enable_if_t;
+#endif
 
 
 
@@ -42,10 +48,12 @@
 const static double PI = 3.14159265358979;
 
 
-//using toStr = std::to_string  is bad in decimal notation
+
+//using _s = std::to_string  is bad in decimal notation
 #ifndef Str_SkipH
 #define Str_SkipH
-	template<typename T> std::string toStr(const T& n){  std::ostringstream ss;  ss<<n;  return ss.str();  }
+	template<typename T> std::string toStr(const T& n){  std::ostringstream ss;  ss<<n;  return ss.str();  } //outdated
+	template<typename T> std::string _s(const T& n){  std::ostringstream ss;  ss<<n;  return ss.str();  }
 	template<typename T> T strTo(const std::string &s){  std::istringstream ss(s);  T t;  ss>>t;  return t; }
 	//template<typename T> T fileExt(const T& path) { auto const pos = path.rfind(".");  return (pos==T::npos) ?  T{} : path.substr(pos); }
 	template<typename T> bool hasExt(const T& path, size_t lnt, const char* ext) { return path.size()>lnt && path.compare(path.size()-lnt,lnt,ext) == 0; }
@@ -66,7 +74,7 @@ const static double PI = 3.14159265358979;
 
 	// Variable argument macro trick
 	 #define ERR_HDR(isOk, _xit_) "\n  "+_xit_?"Error":"Warning" \
-				" in "+ std::string(__FUNCTION__)+", "+std::string(__FILE__)+":"+toStr(__LINE__) \
+				" in "+ std::string(__FUNCTION__)+", "+std::string(__FILE__)+":"+_s(__LINE__) \
 				, std::string(": { ")+std::string(#isOk)
 	 #define ensure1(isOk)           (!((isOk)|| _cerr_(ERR_HDR(isOk,0)+"}")))
 	 #define ensure2(isOk, msg)      (!((isOk)|| _cerr_(ERR_HDR(isOk,0)+"   '"+msg+"'  }")))
@@ -94,14 +102,14 @@ class var3
  public:
 	T	x, y, z;
 	var3() = default;// Warning: not zero initialized in opt mode
-	var3(int r)  { x = r;  y = r;  z = r; } // use this to zero-initialize
+	template< typename std::enable_if<std::is_arithmetic<T>::value,int>::type = 0> 
+	var3(T r)  { x = r;  y = r;  z = r; } // use this to zero-initialize
 	var3(T r, T s, T t)  { x = r;  y = s;  z = t; }
 	var3(const T* d)  { x = d[0];  y = d[1];  z = d[2]; }
 	template<typename T2>
 	var3(var3<T2> n)  { x = n.x;  y = n.y;  z = n.z; }
 	//var3(std::array<int,3> n)  { x = n[0];  y = n[1];  z = n[2]; }
 #ifdef VMMLIB__VECTOR__HPP
-	template<typename T2,  std::enable_if_t<std::is_arithmetic<T2>::value, int> = 0>	var3(T2 r)  { x = r;  y = r;  z = r; }
 	var3(const Vctr<3,T>& v3) 	{ x = v3[ 0 ];	y = v3[ 1 ];	z = v3[ 2 ]; 	}
 #endif
 
@@ -112,11 +120,13 @@ class var3
 	T _2() const  { return z; }
 
 
-    explicit operator int() const { return x; }
-    explicit operator double() const { return x; }
+    //operator  int() const { return x; }
+    //operator  double() const { return x; }
 
 	var3&  operator += (const var3& v)  { x += v.x;  y += v.y;  z += v.z;  return (*this); }
 	var3&  operator -= (const var3& v)  { x -= v.x;  y -= v.y;  z -= v.z;  return (*this); }
+	var3&  operator += (const T& t)  { x += t;  y += t;  z += t;  return (*this); } // clumsy
+	var3&  operator -= (const T& t)  { x -= t;  y -= t;  z -= t;  return (*this); } // clumsy
 	var3&  operator *= (const double t) { x *= t;  y *= t;  z *= t;  return (*this); }
 	var3&  operator /= (const double t) { double f = 1.0 / t;  x *= f;  y *= f;  z *= f;  return (*this); }
 	var3&  operator ^= (const var3& v)  { double r, s;  r=y*v.z-z*v.y;  s=z*v.x-x*v.z;  z=x*v.y-y*v.x;  x=r; y=s; 	return (*this); }
@@ -124,6 +134,8 @@ class var3
 	var3   operator -  (void) const          { return (var3(-x, -y, -z)); }
 	var3   operator +  (const var3& v) const { return (var3(x+v.x, y+v.y, z+v.z)); }
 	var3   operator -  (const var3& v) const { return (var3(x-v.x, y-v.y, z-v.z)); }
+	var3   operator +  (const T& t) const { return (var3(x+t, y+t, z+t)); } // clumsy
+	var3   operator -  (const T& t) const { return (var3(x-t, y-t, z-t)); } // clumsy
 	var3   operator *  (const double t)const { return (var3(x*t, y*t, z*t)); }
 	var3   operator /  (const double t)const { double f = 1.0 / t;  return (var3(x*f, y*f, z*f)); }
 	double operator &  (const var3& v) const { return (x*v.x+y*v.y+z*v.z); }
@@ -135,6 +147,9 @@ class var3
 };
 typedef  var3<int> int3;
 typedef  var3<var3<int> > int3x3;
+
+typedef   var3<float> float3;
+typedef   var3<double> dbl3;
 
 template<class T>  var3<T> rotateAroundLine(var3<T> y, double gamma,  var3<T> n, var3<T> x)
 {///. rotate y around line passing through x, in the direction of n, http://inside.mines.edu/~gmurray/ArbitraryAxisRotation
@@ -160,41 +175,45 @@ template<typename T>
 class var2
 {
  public:
-	union {T	first; T x;};
-	union {T	second; T y;};
+	T a;//union {T	first;  T x;};
+	T b;//union {T	second; T y;};
 	var2() = default;//not zero initialized 
-	var2(T r, T s)  { x = r;  y = s;}
-	var2(int r)  { x = r;  y = r; }  // use this to zero-initialize
-	var2(const T* d)  { x = d[0];  y = d[1]; }
-	var2(std::pair<T,T> d)  { x = d.first;  y = d.second; }
+	var2(T r, T s)  { a = r;  b = s;}
+	var2(int r)  { a = r;  b = r; }  // use this to zero-initialize //ERROR REMOVE ME
+	var2(const T* d)  { a = d[0];  b = d[1]; }
+	var2(std::pair<T,T> d)  { a = d.first;  b = d.second; }
 
-	T&       operator [](long k) {	return ((&x)[k]); }
-	const T& operator [](long k) const  { return ((&x)[k]); }
+	T&       operator [](long k) {	return ((&a)[k]); }
+	const T& operator [](long k) const  { return ((&a)[k]); }
 
-    explicit operator int() const { return x; }
-    explicit operator double() const { return x; }
+	explicit operator int() const { return a; }
+	explicit operator double() const { return a; }
     explicit operator std::pair<T,T>&() const { return *this; }
 
-	var2&  operator += (const var2& v)  { x += v.x;  y += v.y;  return (*this); }
-	var2&  operator -= (const var2& v)  { x -= v.x;  y -= v.y;   return (*this); }
-	var2&  operator *= (const double t) { x *= t;  y *= t;   return (*this); }
-	var2&  operator /= (const double t) { double f = 1.0 / t;  x *= f;  y *= f;  return (*this); }
-	var2&  operator *= (const var2& v)  { x *= v.x;  y *= v.y;   return (*this); }
-	var2   operator -  (void) const          { return (var2(-x, -y)); }
-	var2   operator +  (const var2& v) const { return (var2(x+v.x, y+v.y)); }
-	var2   operator -  (const var2& v) const { return (var2(x-v.x, y-v.y)); }
-	var2   operator *  (const double t)const { return (var2(x*t, y*t)); }
-	var2   operator /  (const double t)const { double f = 1.0 / t;  return (var2(x*f, y*f)); }
-	double operator &  (const var2& v) const { return (x*v.x+y*v.y); }
-	var2   operator *  (const var2& v) const { return (var2(x*v.x, y*v.y)); }
-	var2   operator /  (const var2& v) const { return (var2(x/v.x, y/v.y)); }
-	bool   operator == (const var2& v) const { return ((x-v.x)*(x-v.x) < verySmall) && ((y-v.y)*(y-v.y) < verySmall) ; }
-	bool   operator != (const var2& v) const { return ((x-v.x)*(x-v.x) >= verySmall) || ((y-v.y)*(y-v.y) >= verySmall) ; }
+	T x() const  { return a; }
+	T y() const  { return b; }
+
+	T first() const  { return a; }
+	T second() const  { return b; }
+
+	var2&  operator += (const var2& v)  { a += v.b;  b += v.b;  return (*this); }
+	var2&  operator -= (const var2& v)  { a -= v.b;  b -= v.b;   return (*this); }
+	var2&  operator *= (const double t) { a *= t;  b *= t;   return (*this); }
+	var2&  operator /= (const double t) { double f = 1.0 / t;  a *= f;  b *= f;  return (*this); }
+	var2&  operator *= (const var2& v)  { a *= v.b;  b *= v.b;   return (*this); }
+	var2   operator -  (void) const          { return (var2(-a, -b)); }
+	var2   operator +  (const var2& v) const { return (var2(a+v.b, b+v.b)); }
+	var2   operator -  (const var2& v) const { return (var2(a-v.b, b-v.b)); }
+	var2   operator *  (const double t)const { return (var2(a*t, b*t)); }
+	var2   operator /  (const double t)const { double f = 1.0 / t;  return (var2(a*f, b*f)); }
+	double operator &  (const var2& v) const { return (a*v.b+b*v.b); }
+	var2   operator *  (const var2& v) const { return (var2(a*v.b, b*v.b)); }
+	var2   operator /  (const var2& v) const { return (var2(a/v.b, b/v.b)); }
+	bool   operator == (const var2& v) const { return ((a-v.b)*(a-v.b) < verySmall) && ((b-v.b)*(b-v.b) < verySmall) ; }
+	bool   operator != (const var2& v) const { return ((a-v.b)*(a-v.b) >= verySmall) || ((b-v.b)*(b-v.b) >= verySmall) ; }
 };
-typedef  var2<int> int2;
-typedef  var2<var2<int> > int2x2;
 
-
+inline  dbl3  operator *(const int3& v, const dbl3& d) { return dbl3(v.x*d.x, v.y*d.y, v.z*d.z); } // boost int to T
 template<typename T>  var3<T>  operator*(double t, const var3<T>& v) { return var3<T>(t*v.x, t*v.y, t*v.z); }
 template<typename T>  T  mag(const var3<T>& v)             { return std::sqrt(v.x*v.x+v.y*v.y+v.z*v.z); }
 template<typename T>  T  sumvars(const var3<T>& v)             { return (v.x+v.y+v.z); }
@@ -206,16 +225,7 @@ template<typename T>  var3<T>  norm(const var3<T>& v)      { return  v/(mag(v)+1
 template<typename T> var3<T> max(const var3<T>& a, const var3<T>& b)  { return var3<T>(std::max(a.x,b.x),std::max(a.y,b.y),std::max(a.z,b.z)); }
 template<typename T> var3<T> min(const var3<T>& a, const var3<T>& b)  { return var3<T>(std::min(a.x,b.x),std::min(a.y,b.y),std::min(a.z,b.z)); }
 
-
-
-//template<class T>  var3<T>  operator*( int3 n, var3<T> x) { return var3<T>(n[0]*x[0], n[1]*x[1], n[2]*x[2]);}
-//inline int3  operator-( int3 n, int3 x)   { return int3{{n[0]-x[0], n[1]-x[1], n[2]-x[2]}};}
-//inline int3  operator*( int s, int3 n)    { return int3{{s*n[0], s*n[1], s*n[2]}};}
-//inline int3  operator*( double s, int3 n) { return int3{{int(s*n[0]), int(s*n[1]), int(s*n[2])}};}
-//inline int3  operator/( int3 n, int s)    { return int3{{n[0]/s, n[1]/s, n[2]/s}};}
-inline int3& operator+=( int3& n, const int3& x) { n[0]+=x[0]; n[1]+=x[1]; n[2]+=x[2]; return n;}
-
-template<class T>  T  toScalar(const T& v)       { return v; }
+template<class T>  T  toScalar(const T& v)       { return v; } // NOW IMPLICITly CONVERTED
 template<class T>  T  toScalar(const var3<T>& v) { return mag(v); }
 
 
@@ -233,6 +243,7 @@ class piece
 	piece(T* dd, T* de): d(dd), dn(de)      {};
 	piece(const piece& p): d(p.d), dn(p.dn) {};//! Note this is different from = operator note data hold by piece are not const unless piece is const itself
 	piece(std::vector<T>& vs): d(&vs[0]), dn(d+vs.size()) {};
+	void reset(T* dd, int n)     { d=dd; dn=d+n; };
 	void reset(const piece& vs)     { d=&vs[0]; dn=d+vs.size(); };//! note data hold by piece are not const unless piece is const itself
 	void reset(std::vector<T>& vs)  { d=&vs[0]; dn=d+vs.size(); };
 
@@ -248,6 +259,7 @@ class piece
 	size_t size() const        {return dn-d;};
 	size_t capacity()          {return dn-d;}
 	T* data() {return d;}
+	const T* data() const {return d;}
 
 	piece& fill(const T& v)  { std::fill(d, dn, v);  return (*this); }
 	piece& operator =(const piece& v)  { ensure(size()==v.size(), "in operator =, piece sizes should be the same"); std::copy(v.d, v.dn, d);  return (*this); }
@@ -316,17 +328,13 @@ class lazyvec: public piece<T>
 	void resize(int nn,const T& val)
 	{ { if(d) delete[] d; }   if(nn) {d=new T[nn]; dn=d+nn;  std::fill(d, dn, val); } else {d=0; dn=0;} }
 	void pbak(T& vj)
-	{	if(d)
-		{ T* od=d;  d=new T[dn+1-od];
-			std::copy(od, dn, d); *(dn-1)=vj;
-			dn=d+dn+1-od;  delete[] od;  }
+	{	if(d){ T* od=d;  d=new T[dn+1-d]; std::copy(od,dn,d);
+				 dn=d+dn-od+1;    *(dn-1)=vj;      delete[] od; }
 		else    { d=new T[1];   *d=vj;   dn=d+1; }
 	}
 	void pbak(const piece<T> vs)
-	{	if(d)
-		{ T* od=d;  d=new T[dn+vs.size()-od];
-			std::copy(od, dn, d);	std::copy(vs.d, vs.dn, d+dn-od);
-			dn=d+dn-od+vs.size();   delete[] od;  }
+	{	if(d){ T* od=d;               d=new T[dn+vs.size()-d];       std::copy(od,dn, d);
+				 dn=d+dn-od+vs.size();  std::copy(vs.d, vs.dn, dn-vs.size());  delete[] od; }
 		else    { d=new T[vs.size()];   std::copy(vs.d, vs.dn, d);   dn=d+vs.size(); }
 	}
 };
@@ -429,16 +437,15 @@ template<class T>  lazyvec<T> round(const lazyvec<T>& vec) 	{ 	lazyvec<T> res(ve
 #define forint(_ind_, _i_bgn_m,_i_end_m)  for(int _ind_=_i_bgn_m; _ind_<_i_end_m; ++_ind_)
 
 using float2 = var2<float>;
-
 using dbl2 = var2<double>;
 using int2 = var2<int>;
+using int2x2 = var2<var2<int> > ;
 
  template<size_t N> using  Dbl_ = std::array<double,N>;
  template<class T> using  vars = lazyvec<T>; // or std::vector<T>;
  using  dbls = vars<double>;
  using  floats = vars<float>;
- typedef   var3<float> float3;
- typedef   var3<double> dbl3;
+
  typedef   vars<dbl3>   dbl3s;
  using  ints = vars<int>;
  using  uchars = vars<unsigned char>;
@@ -467,15 +474,23 @@ template<class T>// error add dbg ize checks
 double sumdbl(const piece<T>& ps, const piece<T>& ws)  { double sm=1.0e-300; const T* p = ps.d-1, *w=ws.d-1; while(++p<ps.dn){ sm += *w * *(++p);}  return sm; }
 inline double sumdbl(const dbl3& ps, const dbl3& ws)  { return ps.x+ws.x + ps.y+ws.y + ps.z+ws.z; }
 inline double sumdbl(const dbl3& ps)  { return ps.x+ ps.y+ ps.z; }
-template<class T>//! Note: can be made more efficient if assuming non-empty vec
-T sumvars(const piece<T>& ps)  { T sm = (T()*0.0); const T* p = ps.d-1; while(++p<ps.dn){ sm += *p;}  return sm; }
-template<typename T, typename T2>//! Note: can be made more efficient if assuming non-empty vec
-T sumvars(const piece<T>& ps, const piece<T2>& ws)  { T sm = (T()*0.0); const T* p = ps.d-1; const T2 *w=ws.d-1; while(++p<ps.dn){ sm += *(++w) * *p;}  return sm; }
-//inline double sumdbl(const piece<double> ps, const piece<double> ws)  { double sm=1.0e-300; double* p = ps.d-1,  *w=ws.d-1;
-	 //while(++p<ps.dn){ sm += *w * *(++p);}  return sm; }
+
+//! Note: these can be made more efficient if assuming non-empty vec
+template<class T>                 T sumvars(const piece<T>& ps)  {
+	T sm = (T()*0.0); const T* p = ps.d-1; while(++p<ps.dn){ sm += *p;}  return sm; }
+template<typename T, typename T2> T sumvars(const piece<T>& ps, const piece<T2>& ws)  {
+	T sm = (T()*0.0); const T* p = ps.d-1; const T2 *w=ws.d-1; while(++p<ps.dn){ sm += *(++w) * *p;}  return sm; }
+	
+template<class T>                 T sumSqrs(const piece<T>& ps)  {
+	T sm = (T()*0.0); const T* p = ps.d-1; while(++p<ps.dn){ sm += *p * *p;}  return sm; }
+template<typename T, typename T2> T sumSqrs(const piece<T>& ps, const piece<T2>& ws)  {
+	T sm = (T()*0.0); const T* p = ps.d-1; const T2 *w=ws.d-1; while(++p<ps.dn){ sm += *(++w) * *p * *p;}  return sm; }
 
 
 template<class T> T sum(const piece<T>& pis)  { return sumvars(pis); }
+template<class T>	lazyvec<T>   sum(piece<piece<T>> ps)  { lazyvec<T> sm(ps[0]); while(++ps.d<ps.dn){ sm += *ps.d;}  return sm;  } // does not work for size zero
+template<class T>	T avg(const piece<T>& dis)       { return sum(dis)/dis.size(); }
+
 template<class T> T min(const piece<T>& pis)  { return *std::min_element(pis.d,pis.dn); }
 template<class T> T max(const piece<T>& pis)  { return *std::max_element(pis.d,pis.dn); }
 template<class T, typename TFunc> void transform(piece<T>& pis, TFunc func)  { for(T& dr:pis) dr=func(dr); }
@@ -507,8 +522,6 @@ template<class T> std::ofstream& operator<< (std::ofstream& out, const var3<T>& 
 	return out;
 }
 
-//inline std::ostream&                               operator<< (std::ostream& out, const int3& i3)
-//{    out<<i3[0]<<" "<<i3[1]<<" "<<i3[2]; return out; }
 
 template<class T> std::istream&                    operator>> (std::istream& in, var3<T>& pos)
 {	in >> pos.x >> pos.y >> pos.z;	return in;	}
@@ -524,10 +537,10 @@ template<typename T1, typename T2>  std::ostream&  operator<< (std::ostream& out
 { 	out << ab.first<<" "<< ab.second; return out; 	}
 
 template<typename T>    std::istream&              operator>> (std::istream& in, var2<T>& ab)
-{ 	in >> ab.first >> ab.second;     return in; 	}
+{ 	in >> ab.a >> ab.b;     return in; 	}
 
 template<typename T>  std::ostream&                operator<< (std::ostream& out, const var2<T>& ab)
-{ 	out << ab.first<<" "<< ab.second; return out; 	}
+{ 	out << ab.a<<" "<< ab.b; return out; 	}
 
 template<typename T>  std::ostream &               operator<< (std::ostream & out, const std::vector<T>& vec)
 {
@@ -606,6 +619,7 @@ inline std::string baseName(const std::string& fName)
 
 
 template<typename T> bool _1At(T n, int ibgn)  {  return n&(1<<ibgn);  }
+inline               bool _1At(unsigned int n, int ibgn)  {  return n&(1<<ibgn);  }// for debugger
 template<typename T> bool _1In(T n, int ibgn, int lnt)  {  return (n>>ibgn)&((1<<lnt)-1);  }
 
 

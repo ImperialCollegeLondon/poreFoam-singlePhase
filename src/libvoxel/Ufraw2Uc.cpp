@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 	}else wUmag="ignor";
 
 	voxelImage vimage("vxlImage.mhd");
-	if(!vimage.size3()[2]) {std::cout<<"Error: vxlImage.mhd not read"<<std::endl; return 1;}
+	if(!vimage.nz()) {std::cout<<"Error: vxlImage.mhd not read"<<std::endl; return 1;}
 	int3 n=vimage.size3();
 	if(outFormat=="dat") vimage.write("vxlImage.dat");
 	vimage.data_.resize(0);
@@ -68,9 +68,9 @@ int main(int argc, char** argv)
 		voxelImageT<float> fField(n[0]+1,n[1],n[2],0.0);
 		fField.readBin("Ufx"+imgExt());
 
-		for (int k = 0; k<int(fField.size3()[2]) ; k++ )
-		 for ( int j = 0; j<int(fField.size3()[1]) ; j++ )
-		  for ( int i = 0; i<int(fField.size3()[0])-1 ; i++ )
+		for (int k = 0; k<int(fField.nz()) ; k++ )
+		 for ( int j = 0; j<int(fField.ny()) ; j++ )
+		  for ( int i = 0; i<int(fField.nx())-1 ; i++ )
 				fField(i,j,k)=0.5*(fField(i,j,k)+fField(i+1,j,k));
 		if(wUmag!="UmagOnly")
 			fField.writeBin("Uccx"+imgExt(), 0,n[0],0,n[1],0,n[2]);
@@ -81,9 +81,9 @@ int main(int argc, char** argv)
 		voxelImageT<float> fField(n[0],n[1]+1,n[2],0.0);
 		fField.readBin("Ufy"+imgExt());
 
-		for (int k = 0; k<int(fField.size3()[2]) ; k++ )
-		 for ( int j = 0; j<int(fField.size3()[1])-1 ; j++ )
-		  for ( int i = 0; i<int(fField.size3()[0]) ; i++ )
+		for (int k = 0; k<int(fField.nz()) ; k++ )
+		 for ( int j = 0; j<int(fField.ny())-1 ; j++ )
+		  for ( int i = 0; i<int(fField.nx()) ; i++ )
 			fField(i,j,k)=0.5*(fField(i,j,k)+fField(i,j+1,k));
 		if(wUmag!="UmagOnly")
 			fField.writeBin("Uccy"+imgExt(), 0,n[0],0,n[1],0,n[2]);
@@ -93,9 +93,9 @@ int main(int argc, char** argv)
 	{
 		voxelImageT<float> fField(n[0],n[1],n[2]+1,0.0);
 		fField.readBin("Ufz"+imgExt());
-		for (int k = 0; k<int(fField.size3()[2])-1 ; k++ )
-		 for ( int j = 0; j<int(fField.size3()[1]) ; j++ )
-		  for ( int i = 0; i<int(fField.size3()[0]) ; i++ )
+		for (int k = 0; k<int(fField.nz())-1 ; k++ )
+		 for ( int j = 0; j<int(fField.ny()) ; j++ )
+		  for ( int i = 0; i<int(fField.nx()) ; i++ )
 			fField(i,j,k)=0.5*(fField(i,j,k)+fField(i,j,k+1));
 		if(wUmag!="UmagOnly")
 			fField.writeBin("Uccz"+imgExt(), 0,n[0],0,n[1],0,n[2]);

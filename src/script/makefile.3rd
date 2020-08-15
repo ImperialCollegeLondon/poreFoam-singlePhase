@@ -64,7 +64,7 @@ foamx3m:
 
 
 clean: 
-	(cd foamx3m  2>/dev/null  &&  ./AllDistclean_keeplnInclude) || echo !!
+	(cd foamx3m  2>/dev/null  &&  ./AllDistclean) || echo !!
 
 distclean: 
 	(cd foamx3m  2>/dev/null  &&  ./AllDistclean) || echo !!

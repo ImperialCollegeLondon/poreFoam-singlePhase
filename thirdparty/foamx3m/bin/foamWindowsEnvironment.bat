@@ -10,5 +10,5 @@ if defined PARAVIEW_HOME set PATH=%PARAVIEW_HOME%\bin;%PATH%
 if defined MPI_ROOTDIR set PATH=%MPI_ROOTDIR%\bin;%PATH%
 set PATH=%~dp0..\lib;%~dp0..\bin;%PATH%
 set WM_PROJECT_DIR=%~dp0..
-set MPI_BUFFER_SIZE=200000000
+set MPI_BUFFER_SIZE=500000000
 set FOAM_ENV_SET=1

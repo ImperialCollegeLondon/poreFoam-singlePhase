@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# developed by Ali Q. Raeini (2019).
+# developed by Ali Q. Raeini (2019), 
+# sets the PATHs needed to run porefoam... codes from python3
 
 
 # LS_COLORS=$LS_COLORS:'di=1;36:ln=35' ; export LS_COLORS;
@@ -58,7 +59,6 @@ else :
 	sep=os.pathsep;
 	msRoot = os.path.abspath(msSrc+"/..")
 	msEnv["PATH"] = msEnv["PATH"] +sep+ msSrc+"/script"
-	msEnv["PATH"] = msEnv["PATH"] +sep+ msSrc+"/exp/script" #EXP:;
 	msEnv["PATH"] = msEnv["PATH"] +sep+ msSrc+"/porefoam1f/script"
 	msEnv["PATH"] = msEnv["PATH"] +sep+ msSrc+"/porefoam2f/script"
 	msEnv["PATH"] = msEnv["PATH"] +sep+ msSrc+"/gnm/script/PNM"
@@ -68,8 +68,7 @@ else :
 	sys.path.append(msSrc+"/pylib")
 	msEnv.update({'msSrc':msSrc})
 	os.environ.update({'msSrc':msSrc})
-	os.environ.update({"PYTHONPATH", msSrc+"/pylib"+sep+os.environ.get("PYTHONPATH","")});
-
+	os.environ.update({"PYTHONPATH":msSrc+"/pylib"+sep+os.environ.get("PYTHONPATH","")});
 
 
 
@@ -77,7 +76,7 @@ else :
 ######################  BASIC TEST UTILITIES  ##########################
 
 
-def DbgMsg(message='', nTrace=3, isError=1, endl='\n'):
+def DbgMsg(message='', nTrace=4, isError=1, endl='\n'):
 	if isError :
 		stak = inspect.stack()
 		if nTrace==0:
@@ -100,18 +99,18 @@ def runBashScript(resDir, scriptName, logfile=None):
 	return subprocess.run('exec '+scriptName, stdout=logfile, stderr=logfile, shell=True, cwd=resDir) #, env=msEnv
 
 
-def grepFloatInStr(lines='',keyword='Kx=', fileNameHint=''):
+def grepFloatInStr(lines='',keyword='Kx=', fnamHint=''):
 	try:
 		for ele in re.split(':|=| |,|\n|\t|;',lines.split(keyword,1)[1],20) :
 			if len(ele):
 				try: return float(ele) ;   
 				except ValueError: 
-					DbgMsg('no valid data for '+keyword+' in '+fileNameHint+', got '+ele);  pass ; 
-					return 0.0
+					DbgMsg('no valid data for '+keyword+' in '+fnamHint+', got '+ele);  pass ; 
+					return float('NAN')
 	except :
-		DbgMsg(keyword+' ?not in file '+fileNameHint); pass
-	DbgMsg(keyword+' not in file '+fileNameHint)
-	return 0.0
+		DbgMsg(keyword+' ?not in file '+fnamHint); pass
+	DbgMsg(keyword+' not in file '+fnamHint+" ")
+	return float('NAN')
 
 def grepFloatInFile(inFIle='summary.txt',keyword='Kx='):
 	try:     lines = open(inFIle, 'r').read()

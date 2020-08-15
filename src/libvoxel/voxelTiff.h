@@ -151,8 +151,8 @@ template<typename T>   int writeTif(const voxelField<T>&  aa, std::string outnam
 {
 
 	//uint32 rowsperstrip = uint32(-1);
-	uint32 nx=aa.size3()[0], ny=aa.size3()[1];
-	int pn=0, npages=aa.size3()[2];
+	uint32 nx=aa.nx(), ny=aa.ny();
+	int pn=0, npages=aa.nz();
 	int smplfrmt	 = tifDataType(T());
 	//uint16 samplesperpixel;
 	//uint16 bitspersample;
@@ -230,7 +230,7 @@ template<typename T>   int writeTif(const voxelField<T>&  aa, std::string outnam
 	uint32 rowsperstrip = uint32(-1);
 	TIFF *tif;
 	uint32 nx=iEnd-iStart, ny=jEnd-jStart;
-	int pn=0, npages=aa.size3()[2];
+	int pn=0, npages=aa.nz();
 	int smplfrmt	 = tifDataType(T());
 	//uint16 samplesperpixel;
 	//uint16 bitspersample;
