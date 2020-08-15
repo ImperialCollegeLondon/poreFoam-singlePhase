@@ -24,6 +24,7 @@ solvers
         nCellsInCoarsestLevel 8;
         agglomerator    faceAreaPair;
         mergeLevels     1;
+        maxIter         100;
     }
 
 

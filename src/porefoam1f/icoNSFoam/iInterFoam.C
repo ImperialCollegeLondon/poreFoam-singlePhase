@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 
 		runTime++;
 
-		Info<< "Time = " << runTime.timeName() << nl << endl;
+		Info << nl<< "Time = " << runTime.timeName() << endl;
 
 
 
@@ -137,15 +137,15 @@ int main(int argc, char *argv[])
 			<< "   DP = " << (max(p)-min(p)).value() << " Pa"
 			<< nl<< nl << endl;
 			
-			scalar delAvgUPer10Step =  mag(avgU - oldAvgU);
-			if (delAvgUPer10Step<thresholdDelUPer10Step*max(avgU,oldAvgU) && oldelAvgUPer10Step<thresholdDelUPer10Step*max(avgU,oldAvgU))
+			scalar delUx10 =  mag(avgU - oldAvgU);
+			if (delUx10<refDelUx10*max(avgU,oldAvgU) && oldDelUx10<refDelUx10*max(avgU,oldAvgU))
 			{
 				Info<< "converged ! " 	<< endl;
 				
 				runTime.writeAndEnd();
 			}
-			Info<<"! convergence: "<<delAvgUPer10Step<<"<"<<thresholdDelUPer10Step*max(avgU,oldAvgU) <<" && "<< oldelAvgUPer10Step<<"<"<<thresholdDelUPer10Step*max(avgU,oldAvgU)<<endl;
-			oldelAvgUPer10Step=delAvgUPer10Step;
+			Info<<"! convergence: "<<delUx10<<"<"<<refDelUx10*max(avgU,oldAvgU) <<" && "<< oldDelUx10<<"<"<<refDelUx10*max(avgU,oldAvgU)<<nl<<endl;
+			oldDelUx10=delUx10;
 			oldAvgU=avgU;
 		}
 
