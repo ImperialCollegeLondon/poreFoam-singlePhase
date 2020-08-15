@@ -62,9 +62,10 @@ int procMain(int argc, char *argv[],
 
 
 
-	int3 n = vximage.size3();
+	int3 nn = vximage.size3();
 	dbl3 xmin=vximage.X0();
 	dbl3 dx=vximage.dx();
+	cout<<"\n  nn: "<<nn<<"   dx: "<<dx<<"   X0: "<<xmin<<std::endl;
 
 	runTime.setTime(timeDirs[timeDirs.size()-1], timeDirs.size()-1);
 
@@ -127,18 +128,18 @@ int procMain(int argc, char *argv[],
 
 					forAll(Cfp, c)
 					{
-						int i=(Cfp[c][0]-xmin[0]+dx[0]*0.4)/dx[0];
-						int j=(Cfp[c][1]-xmin[1]+dx[1]*0.4)/dx[1];
-						int k=(Cfp[c][2]-xmin[2]+dx[2]*0.4)/dx[2];
+						int i=(Cfp[c][0]-xmin[0])/dx[0] +0.4;
+						int j=(Cfp[c][1]-xmin[1])/dx[1] +0.4;
+						int k=(Cfp[c][2]-xmin[2])/dx[2] +0.4;
 
-					  //if( i<n[0] && j<n[1] && k<n[2] )
+					  //if( i<nn[0] && j<nn[1] && k<nn[2] )
 					  {
 							vector nf=(Sfp[c]/mag(Sfp[c]));
-						if      (mag(nf[0])>0.9  &&  i<n[0]+1 && j<n[1] && k<n[2] && i>=0 && j>=0 && k>=0)
+						if      (mag(nf[0])>0.9  &&  i<nn[0]+1 && j<nn[1] && k<nn[2] && i>=0 && j>=0 && k>=0)
 							vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);     
-						else if (mag(nf[1])>0.9  &&  i<n[0] && j<n[1]+1 && k<n[2] && i>=0 && j>=0 && k>=0)
+						else if (mag(nf[1])>0.9  &&  i<nn[0] && j<nn[1]+1 && k<nn[2] && i>=0 && j>=0 && k>=0)
 							vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);     
-						else if (mag(nf[2])>0.9  &&  i<n[0] && j<n[1] && k<n[2]+1 && i>=0 && j>=0 && k>=0)
+						else if (mag(nf[2])>0.9  &&  i<nn[0] && j<nn[1] && k<nn[2]+1 && i>=0 && j>=0 && k>=0)
 							vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);     
 						else 
 							Info<<c<<"  face not in x nor y nor z direction, or not on boundaries, nf = "<<nf<<"   i"<<i<<" j"<<j<<" k"<<k<<" v"<<vface0(i,j,k)<<" cfp"<<Cfp[c]<<endl;
@@ -165,7 +166,7 @@ int procMain(int argc, char *argv[],
 	}
 
 
-	if(!peVoxel.size3()[0]) { Info<<"skipping psi, electric/diffusion potential"<<endl; }
+	if(!peVoxel.nx()) { Info<<"skipping psi, electric/diffusion potential"<<endl; }
 	else
 	{
 		volScalarField psi
@@ -179,7 +180,7 @@ int procMain(int argc, char *argv[],
 		const scalarField & p=psi.internalField();
 
 		const vectorField & C =	mesh.C();
-		Info<<"C.size(): "<<C.size()<<"  p.size(): "<<p.size()<<"  peVoxel.size(): "<<peVoxel.size3()[0]<<endl;
+		Info<<"C.size(): "<<C.size()<<"  p.size(): "<<p.size()<<"  peVoxel.size(): "<<peVoxel.nx()<<endl;
 		forAll(C,c)
 		{
 			int i=(C[c][0]-xmin[0])/dx[0];
@@ -207,7 +208,7 @@ int procMain(int argc, char *argv[],
 
 
 
-int procMainUx(int argc, char *argv[], voxelField<float>& vface0, int3& n,  dbl3& xmin,  dbl3& dx, bool initialise)
+int procMainUx(int argc, char *argv[], voxelField<float>& vface0, int3& nn,  dbl3& xmin,  dbl3& dx, bool initialise)
 {
 	Foam::argList args(argc, argv, true, true);//, initialise
     if (!args.checkRootCase())
@@ -269,7 +270,7 @@ int procMainUx(int argc, char *argv[], voxelField<float>& vface0, int3& n,  dbl3
 				Info<<c<<"  face not in x nor y nor z direction, nf = "<<nf<<endl;
 
 		}
-	 
+
 		const fvBoundaryMesh& patches = mesh.boundary(); 
 
 		forAll(patches, patchI)
@@ -290,14 +291,14 @@ int procMainUx(int argc, char *argv[], voxelField<float>& vface0, int3& n,  dbl3
 				
 				  {
 						vector nf=(Sfp[c]/mag(Sfp[c]));
-					if      (mag(nf[0])>0.9  &&  i<n[0]+1 && j<n[1] && k<n[2] && i>=0 && j>=0 && k>=0)
+					if      (mag(nf[0])>0.9  &&  i<nn[0]+1 && j<nn[1] && k<nn[2] && i>=0 && j>=0 && k>=0)
 						vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);     
-					else if (mag(nf[1])>0.9  &&  i<n[0] && j<n[1]+1 && k<n[2] && i>=0 && j>=0 && k>=0)
+					else if (mag(nf[1])>0.9  &&  i<nn[0] && j<nn[1]+1 && k<nn[2] && i>=0 && j>=0 && k>=0)
 						;//vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);     
-					else if (mag(nf[2])>0.9  &&  i<n[0] && j<n[1] && k<n[2]+1 && i>=0 && j>=0 && k>=0)
+					else if (mag(nf[2])>0.9  &&  i<nn[0] && j<nn[1] && k<nn[2]+1 && i>=0 && j>=0 && k>=0)
 						;//vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);     
 					else 
-						Info<<c<<"  face not in x nor y nor z direction, or not on boundaries, nf = "<<nf<<"   i"<<i<<" j"<<j<<" k"<<k<<" v"<<vface0(i,j,k)<<endl;
+						Info<<c<<"  face not in x (nor y nor z) direction, or not on boundaries, nf = "<<nf<<"   i"<<i<<" j"<<j<<" k"<<k<<" v"<<vface0(i,j,k)<<endl;
 				  }
 
 				}
@@ -320,7 +321,7 @@ int procMainUx(int argc, char *argv[], voxelField<float>& vface0, int3& n,  dbl3
 
 
 
-int procMainUy(int argc, char *argv[], voxelField<float>& vface1, int3& n,  dbl3& xmin,  dbl3& dx, bool initialise)
+int procMainUy(int argc, char *argv[], voxelField<float>& vface1, int3& nn,  dbl3& xmin,  dbl3& dx, bool initialise)
 {
 	Foam::argList args(argc, argv, true, true);//, initialise
     if (!args.checkRootCase())
@@ -410,14 +411,14 @@ int procMainUy(int argc, char *argv[], voxelField<float>& vface1, int3& n,  dbl3
 				
 				  {
 						vector nf=(Sfp[c]/mag(Sfp[c]));
-					if      (mag(nf[0])>0.9  &&  i<n[0]+1 && j<n[1] && k<n[2] && i>=0 && j>=0 && k>=0)
+					if      (mag(nf[0])>0.9  &&  i<nn[0]+1 && j<nn[1] && k<nn[2] && i>=0 && j>=0 && k>=0)
 						;//vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);     
-					else if (mag(nf[1])>0.9  &&  i<n[0] && j<n[1]+1 && k<n[2] && i>=0 && j>=0 && k>=0)
+					else if (mag(nf[1])>0.9  &&  i<nn[0] && j<nn[1]+1 && k<nn[2] && i>=0 && j>=0 && k>=0)
 						vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);     
-					else if (mag(nf[2])>0.9  &&  i<n[0] && j<n[1] && k<n[2]+1 && i>=0 && j>=0 && k>=0)
+					else if (mag(nf[2])>0.9  &&  i<nn[0] && j<nn[1] && k<nn[2]+1 && i>=0 && j>=0 && k>=0)
 						;//vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);     
 					else 
-						Info<<c<<"  face not in x nor y nor z direction, or not on boundaries, nf = "<<nf<<"   i"<<i<<" j"<<j<<" k"<<k<<" v"<<vface1(i,j,k)<<endl;
+						Info<<c<<"  face not in y (nor x nor z) direction, or not on boundaries, nf = "<<nf<<"   i"<<i<<" j"<<j<<" k"<<k<<" v"<<vface1(i,j,k)<<endl;
 				  }
 
 				}
@@ -439,7 +440,7 @@ int procMainUy(int argc, char *argv[], voxelField<float>& vface1, int3& n,  dbl3
 
 
 
-int procMainUz(int argc, char *argv[], voxelField<float>& vface2, int3& n,  dbl3& xmin,  dbl3& dx, bool initialise)
+int procMainUz(int argc, char *argv[], voxelField<float>& vface2, int3& nn,  dbl3& xmin,  dbl3& dx, bool initialise)
 {
 	Foam::argList args(argc, argv, true, true);//, initialise
     if (!args.checkRootCase())
@@ -522,14 +523,14 @@ int procMainUz(int argc, char *argv[], voxelField<float>& vface2, int3& n,  dbl3
 				
 				  {
 						vector nf=(Sfp[c]/mag(Sfp[c]));
-					if      (mag(nf[0])>0.9  &&  i<n[0]+1 && j<n[1] && k<n[2] && i>=0 && j>=0 && k>=0)
+					if      (mag(nf[0])>0.9  &&  i<nn[0]+1 && j<nn[1] && k<nn[2] && i>=0 && j>=0 && k>=0)
 						;//vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);     
-					else if (mag(nf[1])>0.9  &&  i<n[0] && j<n[1]+1 && k<n[2] && i>=0 && j>=0 && k>=0)
+					else if (mag(nf[1])>0.9  &&  i<nn[0] && j<nn[1]+1 && k<nn[2] && i>=0 && j>=0 && k>=0)
 						;//vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);     
-					else if (mag(nf[2])>0.9  &&  i<n[0] && j<n[1] && k<n[2]+1 && i>=0 && j>=0 && k>=0)
+					else if (mag(nf[2])>0.9  &&  i<nn[0] && j<nn[1] && k<nn[2]+1 && i>=0 && j>=0 && k>=0)
 						vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);     
 					else 
-						Info<<c<<"  face not in x nor y nor z direction, or not on boundaries, nf = "<<nf<<"   i"<<i<<" j"<<j<<" k"<<k<<" v"<<vface2(i,j,k)<<endl;
+						Info<<c<<"  face not in z (nor x nor y) direction, or not on boundaries, nf = "<<nf<<"   i"<<i<<" j"<<j<<" k"<<k<<" v"<<vface2(i,j,k)<<endl;
 				  }
 
 				}
@@ -552,7 +553,7 @@ int procMainUz(int argc, char *argv[], voxelField<float>& vface2, int3& n,  dbl3
 
 
 
-int procMainP(int argc, char *argv[], voxelField<float>& pVoxel, int3& n,  dbl3& xmin,  dbl3& dx,  bool initialise)
+int procMainP(int argc, char *argv[], voxelField<float>& pVoxel, int3& nn,  dbl3& xmin,  dbl3& dx,  bool initialise)
 {
 	Foam::argList args(argc, argv, true, true);//, initialise
     if (!args.checkRootCase())
@@ -596,7 +597,7 @@ int procMainP(int argc, char *argv[], voxelField<float>& pVoxel, int3& n,  dbl3&
 
 
 ///. should be run first,
-int procMainV(int argc, char *argv[], voxelImage& vximage, int3& n,  dbl3& xmin,  dbl3& dx, bool initialise)
+int procMainV(int argc, char *argv[], voxelImage& vximage, int3& nn,  dbl3& xmin,  dbl3& dx, bool initialise)
 {
 	Foam::argList args(argc, argv, true, true);//, initialise
 	if (!args.checkRootCase())
@@ -630,9 +631,9 @@ int procMainV(int argc, char *argv[], voxelImage& vximage, int3& n,  dbl3& xmin,
     return 0;
 }
 
-int procMainPE(int argc, char *argv[], voxelField<float>& peVoxel, int3& n,  dbl3& xmin,  dbl3& dx,  bool initialise)
+int procMainPE(int argc, char *argv[], voxelField<float>& peVoxel, int3& nn,  dbl3& xmin,  dbl3& dx,  bool initialise)
 {
-	if(!peVoxel.size3()[0]) { Info<<"skipping psi, electric/diffusion potential"<<endl;  return 0; }
+	if(!peVoxel.nx()) { Info<<"skipping psi, electric/diffusion potential"<<endl;  return 0; }
 	Foam::argList args(argc, argv, true, true);//, initialise
     if (!args.checkRootCase())
     {

@@ -48,8 +48,8 @@
 
 
 
-	scalar thresholdDelUPer10Step( pimple.dict().lookupOrDefault("thresholdDelUPer10Step", 0.0005) );
-	scalar oldelAvgUPer10Step = 1.0e+64;
+	scalar refDelUx10( pimple.dict().lookupOrDefault("thresholdDelUPer10Step", 0.0005) );
+	scalar oldDelUx10 = 1.0e+64;
 	scalar oldAvgU = 0.0;
 
 

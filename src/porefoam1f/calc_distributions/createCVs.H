@@ -116,7 +116,7 @@
 	if(!imageName.empty()) { readConvertFromHeader(CV_img,runTime.system()+"/../"+imageName); }
 	else Info<<"NO labelImage given"<<endl;;
 
-	bool  skipImage = CV_img.size3()[0]<=1;
+	bool  skipImage = CV_img.nx()<=1;
 
 	//CV_img.write(runTime.system()+"/../voxelI mageT_CV_img.dat");
 	int3 nnn = CV_img.size3();

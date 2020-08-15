@@ -37,7 +37,7 @@ Martin J Blunt:  m.blunt@imperial.ac.uk
 #include "FOAMProc2Voxel.H"
 
 //template<typename Type>
-//std::string  toStr(Type str)
+//std::string  _s(Type str)
 //{
 	//std::stringstream ss;
 	//ss<<str;
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 		for (int p=0;p<nProcs;p++)
 		{
 			int argcProc = 3;
-			string caseName("./processor"+toStr(p)+"\0");
+			string caseName("./processor"+_s(p)+"\0");
 			if (nProcs==1) caseName=".\0";
 			char *argvProc[3]={argv[0], _case,&(caseName[0u])};
 
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
 
 			for (int p=0;p<nProcs;p++)
 			{
-				string caseName((nProcs==1) ? ".\0" : "./processor"+toStr(p)+"\0");
+				string caseName((nProcs==1) ? ".\0" : "./processor"+_s(p)+"\0");
 				char *argvProc[3]={argv[0], _case,&(caseName[0u])};
 				Info<< "\nprocessor: "<<p<<"========================================" << endl;
 				procMainV( 3, argvProc, vximage, n, xmin, dx, initialiseOF);
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
 		{	voxelField<float> pVoxel(n[0],n[1],n[2],0.0);
 			for (int p=0;p<nProcs;p++)
 			{
-				string caseName((nProcs==1) ? ".\0" : "./processor"+toStr(p)+"\0");
+				string caseName((nProcs==1) ? ".\0" : "./processor"+_s(p)+"\0");
 				char *argvProc[3]={argv[0], _case,&(caseName[0u])};
 				Info<< "\nprocessor: "<<p<<"========================================" << endl;
 				procMainP( 3, argvProc, pVoxel, n, xmin, dx, initialiseOF);
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
 			voxelField<float> pVoxel(n[0],n[1],n[2],0.0);
 			for (int p=0;p<nProcs;p++)
 			{
-				string caseName((nProcs==1) ? ".\0" : "./processor"+toStr(p)+"\0");
+				string caseName((nProcs==1) ? ".\0" : "./processor"+_s(p)+"\0");
 				char *argvProc[3]={argv[0], _case,&(caseName[0u])};
 				Info<< "\nprocessor: "<<p<<"========================================" << endl;
 				procMainPE( 3, argvProc, pVoxel, n, xmin, dx, initialiseOF);
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
 		{	voxelField<float> vface0(n[0]+1,n[1],n[2],0.0);
 			for (int p=0;p<nProcs;p++)
 			{
-				string caseName((nProcs==1) ? ".\0" : "./processor"+toStr(p)+"\0");
+				string caseName((nProcs==1) ? ".\0" : "./processor"+_s(p)+"\0");
 				char *argvProc[3]={argv[0], _case,&(caseName[0u])};
 				Info<< "\nprocessor: "<<p<<"========================================" << endl;
 				procMainUx( 3, argvProc, vface0, n, xmin, dx, initialiseOF);
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
 		{	voxelField<float> vface1(n[0],n[1]+1,n[2],0.0);
 			for (int p=0;p<nProcs;p++)
 			{
-				string caseName((nProcs==1) ? ".\0" : "./processor"+toStr(p)+"\0");
+				string caseName((nProcs==1) ? ".\0" : "./processor"+_s(p)+"\0");
 				char *argvProc[3]={argv[0], _case,&(caseName[0u])};
 				Info<< "\nprocessor: "<<p<<"========================================" << endl;
 				procMainUy( 3, argvProc, vface1, n, xmin, dx, initialiseOF);
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 		{	voxelField<float> vface2(n[0],n[1],n[2]+1,0.0);
 			for (int p=0;p<nProcs;p++)
 			{
-				string caseName((nProcs==1) ? ".\0" : "./processor"+toStr(p)+"\0");
+				string caseName((nProcs==1) ? ".\0" : "./processor"+_s(p)+"\0");
 				char *argvProc[3]={argv[0], _case,&(caseName[0u])};
 				Info<< "\nprocessor: "<<p<<"========================================" << endl;
 				procMainUz( 3, argvProc, vface2, n, xmin, dx, initialiseOF);
