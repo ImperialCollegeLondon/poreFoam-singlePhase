@@ -1,3 +1,0 @@
-iInterFoam.C
-
-EXE = $(myOFBinDir)/icoNSFoam

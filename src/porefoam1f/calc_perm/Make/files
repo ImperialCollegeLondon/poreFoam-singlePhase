@@ -1,3 +1,0 @@
-calc_perm.C
-
-EXE = $(myOFBinDir)/calc_perms

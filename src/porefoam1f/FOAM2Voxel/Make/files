@@ -1,3 +1,0 @@
-FOAM2Voxel.C
-
-EXE = $(myOFBinDir)/FOAM2Voxel

@@ -1,3 +1,0 @@
-iPotentialFoam.C
-
-EXE = $(myOFBinDir)/iPotentialFoam
