@@ -11,6 +11,10 @@ See also README files for other modules  which are located in their own director
 
 
 ### Compiling
+First install openfoam prerequisites:     
+
+ `sudo apt install mpi-default-dev flex libscotch-dev`
+
 
 To compile, open a terminal in the upper most directory and run:    
 
