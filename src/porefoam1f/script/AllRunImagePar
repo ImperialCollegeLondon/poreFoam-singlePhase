@@ -165,9 +165,14 @@ echo "p @ $direction : $p  Pa"
 
 	(cd $caseName && touch ${caseName//\//-}.foam)
 
-
-
-	setBoundaryCondition "$direction"  "value" "uniform  $p" ./$caseName/0/p 
+	dirB=Left
+	case $direction in
+	  X) dirB=Left ;;
+	  Y) dirB=Bottom ;;
+	  Z) dirB=Back ;;
+	  *) echo "Error bad flow direction, expected X, Y or Z" ;;
+	esac
+	setBoundaryCondition "$dirB"  "value" "uniform  $p" ./$caseName/processor*/0/p 
 
 
 	#(cd $caseName && runMPI redistributePar $nProc -overwrite)
