@@ -2,9 +2,9 @@
 ## porefoam-singlePhase - direct single-phase flow simulator on micro-CT images
  ----------------------------------------------------------------    
  
-### See  [doc](doc) and [src/porefoam2f](src/porefoam1f) folders for more specific details.
+## See [doc](doc) and [src/porefoam2f](src/porefoam1f) folders for more specific details.
 
-##  See  [src/script/README.md](src/script/README.md) for compilation/build instructions.
+## See [src/script/README.md](src/script/README.md) for compilation/build instructions.
 
 See also README files for other modules which are located in their own directories:    
 [src/libvoxel](src/libvoxel), [src/script](src/script) and in [thirdparty](thirdparty).
