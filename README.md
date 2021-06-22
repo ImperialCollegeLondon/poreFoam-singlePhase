@@ -1,20 +1,24 @@
 
-
-
+## porefoam1f - direct pore-scale single-phase flow simulator on micro-CT images
  ----------------------------------------------------------------    
  
-## Please see the [doc](doc) and [src/porefoam1f](src/porefoam1f) folders for more specific details
+### See  [doc](doc) and [src/porefoam2f](src/porefoam1f) folders for more specific details.
 
-See also README files for other modules  which are located in their own directories. 
+See also README files for other modules which are located in their own directories:    
+[src/libvoxel](src/libvoxel), [src/script](src/script) and in [thirdparty](thirdparty).
+ 
+
 
  ----------------------------------------------------------------
 
+## General notes
 
 ### Compiling
-First install openfoam prerequisites:     
+
+
+First, install openfoam prerequisites, in Ubuntu by running:     
 
  `sudo apt install mpi-default-dev flex libscotch-dev`
-
 
 To compile, open a terminal in the upper most directory and run:    
 
