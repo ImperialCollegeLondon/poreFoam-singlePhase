@@ -2,7 +2,7 @@
 ## porefoam-singlePhase - direct single-phase flow simulator on micro-CT images
  ----------------------------------------------------------------    
  
-## See [doc](doc) and [src/porefoam2f](src/porefoam1f) for details of single-phase flow codes.
+## See [doc](doc) and [src/porefoam1f](src/porefoam1f) for details of single-phase flow codes.
 
 ## See [src/script/README.md](src/script/README.md) for compile/build instructions.
 
