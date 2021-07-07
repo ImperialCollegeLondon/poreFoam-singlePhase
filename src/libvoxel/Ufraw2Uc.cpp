@@ -50,9 +50,9 @@ int main(int argc, char** argv)  {
 	string wUmag;
 	if(argc>3)	
 	{
-		wUmag=string(argv[1]);
+		wUmag=string(argv[3]);
 		if(wUmag[0]=='U') std::cout<<"Writing Umag"<<wUmag<<endl;
-		else	 std::cout<<"Warning third argument can only be wUmag or UmagOnly, ignoring it:"<<wUmag<<endl;
+		else	 std::cout<<"Warning third argument can only be Umag or UmagOnly, ignoring it:"<<wUmag<<endl;
 	}else wUmag="ignor";
 
 	voxelImage vimage("vxlImage.mhd");
@@ -75,7 +75,7 @@ int main(int argc, char** argv)  {
 		if(wUmag!="UmagOnly")
 			fField.writeBin("Uccx"+imgExt(), 0,n[0],0,n[1],0,n[2]);
 		if(wUmag[0]=='U')
-			forAllkji(Umg) Umg(i,j,k) += fField(i,j,k)*fField(i,j,k);
+			forAllkji(Umg) Umg(i,j,k) += sqr(fField(i,j,k));
 	}
 	{
 		voxelImageT<float> fField(n[0],n[1]+1,n[2],0.0);
@@ -88,7 +88,7 @@ int main(int argc, char** argv)  {
 		if(wUmag!="UmagOnly")
 			fField.writeBin("Uccy"+imgExt(), 0,n[0],0,n[1],0,n[2]);
 		if(wUmag[0]=='U')
-			forAllkji(Umg) Umg(i,j,k) += fField(i,j,k)*fField(i,j,k);
+			forAllkji(Umg) Umg(i,j,k) += sqr(fField(i,j,k));
 	}
 	{
 		voxelImageT<float> fField(n[0],n[1],n[2]+1,0.0);
@@ -100,7 +100,7 @@ int main(int argc, char** argv)  {
 		if(wUmag!="UmagOnly")
 			fField.writeBin("Uccz"+imgExt(), 0,n[0],0,n[1],0,n[2]);
 		if(wUmag[0]=='U')
-			forAllkji(Umg) Umg(i,j,k) += fField(i,j,k)*fField(i,j,k);
+			forAllkji(Umg) Umg(i,j,k) += sqr(fField(i,j,k));
 	}
 	if(wUmag[0]=='U')  {
 		forAlliii_(Umg) Umg(iii) = sqrt(Umg(iii));
