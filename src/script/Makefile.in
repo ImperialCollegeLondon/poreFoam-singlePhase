@@ -60,14 +60,11 @@ msLibDir ?= ${msRoot}/lib
 
 # set thirdparty directory if not set
 ifndef ms3rd
- ifneq ("$(wildcard ${msSrc}/thirdparty/)","")
-  ms3rd := ${msSrc}/thirdparty
- else
   ifneq ("$(wildcard ${msRoot}/thirdparty/)","")
    ms3rd := ${msRoot}/thirdparty
+  else
+   $(warning ms3rd not set ${ms3rd})
   endif
- endif
- $(info ms3rd set to ${ms3rd})
 endif
 
 
@@ -266,7 +263,7 @@ ifdef USE_MINIFOAMX3  #######################################################:
 
 
 
-  findOFsubdirs = $(shell find $(LIB_SRC)/$(dir) -type d ! -name 'lnInclude')
+  findOFsubdirs = $(shell find $(LIB_SRC)/$(dir) -type d ! -name 'lnInclude' -exec realpath --relative-to . {} \;)
   ofIncDirs = $(foreach dir,$(OFincs) $(WM_PROJECT) OSspecific/$(WM_OSTYPE),$(findOFsubdirs))
   OFCFLAGS += $(addprefix -I,$(ofIncDirs)) 
 #  $(info $(ofIncDirs))
@@ -422,11 +419,11 @@ clean:
 
 
 ${msBuildDir}/%.Obj: $(OFObj2C)
-	@echo  'Compiling $(OFObj2C) *'
+	@echo  'Compiling $(OFObj2C)  *'
 	@${msCXX}  ${msCFLAGS} ${OFCFLAGS} ${EXTRACFLAGS} -c $(OFObj2C) -o $@
 
 ${msBuildDir}/%.o: $(o2cpp)
-	@echo  'Compiling $(o2cpp) *'
+	@echo  'Compiling $(o2cpp)   *'
 	@${msCXX}  ${msCFLAGS}  ${EXTRACFLAGS} -c $(o2cpp) -o $@
 
 # this is a note only, for how to use nmake in Windows, will not work with complex makefiles
