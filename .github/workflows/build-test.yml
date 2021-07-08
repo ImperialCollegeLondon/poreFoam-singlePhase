@@ -22,7 +22,7 @@ jobs:
     - name: install prerequisites
       run: sudo apt install mpi-default-dev flex libscotch-dev
     - name: clean
-      run: make distclean
+      run: echo skip make distclean
     - name: make
       run: make -j
     - name: test
