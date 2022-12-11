@@ -1,24 +1,18 @@
 /*-------------------------------------------------------------------------*\
-This code is part of poreFOAM, a suite of codes written using OpenFOAM
-for direct simulation of flow at the pore scale. 	
-You can redistribute this code and/or modify this code under the 
-terms of the GNU General Public License (GPL) as published by the  
-Free Software Foundation, either version 3 of the License, or (at 
+This code is part of PoreFOAM, a suite of codes written using OpenFOAM
+for direct simulation of flow at the pore scale.
+You can redistribute this code and/or modify this code under the
+terms of the GNU General Public License (GPL) as published by the
+Free Software Foundation, either version 3 of the License, or (at
 your option) any later version. see <http://www.gnu.org/licenses/>.
 
 
+Developed by:
+ - (2010-2022) Ali Q Raeini, email: a.q.raeini@gmail.com
 
-The code has been developed by Ali Qaseminejad Raeini as a part his PhD 
-at Imperial College London, under the supervision of Branko Bijeljic 
-and Martin Blunt. 
-* 
-Please see our website for relavant literature:
+For more details, visit:
 https://www.imperial.ac.uk/earth-science/research/research-groups/pore-scale-modelling/
 
-For further information please contact us by email:
-Ali Q Raeini:    a.q.raeini@imperial.ac.uk
-Branko Bijeljic: b.bijeljic@imperial.ac.uk
-Martin J Blunt:  m.blunt@imperial.ac.uk
 \*-------------------------------------------------------------------------*/
 
 #include <fstream>
@@ -35,7 +29,7 @@ Martin J Blunt:  m.blunt@imperial.ac.uk
 #include "OFstream.H"
 
 #include "voxelImage.h"
- 
+
 using namespace Foam;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -45,7 +39,7 @@ using namespace Foam;
 
 
 
-int procMain(int argc, char *argv[], 
+int procMain(int argc, char *argv[],
   voxelImage& vximage, voxelField<float>& pVoxel, voxelField<float>& vface0, voxelField<float>& vface1, voxelField<float>& vface2, voxelField<float>& peVoxel, bool initialise)
 {
 	Foam::argList args(argc, argv, true, true);//, initialise
@@ -83,10 +77,10 @@ int procMain(int argc, char *argv[],
 
 		volScalarField pp
 		(	IOobject
-			(	"p", runTime.timeName(), mesh, 
+			(	"p", runTime.timeName(), mesh,
 				IOobject::MUST_READ, IOobject::NO_WRITE
 			), mesh
-		);	
+		);
 		#include "createPhi.H"
 
 		{
@@ -104,17 +98,17 @@ int procMain(int argc, char *argv[],
 
 				vector nf=(Sf[c]/mag(Sf[c]));
 				if      (mag(nf[0])>0.9)
-					vface0(i,j,k)=phi[c]*nf[0]/mag(Sf[c]);     
+					vface0(i,j,k)=phi[c]*nf[0]/mag(Sf[c]);
 				else if (mag(nf[1])>0.9)
-					vface1(i,j,k)=phi[c]*nf[1]/mag(Sf[c]);     
+					vface1(i,j,k)=phi[c]*nf[1]/mag(Sf[c]);
 				else if (mag(nf[2])>0.9)
-					vface2(i,j,k)=phi[c]*nf[2]/mag(Sf[c]);     
-				else 
+					vface2(i,j,k)=phi[c]*nf[2]/mag(Sf[c]);
+				else
 					Info<<c<<"  face not in x nor y nor z direction, nf = "<<nf<<endl;
 
 			}
-		 
-			const fvBoundaryMesh& patches = mesh.boundary(); 
+
+			const fvBoundaryMesh& patches = mesh.boundary();
 
 			forAll(patches, patchI)
 			{
@@ -135,12 +129,12 @@ int procMain(int argc, char *argv[],
 					  {
 							vector nf=(Sfp[c]/mag(Sfp[c]));
 						if      (mag(nf[0])>0.9  &&  i<nn[0]+1 && j<nn[1] && k<nn[2] && i>=0 && j>=0 && k>=0)
-							vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);     
+							vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);
 						else if (mag(nf[1])>0.9  &&  i<nn[0] && j<nn[1]+1 && k<nn[2] && i>=0 && j>=0 && k>=0)
-							vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);     
+							vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);
 						else if (mag(nf[2])>0.9  &&  i<nn[0] && j<nn[1] && k<nn[2]+1 && i>=0 && j>=0 && k>=0)
-							vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);     
-						else 
+							vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);
+						else
 							Info<<c<<"  face not in x nor y nor z direction, or not on boundaries, nf = "<<nf<<"   i"<<i<<" j"<<j<<" k"<<k<<" v"<<vface0(i,j,k)<<" cfp"<<Cfp[c]<<endl;
 					  }
 
@@ -170,7 +164,7 @@ int procMain(int argc, char *argv[],
 	{
 		volScalarField psi
 		(	IOobject
-			(	"psi", runTime.timeName(), mesh, 
+			(	"psi", runTime.timeName(), mesh,
 				IOobject::READ_IF_PRESENT, IOobject::NO_WRITE
 			), mesh, dimensionedScalar("psi", dimensionSet(0, 2, -2, 0, 0, 0, 0), 0),
 			  "zeroGradient"
@@ -224,18 +218,18 @@ int procMainUx(int argc, char *argv[], voxelField<float>& vface0, int3& nn,  dbl
 	runTime.setTime(timeDirs[timeDirs.size()-1], timeDirs.size()-1);
 
 
-	
+
 	volVectorField U
 	(	IOobject
 		(	"U", runTime.timeName(), mesh,
 			IOobject::MUST_READ, IOobject::NO_WRITE
 		), mesh
 	);
-    
+
 	Info<<"\nmaxU "<<max(U)<<endl;
 
 	const vectorField & V=U.internalField();
-	
+
 
 	surfaceScalarField phi
 	(	IOobject
@@ -246,7 +240,7 @@ int procMainUx(int argc, char *argv[], voxelField<float>& vface0, int3& nn,  dbl
 	//if (outputFormat=="binary")
 	{
 		Info<<"faceVelocitiesWithBC"<<endl;
-		
+
 		const surfaceVectorField& Cf = mesh.Cf();
 		const surfaceVectorField& Sf = mesh.Sf();
 
@@ -257,20 +251,20 @@ int procMainUx(int argc, char *argv[], voxelField<float>& vface0, int3& nn,  dbl
 			int i=(Cf[c][0]-xmin[0]+dx[0]*0.4)/dx[0];
 			int j=(Cf[c][1]-xmin[1]+dx[1]*0.4)/dx[1];
 			int k=(Cf[c][2]-xmin[2]+dx[2]*0.4)/dx[2];
-	
+
 			vector nf=(Sf[c]/mag(Sf[c]));
 			if      (mag(nf[0])>0.9)
-				vface0(i,j,k)=phi[c]*nf[0]/mag(Sf[c]);     
+				vface0(i,j,k)=phi[c]*nf[0]/mag(Sf[c]);
 			else if (mag(nf[1])>0.9)
-				;//vface1(i,j,k)=phi[c]*nf[1]/mag(Sf[c]);     
+				;//vface1(i,j,k)=phi[c]*nf[1]/mag(Sf[c]);
 			else if (mag(nf[2])>0.9)
-				;//vface2(i,j,k)=phi[c]*nf[2]/mag(Sf[c]);     
-			else 
+				;//vface2(i,j,k)=phi[c]*nf[2]/mag(Sf[c]);
+			else
 				Info<<c<<"  face not in x nor y nor z direction, nf = "<<nf<<endl;
 
 		}
 
-		const fvBoundaryMesh& patches = mesh.boundary(); 
+		const fvBoundaryMesh& patches = mesh.boundary();
 
 		forAll(patches, patchI)
 		{
@@ -287,16 +281,16 @@ int procMainUx(int argc, char *argv[], voxelField<float>& vface0, int3& nn,  dbl
 					int i=(Cfp[c][0]-xmin[0]+dx[0]*0.4)/dx[0];
 					int j=(Cfp[c][1]-xmin[1]+dx[1]*0.4)/dx[1];
 					int k=(Cfp[c][2]-xmin[2]+dx[2]*0.4)/dx[2];
-				
+
 				  {
 						vector nf=(Sfp[c]/mag(Sfp[c]));
 					if      (mag(nf[0])>0.9  &&  i<nn[0]+1 && j<nn[1] && k<nn[2] && i>=0 && j>=0 && k>=0)
-						vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);     
+						vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);
 					else if (mag(nf[1])>0.9  &&  i<nn[0] && j<nn[1]+1 && k<nn[2] && i>=0 && j>=0 && k>=0)
-						;//vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);     
+						;//vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);
 					else if (mag(nf[2])>0.9  &&  i<nn[0] && j<nn[1] && k<nn[2]+1 && i>=0 && j>=0 && k>=0)
-						;//vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);     
-					else 
+						;//vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);
+					else
 						Info<<c<<"  face not in x (nor y nor z) direction, or not on boundaries, nf = "<<nf<<"   i"<<i<<" j"<<j<<" k"<<k<<" v"<<vface0(i,j,k)<<endl;
 				  }
 
@@ -337,21 +331,21 @@ int procMainUy(int argc, char *argv[], voxelField<float>& vface1, int3& nn,  dbl
 	runTime.setTime(timeDirs[timeDirs.size()-1], timeDirs.size()-1);
 
 
-	
+
 	volVectorField U
 	(	IOobject
 		(	"U", runTime.timeName(), mesh,
 			IOobject::MUST_READ, IOobject::NO_WRITE
 		), mesh
 	);
-    
+
 	Info<<"\nmaxU "<<max(U)<<endl;
 
 	const vectorField & V=U.internalField();
-	
+
 	//volScalarField pp
 	//(	IOobject
-		//(	"p", runTime.timeName(), mesh, 
+		//(	"p", runTime.timeName(), mesh,
 			//IOobject::MUST_READ, IOobject::NO_WRITE
 		//), mesh
 	//);
@@ -366,7 +360,7 @@ int procMainUy(int argc, char *argv[], voxelField<float>& vface1, int3& nn,  dbl
 	//if (outputFormat=="binary")
 	{
 		Info<<"faceVelocitiesWithBC"<<endl;
-		
+
 		const surfaceVectorField& Cf = mesh.Cf();
 		const surfaceVectorField& Sf = mesh.Sf();
 
@@ -380,17 +374,17 @@ int procMainUy(int argc, char *argv[], voxelField<float>& vface1, int3& nn,  dbl
 
 			vector nf=(Sf[c]/mag(Sf[c]));
 			if      (mag(nf[0])>0.9)
-				;//vface0(i,j,k)=phi[c]*nf[0]/mag(Sf[c]);     
+				;//vface0(i,j,k)=phi[c]*nf[0]/mag(Sf[c]);
 			else if (mag(nf[1])>0.9)
-				vface1(i,j,k)=phi[c]*nf[1]/mag(Sf[c]);     
+				vface1(i,j,k)=phi[c]*nf[1]/mag(Sf[c]);
 			else if (mag(nf[2])>0.9)
-				;//vface2(i,j,k)=phi[c]*nf[2]/mag(Sf[c]);     
-			else 
+				;//vface2(i,j,k)=phi[c]*nf[2]/mag(Sf[c]);
+			else
 				Info<<c<<"  face not in x nor y nor z direction, nf = "<<nf<<endl;
 
 		}
-	 
-		const fvBoundaryMesh& patches = mesh.boundary(); 
+
+		const fvBoundaryMesh& patches = mesh.boundary();
 
 		forAll(patches, patchI)
 		{
@@ -407,16 +401,16 @@ int procMainUy(int argc, char *argv[], voxelField<float>& vface1, int3& nn,  dbl
 					int i=(Cfp[c][0]-xmin[0]+dx[0]*0.4)/dx[0];
 					int j=(Cfp[c][1]-xmin[1]+dx[1]*0.4)/dx[1];
 					int k=(Cfp[c][2]-xmin[2]+dx[2]*0.4)/dx[2];
-				
+
 				  {
 						vector nf=(Sfp[c]/mag(Sfp[c]));
 					if      (mag(nf[0])>0.9  &&  i<nn[0]+1 && j<nn[1] && k<nn[2] && i>=0 && j>=0 && k>=0)
-						;//vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);     
+						;//vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);
 					else if (mag(nf[1])>0.9  &&  i<nn[0] && j<nn[1]+1 && k<nn[2] && i>=0 && j>=0 && k>=0)
-						vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);     
+						vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);
 					else if (mag(nf[2])>0.9  &&  i<nn[0] && j<nn[1] && k<nn[2]+1 && i>=0 && j>=0 && k>=0)
-						;//vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);     
-					else 
+						;//vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);
+					else
 						Info<<c<<"  face not in y (nor x nor z) direction, or not on boundaries, nf = "<<nf<<"   i"<<i<<" j"<<j<<" k"<<k<<" v"<<vface1(i,j,k)<<endl;
 				  }
 
@@ -456,19 +450,19 @@ int procMainUz(int argc, char *argv[], voxelField<float>& vface2, int3& nn,  dbl
 	runTime.setTime(timeDirs[timeDirs.size()-1], timeDirs.size()-1);
 
 
-	
+
 	volVectorField U
 	(	IOobject
 		(	"U", runTime.timeName(), mesh,
 			IOobject::MUST_READ, IOobject::NO_WRITE
 		), mesh
 	);
-    
+
 	Info<<"\nmaxU "<<max(U)<<endl;
 
 	const vectorField & V=U.internalField();
 
-	
+
 	surfaceScalarField phi
 	(	IOobject
 		(	"phi",  runTime.timeName(),  mesh,
@@ -478,7 +472,7 @@ int procMainUz(int argc, char *argv[], voxelField<float>& vface2, int3& nn,  dbl
 	//if (outputFormat=="binary")
 	{
 		Info<<"faceVelocitiesWithBC"<<endl;
-		
+
 		const surfaceVectorField& Cf = mesh.Cf();
 		const surfaceVectorField& Sf = mesh.Sf();
 
@@ -492,17 +486,17 @@ int procMainUz(int argc, char *argv[], voxelField<float>& vface2, int3& nn,  dbl
 
 			vector nf=(Sf[c]/mag(Sf[c]));
 			if      (mag(nf[0])>0.9)
-				;//vface0(i,j,k)=phi[c]*nf[0]/mag(Sf[c]);     
+				;//vface0(i,j,k)=phi[c]*nf[0]/mag(Sf[c]);
 			else if (mag(nf[1])>0.9)
-				;//vface1(i,j,k)=phi[c]*nf[1]/mag(Sf[c]);     
+				;//vface1(i,j,k)=phi[c]*nf[1]/mag(Sf[c]);
 			else if (mag(nf[2])>0.9)
-				vface2(i,j,k)=phi[c]*nf[2]/mag(Sf[c]);     
-			else 
+				vface2(i,j,k)=phi[c]*nf[2]/mag(Sf[c]);
+			else
 				Info<<c<<"  face not in x nor y nor z direction, nf = "<<nf<<endl;
 
 		}
-	 
-		const fvBoundaryMesh& patches = mesh.boundary(); 
+
+		const fvBoundaryMesh& patches = mesh.boundary();
 
 		forAll(patches, patchI)
 		{
@@ -519,16 +513,16 @@ int procMainUz(int argc, char *argv[], voxelField<float>& vface2, int3& nn,  dbl
 					int i=(Cfp[c][0]-xmin[0]+dx[0]*0.4)/dx[0];
 					int j=(Cfp[c][1]-xmin[1]+dx[1]*0.4)/dx[1];
 					int k=(Cfp[c][2]-xmin[2]+dx[2]*0.4)/dx[2];
-				
+
 				  {
 						vector nf=(Sfp[c]/mag(Sfp[c]));
 					if      (mag(nf[0])>0.9  &&  i<nn[0]+1 && j<nn[1] && k<nn[2] && i>=0 && j>=0 && k>=0)
-						;//vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);     
+						;//vface0(i,j,k)=phip[c]*nf[0]/mag(Sfp[c]);
 					else if (mag(nf[1])>0.9  &&  i<nn[0] && j<nn[1]+1 && k<nn[2] && i>=0 && j>=0 && k>=0)
-						;//vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);     
+						;//vface1(i,j,k)=phip[c]*nf[1]/mag(Sfp[c]);
 					else if (mag(nf[2])>0.9  &&  i<nn[0] && j<nn[1] && k<nn[2]+1 && i>=0 && j>=0 && k>=0)
-						vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);     
-					else 
+						vface2(i,j,k)=phip[c]*nf[2]/mag(Sfp[c]);
+					else
 						Info<<c<<"  face not in z (nor x nor y) direction, or not on boundaries, nf = "<<nf<<"   i"<<i<<" j"<<j<<" k"<<k<<" v"<<vface2(i,j,k)<<endl;
 				  }
 
@@ -572,7 +566,7 @@ int procMainP(int argc, char *argv[], voxelField<float>& pVoxel, int3& nn,  dbl3
 
 	volScalarField pp
 	(	IOobject
-		(	"p", runTime.timeName(), mesh, 
+		(	"p", runTime.timeName(), mesh,
 			IOobject::MUST_READ, IOobject::NO_WRITE
 		), mesh
 	);
@@ -651,7 +645,7 @@ int procMainPE(int argc, char *argv[], voxelField<float>& peVoxel, int3& nn,  db
 
 	volScalarField psi
 	(	IOobject
-		(	"psi", runTime.timeName(), mesh, 
+		(	"psi", runTime.timeName(), mesh,
 			IOobject::READ_IF_PRESENT, IOobject::NO_WRITE
 		), mesh, dimensionedScalar("psi", dimensionSet(0, 2, -2, 0, 0, 0, 0), 0),
         "zeroGradient"

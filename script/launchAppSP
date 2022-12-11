@@ -24,14 +24,14 @@ myCurrentDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )
 
 
 
-if  [ -f $caseName/system/controlDict ]; then 
+if  [ -f $caseName/system/controlDict ]; then
 	echo ".................. ......................."
 	echo "running $application on  $(dirname $caseName/) in parallel"
 
 	sleep 1
 
 
-	processorDirs="$(cd $caseName/ && ls -d processo*[0-9])"	
+	processorDirs="$(cd $caseName/ && ls -d processo*[0-9])"
 	arr=($processorDirs)
 	IFS=$'\n'
 	nProc=$(( $(echo "${arr[*]}" | sed 's/processor//g' | sort -nr | head -1)+1 ))
@@ -42,7 +42,7 @@ if  [ -f $caseName/system/controlDict ]; then
 	destLogNomber=${destLogNomber%-*}
 	destLogNomber=$(($destLogNomber + 1))
     (cd $caseName && mv log.$application log.$application-$destLogNomber)
-	
+
 
     (cd $caseName && runMPI $application $nProc $@)
 

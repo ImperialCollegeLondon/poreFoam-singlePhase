@@ -60,7 +60,3 @@ boundaryField
 		value		   uniform  0.0;
 	}
 }
-
-
-
-

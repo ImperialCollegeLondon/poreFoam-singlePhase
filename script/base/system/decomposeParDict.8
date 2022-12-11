@@ -1,4 +1,4 @@
-FoamFile // -*- C++ -*- 
+FoamFile // -*- C++ -*-
 {
     version     2.0;
     format      ascii;
@@ -10,7 +10,7 @@ FoamFile // -*- C++ -*-
 
 numberOfSubdomains 8;
 
-  method  multiLevel; 
+  method  multiLevel;
 
 
 
@@ -19,13 +19,13 @@ multiLevelCoeffs
     level0
     {
         numberOfSubdomains  2;
-        method  scotch; 
-    }    
+        method  scotch;
+    }
 
     level1
     {
         numberOfSubdomains  4;
-		method  scotch; 
+		method  scotch;
     }
 
 }
@@ -58,4 +58,3 @@ manualCoeffs
 distributed     no;
 
 roots           ( );
-

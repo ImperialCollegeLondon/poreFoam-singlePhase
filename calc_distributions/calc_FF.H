@@ -35,7 +35,7 @@
 
 	for(int iter = 0; iter<4; ++iter)
 	{
- 
+
 		//runTime++;
 
 		while (pimple.loop())
@@ -56,8 +56,8 @@
 				<< nl << endl;
 		}
 	}
-	
-	
+
+
 	phi=fvc::interpolate(kEf*dimensionedScalar("one", dimLength*dimLength, 1.)/(mu))*fvc::snGrad(p)*mesh.magSf();
 	Info<<"avg phi psi: "<<average(phi).value()<<",  ["<<min(phi).value()<<" - "<<max(phi).value()<<"]"<<endl;
 
@@ -81,7 +81,7 @@
 		if (iLeft < 0)	 { Info	<< "Unable to find  patch " << LeftPs[iDir] << nl	<< endl;	}
 		label iRight = mesh.boundaryMesh().findPatchID(RightPs[iDir]);
 		if (iRight < 0) { Info	<< "Unable to find  patch " << RightPs[iDir] << nl	<< endl;	}
-	
+
 		Info<<"kEf_ iRight: "<<gSum(kEf.boundaryField()[iRight])<<"  "<<endl;
 		Info<<"kEf_ iLeft: "<<gSum(kEf.boundaryField()[iLeft])<<"  "<<endl;
 		Info<<"psi_ iRight: "<<gSum(p.boundaryField()[iRight])<<"  "<<endl;

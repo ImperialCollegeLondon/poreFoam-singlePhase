@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------*\
  Initialize flow field, speeds up convergence in some cases
 
- Copyright (C) 2012-2020  Ali Qaseminejad Raeini 
+ Copyright (C) 2012-2020  Ali Qaseminejad Raeini
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 
 #define SINGLE_PHASE
-#define ifMonitor  if( runTime.timeIndex()%10== 0 ) 
+#define ifMonitor  if( runTime.timeIndex()%10== 0 )
 
 #include "fvCFD.H"
 
@@ -37,17 +37,17 @@
 
 
 int main(int argc, char *argv[])
-{ 
+{
 	#include "setRootCase.H"
 	#include "createTime.H"
 	#include "createMesh.H"
 	if (!mesh.cells().size()) {Info<<"Error: no cells in (processor) mesh"<<endl; exit(-1);}
 	pimpleControl pimple(mesh);
-	#include "initContinuityErrs.H"
+	//#include "initContinuityErrs.H"
 	#include "createFields.H"
-	#include "createTimeControls.H"
+	//#include "createTimeControls.H"
 	//#include "correctPhi.H" // GAMGPCG:  Solving for p:  solution singularity !
-	#include "CourantNo.H"
+	//#include "CourantNo.H"
 
 	//#include "setInitialDeltaT.H"
 
@@ -61,14 +61,11 @@ int main(int argc, char *argv[])
 
 
 	Info <<"min(p): "<<min(p)<<"max(p): "<<max(p)<<endl;
-	scalar pRelaxF=0.1;
 
 
 
 
 	Info << "cBC "<< cBC<<endl<<endl<<endl;
-
-	scalar tOld= runTime.elapsedCpuTime() ;
 
 
 /*{
@@ -77,7 +74,7 @@ int main(int argc, char *argv[])
 		( "muEff", runTime.timeName(), mesh
 		), mesh, rho*nu
 	);
-	tmp<fvVectorMatrix> UEqn 
+	tmp<fvVectorMatrix> UEqn
 	(
 		fvm::div(rho*phi, U)
 	  - fvm::laplacian(muEff, U)
@@ -92,7 +89,7 @@ int main(int argc, char *argv[])
 {
 	fvScalarMatrix pEqn
 	(
-		fvm::laplacian(p) 
+		fvm::laplacian(p)
 	);
 	pEqn.setReference(pRefCell, pRefValue);
 	pEqn.solve(mesh.solverDict("pcorr"));
@@ -110,7 +107,7 @@ int main(int argc, char *argv[])
 	pEqn.solve(mesh.solverDict(p.name() + "Final"));
 }
 
-	
+
 	Info<< "\n         Umax = " << max(mag(U)).value() << " m/s  "
 	<< "Uavg = " << mag(average(U)).value() << " m/s"
 	<< "   DP = " << (max(p)-min(p)).value() << " Pa"
@@ -119,7 +116,7 @@ int main(int argc, char *argv[])
 
 
 {
-	
+
 	surfaceScalarField muEff
 	(	IOobject ( "muEff", runTime.timeName(), mesh ),
 		mesh, rho*nu
@@ -134,7 +131,7 @@ int main(int argc, char *argv[])
 		fvm::laplacian(muEff, U) - fvm::div(rho*phi, U) /*  - fvm::div(rho*phi, U) is just to avoid OpenFOAM bug with solver selection*/
 		==
 		fvc::grad(p)
-	);	
+	);
 	phi = (fvc::interpolate(U) & mesh.Sf());
 
 	solve
@@ -142,24 +139,24 @@ int main(int argc, char *argv[])
 		fvm::laplacian(muEff, U) - fvm::div(rho*phi, U)
 		==
 		fvc::grad(p)
-	);	
+	);
 	phi = (fvc::interpolate(U) & mesh.Sf());
-	
+
 	Info<< "\n         Umax = " << max(mag(U)).value() << " m/s  "
 	<< "Uavg = " << mag(average(U)).value() << " m/s"
 	<< "   DP = " << (max(p)-min(p)).value() << " Pa"
 	<< nl<< nl << endl;
 
-	
+
 	//#include  "correctmuEff.H"
 	solve
 	(
 		fvm::laplacian(muEff, U) - fvm::div(rho*phi, U)
 		==
 		fvc::grad(p)
-	);	
+	);
 	phi = (fvc::interpolate(U) & mesh.Sf());
-}	
+}
 
 
 	Info<< "\n         Umax = " << max(mag(U)).value() << " m/s  "
@@ -176,8 +173,8 @@ for (int ii=1;ii<10;++ii)
 		mesh, rho*nu
 	);
 	#include  "correctmuEff.H"
-	
-	tmp<fvVectorMatrix> UEqn 
+
+	tmp<fvVectorMatrix> UEqn
 	(
 		fvm::div(rho*phi, U) - fvm::laplacian(muEff, U)
 	);
@@ -193,8 +190,8 @@ for (int ii=1;ii<10;++ii)
 	//	) / (mesh.magSf().boundaryField()*rAUf.boundaryField())	);
 
 	while(pimple.correctNonOrthogonal())
-	{ 
-		fvScalarMatrix pEqn( fvm::laplacian(rAUf, p) 
+	{
+		fvScalarMatrix pEqn( fvm::laplacian(rAUf, p)
 			  == rlx*fvc::div(phi) + (1.-rlx)*fvc::laplacian(rAUf,p) );
 		pEqn.setReference(pRefCell, pRefValue);
 		if (pimple.finalNonOrthogonalIter())
@@ -228,7 +225,7 @@ for (int ii=1;ii<10;++ii)
 		);
 		#include  "correctmuEff.H"
 
-		tmp<fvVectorMatrix> UEqn 
+		tmp<fvVectorMatrix> UEqn
 		(
 			fvm::div(rho*phi, U) - fvm::laplacian(muEff, U)
 		);
@@ -258,7 +255,7 @@ for (int ii=1;ii<10;++ii)
 		U -= rAU*(fvc::grad(p));
 		U.correctBoundaryConditions();
 
-	
+
 		Info<< "\n    Umax = " << max(mag(U)).value() << " m/s  "
 			<< "Uavg = " << mag(average(U)).value() << " m/s"
 			<< "   DP = " << (max(p)-min(p)).value() << " Pa"
@@ -266,7 +263,7 @@ for (int ii=1;ii<10;++ii)
 	}
 
 	Info<<endl<<max(fvc::div(phi))<<endl;
-	
+
 
 
 

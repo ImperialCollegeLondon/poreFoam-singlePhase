@@ -2,7 +2,7 @@
 	volScalarField rAU = 1./UEqn().A();
 
 	U = rAU*(UEqn().H());
-  
+
 	if (pimple.nCorrPiso() <= 1)
 	{
 		UEqn.clear();
@@ -38,4 +38,3 @@
 	U -= rAU*(fvc::grad(p));
 	//U += rAU*fvc::reconstruct((phi - phiU)/rAUf);
 	U.correctBoundaryConditions();
-

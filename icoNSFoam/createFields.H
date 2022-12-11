@@ -19,8 +19,8 @@
 
     U.correctBoundaryConditions();
 
-	volScalarField pOldOld=p; 
-	volScalarField pOld=p; 
+	volScalarField pOldOld=p;
+	volScalarField pOld=p;
 
 
     Info<< "Reading transportProperties\n" << endl;
@@ -29,11 +29,11 @@
 		( "transportProperties",  runTime.constant(),  runTime,
 		IOobject::MUST_READ,  IOobject::NO_WRITE
     )	);
-    
+
 	const dimensionedScalar rho(transportProperties.lookup("rho"));
 	const dimensionedScalar nu(transportProperties.lookup("nu"));
 	const dimensionedScalar mu(rho*nu);
-	
+
 
 
 
@@ -72,8 +72,7 @@
 
 	Info<<"average(fvc::laplacian(p)): "<<average(fvc::laplacian(p)).value()<<endl; //just to make sure Everything is computed before cleaning up below
 	Info<<"average(fvc::div(U)): "<<average(fvc::div(U)).value()<<endl; //just to make sure Everything is computed before cleaning up below
-#ifdef FOAMX 
+#ifdef FOAMX
 	mesh.clearPoints();
 	mesh.clearNonOrtho();
 #endif
-

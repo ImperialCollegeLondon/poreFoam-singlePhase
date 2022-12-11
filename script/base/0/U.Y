@@ -57,7 +57,7 @@ boundaryField
 		type			fixedValue;
 		value			uniform (0 0 0);
 	}
-	
+
 	default
 	{
 		type			fixedValue;

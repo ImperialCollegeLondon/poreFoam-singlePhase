@@ -1,11 +1,11 @@
 
-    Info<< "Reading field p\n" << endl;
-    volScalarField p
-    (  IOobject
-        (  "p",  runTime.timeName(),  mesh,
-            IOobject::MUST_READ,  IOobject::AUTO_WRITE
-        ),  mesh
-    );
+	Info<< "Reading field p\n" << endl;
+	volScalarField p(
+		IOobject(
+			"p",  runTime.timeName(),  mesh,
+			IOobject::MUST_READ,  IOobject::AUTO_WRITE
+		),  mesh
+	);
 
 	Info<< "Reading field U\n" << endl;
 	volVectorField U (
@@ -18,25 +18,25 @@
 
 	U.correctBoundaryConditions();
 
-    Info<< "Reading transportProperties\n" << endl;
-    IOdictionary transportProperties
-    (	IOobject
-		( "transportProperties",  runTime.constant(),  runTime,
-		IOobject::MUST_READ,  IOobject::NO_WRITE
-    )	);
-    
+	Info<< "Reading transportProperties\n" << endl;
+	IOdictionary transportProperties(
+		IOobject(
+			"transportProperties",  runTime.constant(),  runTime,
+			IOobject::MUST_READ,  IOobject::NO_WRITE
+	)	);
+
 	const dimensionedScalar rho(transportProperties.lookup("rho"));
 	const dimensionedScalar nu(transportProperties.lookup("nu"));
 	const dimensionedScalar mu(rho*nu);
-	
 
 
 
-    //// Construct incompressible turbulence model
-    //autoPtr<incompressible::turbulenceModel> turbulence
-    //(
-        //incompressible::turbulenceModel::New(U, phi, transportProperties)
-    //);
+
+	//// Construct incompressible turbulence model
+	//autoPtr<incompressible::turbulenceModel> turbulence
+	//(
+			//incompressible::turbulenceModel::New(U, phi, transportProperties)
+	//);
 
 
 
@@ -53,10 +53,6 @@
 	scalar lambda( readScalar(pimple.dict().lookup("lambda")) );
 
 
-	scalar deltaTFact=1.;
-
-	label nUCorr( readLabel(pimple.dict().lookup("nUCorr")) );
-
 	dimensionedScalar beta ( pimple.dict().lookup("beta")  );
 
 
@@ -67,4 +63,3 @@
 	mesh.clearPoints();
 	mesh.clearNonOrtho();
 #endif //FOAMX
-

@@ -26,8 +26,8 @@
 
 	#include "createPhi.H"
 
-	volScalarField pOldOld=p; 
-	volScalarField pOld=p; 
+	volScalarField pOldOld=p;
+	volScalarField pOld=p;
 
 
 	Info<< "Reading transportProperties\n" << endl;
@@ -66,4 +66,3 @@
 
 
 	dimensionedScalar beta ( pimple.dict().lookup("beta")  );
-

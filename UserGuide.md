@@ -3,15 +3,8 @@
 
 Ali Q. Raeini
 
-<a.q.raeini@imperial.ac.uk>
+<a.q.raeini@gmail.com>
 
- 
-
-*Department of Earth Science and Engineering*
-
-*Imperial College London*
-
-*UK, SW7 2AZ*
 :::
 
  
@@ -154,20 +147,20 @@ keywords should not be changed):
     .raw.gz. The suffix for tiff files should be '.tif'. The script can
     be run on the .tif file directly if the 'XResolution' tiff tag is
     set correctly.
-    
+
 ```
 	ObjectType =  Image
 	NDims =       3
 	ElementType = MET_UCHAR
 
 	DimSize =     400    400    400
-	ElementSize = 5.345  5.345  5.345 
+	ElementSize = 5.345  5.345  5.345
 	Offset =      0       0       0
 
 	ElementDataFile = Berea.raw
 
 	####optional keywords, uncomment to activate:
-	#BinaryData = True 
+	#BinaryData = True
 	#threshold  0 0   # void space range in the image
 	#direction  z       # turn image in y or z direction
 	#cropD       0 0 0 200 200 200   # crop the image
@@ -224,9 +217,9 @@ run one of the following bash commands:
  AllRunImage
  #  or to run on XXX.raw file in parallel mode on a single machine:
  AllRunImagePar XXX.mhd
- #  or to run on all .mhd files in parallel on a single machine 
+ #  or to run on all .mhd files in parallel on a single machine
  AllRunImagePar
- #  or parallel mode on a distributed cluster, edit ~/porefoam/src/porefoam1f/machines.txt first and type: 
+ #  or parallel mode on a distributed cluster, edit ~/porefoam/src/porefoam1f/machines.txt first and type:
  AllRunImageParDistributed XXX.mhd
 ```
 
@@ -277,12 +270,12 @@ simulation code discussed in the paper:
     Volume-of-Fluid Method, Journal of Computational Physics, 231,
     5653-5668 <http://dx.doi.org/10.1016/j.jcp.2012.04.011>
 
-Essentially the main difference with the Openfoam-provided codes is the 
-treatment of the no-slip boundary condition for improving the accuracy 
+Essentially the main difference with the Openfoam-provided codes is the
+treatment of the no-slip boundary condition for improving the accuracy
 of permeability prediction, similar to
-[Mostaghimi et al 2012](https://doi.org/10.1007/s11004-012-9431-4). 
-The details of the pre/post-processing tools are not documented, but 
-you can have a look at the source code or send an email (see below) if 
+[Mostaghimi et al 2012](https://doi.org/10.1007/s11004-012-9431-4).
+The details of the pre/post-processing tools are not documented, but
+you can have a look at the source code or send an email (see below) if
 you want to know more.
 
 Applications of the single-phase direct simulation code can be found in
@@ -313,27 +306,7 @@ following papers:
 
  
 
-For more information and recent publications, please refer to our
-website:
-
-<https://www.imperial.ac.uk/earth-science/research/research-groups/pore-scale-modelling/publications/>
-
- 
-
- 
-
-If you have any questions, please contact us by email:
-
-Ali Qaseminejad Raeini: <a.q.raeini@imperial.ac.uk>
-
-Please also report any problems, feedback or suggestions using the email
-adress above.
-
- 
-
- 
-
-#  Overview the applications used in the script 
+#  Overview the applications used in the script
 
 ***Openfoam utilities:***
 

@@ -1,17 +1,18 @@
 /*-------------------------------------------------------------------------*\
 This code is part of poreFOAM, a suite of codes written using OpenFOAM
-for direct simulation of flow at the pore scale. 	
-You can redistribute this code and/or modify this code under the 
-terms of the GNU General Public License (GPL) as published by the  
-Free Software Foundation, either version 3 of the License, or (at 
+for direct simulation of flow at the pore scale.
+You can redistribute this code and/or modify this code under the
+terms of the GNU General Public License (GPL) as published by the
+Free Software Foundation, either version 3 of the License, or (at
 your option) any later version. see <http://www.gnu.org/licenses/>.
 
 
-Please see our website for relavant publications:
+Developed by:
+ - Ali Q Raeini <a.q.raeini@gmail.com>  (2010-2022)
+
+For more details, visit:
 https://www.imperial.ac.uk/earth-science/research/research-groups/pore-scale-modelling/
 
-For further information please contact me by email:
-Ali Qaseminejad Raeini:    a.q.raeini@imperial.ac.uk
 \*-------------------------------------------------------------------------*/
 
 #include <fstream>
@@ -28,6 +29,7 @@ Ali Qaseminejad Raeini:    a.q.raeini@imperial.ac.uk
 #include "myFVC.H"
 #include <valarray>
 #include "voxelImage.h"
+#include "voxelImageI.h"
 #include "AverageData.h"
 
 
@@ -109,9 +111,9 @@ int main(int argc, char *argv[])
 	runTime.setTime(timeDirs[timeDirs.size()-1], timeDirs.size()-1);
 
 
-	#define x_ 0 
-	#define y_ 1 
-	#define z_ 2 
+	#define x_ 0
+	#define y_ 1
+	#define z_ 2
 
 	scalar L[3];
 	scalar K[3];
@@ -144,11 +146,11 @@ int main(int argc, char *argv[])
 		(	IOobject( "clip", runTime.timeName(), mesh),
 			mesh,	dimensionedScalar("clip",dimless,0.),	"fixedValue"
 		);
-		forAll(C,c) 
-		{ 
-			if (PPRegions[c]==CVxlVals[iSam]&& 
-				(C[c][0]>=CVBounds1[iSam] && C[c][0]<=CVBounds2[iSam] && 
-				 C[c][1]>=CVyBounds1[iSam] && C[c][1]<=CVyBounds2[iSam] && 
+		forAll(C,c)
+		{
+			if (PPRegions[c]==CVxlVals[iSam]&&
+				(C[c][0]>=CVBounds1[iSam] && C[c][0]<=CVBounds2[iSam] &&
+				 C[c][1]>=CVyBounds1[iSam] && C[c][1]<=CVyBounds2[iSam] &&
 				 C[c][2]>=CVzBounds1[iSam] && C[c][2]<=CVzBounds2[iSam] ))
 				clip[c]=1.;
 		}
@@ -204,7 +206,7 @@ int main(int argc, char *argv[])
 			<<"\t\tK=( "<<  K[x_]<<"  "<<  K[y_]<<"  "<<  K[z_] <<" )"
 			<<" Pmax-Pmin: "<<  Pmax_min
 			<<" Umax= "<<  Umax
-			<<"\t\t Re= "<<  "rho*VDarcy*sqrt(K)/mu= "<< rho.value() <<"*"<<VDarcy[iDir]<<"*sqrt("<<K[iDir]<<")/"<<mu.value()<<")= "<<Re 
+			<<"\t\t Re= "<<  "rho*VDarcy*sqrt(K)/mu= "<< rho.value() <<"*"<<VDarcy[iDir]<<"*sqrt("<<K[iDir]<<")/"<<mu.value()<<")= "<<Re
 			<<" cvFraction= "<<  cvFraction
 			<< "\n";
 		VDarcy[iDir]=max(1e-64,VDarcy[iDir]);
@@ -240,7 +242,7 @@ int main(int argc, char *argv[])
 				<<"K_"<<directions[iDir]<<"=           "<<  K[iDir]<<" m^2,        \t  K=( "<<K[x_]<<"  "<<K[y_]<<"  "<<K[z_]<<" ) \n";
 		if(nSams==1) Info <<"FF_"<<directions[iDir]<<"=          "<<  FF[iDir]<<" ";
 		Info	<<"\nDarcyVelocity= "<< VDarcy[iDir] <<" m/s,    \t   Umax= "<<  Umax <<"\t  DelP= "<< dp[iDir] <<" Pa "<<",  Pmax-Pmin: "<<  Pmax_min <<" \n"
-				<<"Re=            "<<Re<<  "             =rho*VDarcy*sqrt(K)/mu= "<< rho.value() <<" "<<VDarcy[iDir]<<" sqrt( "<<K[iDir]<<" )/ "<<mu.value()<<" )" 
+				<<"Re=            "<<Re<<  "             =rho*VDarcy*sqrt(K)/mu= "<< rho.value() <<" "<<VDarcy[iDir]<<" sqrt( "<<K[iDir]<<" )/ "<<mu.value()<<" )"
 				<< "\n\n";
 
 
@@ -261,7 +263,7 @@ int main(int argc, char *argv[])
 				<<"K_"<<directions[iDir]<<"=           "<<  K[iDir]<<" m^2,          K=( "<<  K[x_]<<"  "<<  K[y_]<<"  "<<  K[z_] <<" ) \n";
 			if(nSams==1) of	<<"FF_"<<directions[iDir]<<"=          "<<  FF[iDir]<<" ";
 			of	<<"\nDarcyVelocity= "<< VDarcy[iDir] <<" m/s,    \t   Umax= "<<  Umax <<"\t  DelP= "<< dp[iDir] <<" Pa "<<",  Pmax-Pmin: "<<Pmax_min<<" \n"
-				<<"Re=            "<<Re<<  "             =  rho*VDarcy*sqrt(K)/mu= "<< rho.value()<<"*"<<VDarcy[iDir]<<"*sqrt("<<K[iDir]<<")/"<<mu.value()<<")" 
+				<<"Re=            "<<Re<<  "             =  rho*VDarcy*sqrt(K)/mu= "<< rho.value()<<"*"<<VDarcy[iDir]<<"*sqrt("<<K[iDir]<<")/"<<mu.value()<<")"
 				<<"\ncvFraction=            "<<cvFraction
 				<< "\n\n";
 
@@ -309,7 +311,7 @@ int main(int argc, char *argv[])
 			ditribUzCbrt[2]=dXrDy*ditribUzCbrt[2];
 			ditribUzCbrt[0]=ditribUzCbrt[0]*ditribUzCbrt[0]*ditribUzCbrt[0];
 			of<<ditribUzCbrt<<std::endl;
-			
+
 			of.close();
 
 

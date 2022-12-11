@@ -1,7 +1,7 @@
 
 {
 
-	volVectorField gradP=	fvc::grad(p); 
+	volVectorField gradP=	fvc::grad(p);
 
     auto& Ubf = U.boundaryFieldRef();
 
@@ -9,7 +9,7 @@
     forAll(boundary, bi)
     {
         if (isA<fixedValueFvPatchVectorField>(Ubf[bi]))
-        { 
+        {
 			//- delta() is not cached, not good for memory nor efficiency, use 1/deltaCoeffs() instead
 
 			 muEff.boundaryFieldRef()[bi]+=

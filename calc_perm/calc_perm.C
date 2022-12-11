@@ -2,7 +2,7 @@
  Upscaling flow field / Abs. permeability computation
  Outdated, use calc_distributions instead
 
- Copyright (C) 2010-2020  Ali Qaseminejad Raeini 
+ Copyright (C) 2010-2020  Ali Qaseminejad Raeini
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 \*-------------------------------------------------------------------------*/
@@ -38,17 +38,17 @@ int main(int argc, char *argv[])
 #   include "setRootCase.H"
 #   include "createTime.H"
     instantList timeDirs = timeSelector::select0(runTime, args);
-    
+
 
 	#   include "createNamedMesh.H"
 
 
-    
+
 
 
 	runTime.setTime(timeDirs[timeDirs.size()-1], timeDirs.size()-1);
 
-			
+
 	volVectorField U
 	(
 		IOobject
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
             runTime,    IOobject::MUST_READ
         )
     );
-    
+
 	const dimensionedScalar rho(twoPhaseProperties.lookup("rho"));
 	const dimensionedScalar nu(twoPhaseProperties.lookup("nu"));
 	const dimensionedScalar muEff(rho*nu);
@@ -86,10 +86,10 @@ int main(int argc, char *argv[])
 
 
 	scalar V=sum(mesh.V()).value();
-	
-	#define x_ 0 
-	#define y_ 1 
-	#define z_ 2 
+
+	#define x_ 0
+	#define y_ 1
+	#define z_ 2
 
 	scalar L[3];
 	scalar K[3];
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 	word LeftPs[]={"Left","Bottom","Front"};//
 	word RightPs[]={"Right","Top","Back"};//
 	word directions[]={"x","y","z"};//
-		
+
 	for (int i=0;i<3;i++)
 	{
 
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-	 
+
 
 		scalar fluxIn=gSum(phi.boundaryField()[iLeft]);
 
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 	scalar Pmax_min=(max(p)-min(p)).value();
 	scalar Umax=(max(mag(U))).value();
 	scalar Re=rho.value()*VDarcy[i]*std::sqrt(K[i])/muEff.value() ;
-	
+
 
 
 
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
       <<" Pmax - Pmin "<<  Pmax_min
       <<" Umax "<<  Umax
       <<"\t\t effPorosity = "<<  "V_pore / (L_x*L_y*L_z) = "<<  V<<" / "<<" ("<<L[x_]<<"*"<<L[y_]<<"*"<<L[z_]<<") = "<<V/(L[x_]*L[y_]*L[z_])
-      <<"\t\t Re = "<<  "rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[i]<<" * sqrt("<<K[i]<<") / "<<muEff.value()<<" ) = "<<Re 
+      <<"\t\t Re = "<<  "rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[i]<<" * sqrt("<<K[i]<<") / "<<muEff.value()<<" ) = "<<Re
       << "\n";
 
 
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 		std::ofstream of("summary_calcPerm.txt",std::ios::app);
 		assert(of);
 
-		of<< runTime.caseName() 
+		of<< runTime.caseName()
 		  <<"\tK_"<<directions[i]<<"= "<<  K[i]<<" m^2 \t"
 		  <<"\teffPorosity= "<< V/(L[x_]*L[y_]*L[z_]) <<" \t"
 		  <<"\tDarcyVelocity= "<< VDarcy[i] <<" m/s \t"
@@ -175,14 +175,14 @@ int main(int argc, char *argv[])
 		  <<" Pmax - Pmin "<<  Pmax_min
 		  <<" Umax "<<  Umax
 		  <<"\t\t effPorosity = "<<  "V_pore / (L_x*L_y*L_z) = "<<  V<<" / "<<" ("<<L[x_]<<"*"<<L[y_]<<"*"<<L[z_]<<") = "<<V/(L[x_]*L[y_]*L[z_])
-		  <<"\t\t Re = "<<  "rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[i]<<" * sqrt("<<K[i]<<") / "<<muEff.value()<<" ) = "<<Re 
+		  <<"\t\t Re = "<<  "rho*VDarcy*sqrt(K)/mu = "<< rho.value() <<" * "<<VDarcy[i]<<" * sqrt("<<K[i]<<") / "<<muEff.value()<<" ) = "<<Re
 		  << "\n";
-		  
-		
+
+
 		of.close();
 	}
-	
-	
+
+
     Info<< "end" << endl;
 
     return 0;

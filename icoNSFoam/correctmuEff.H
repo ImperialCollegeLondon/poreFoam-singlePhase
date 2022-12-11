@@ -1,7 +1,7 @@
 
 {
 
-	volVectorField gradP=	fvc::grad(p); 
+	volVectorField gradP=	fvc::grad(p);
 
 
     const fvBoundaryMesh& boundary = mesh.boundary();
@@ -9,7 +9,7 @@
     {
 		auto& Upi = U.boundaryFieldRef()[bi];
 		if (isA<fixedValueFvPatchVectorField>(Upi))
-		{ 
+		{
 			//- delta() is not cached, no good for memory nor efficiency, use 1/deltaCoeffs() instead
 			auto& delCoefs = boundary[bi].deltaCoeffs();
 

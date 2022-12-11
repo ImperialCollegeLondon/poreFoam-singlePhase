@@ -4,14 +4,14 @@ const double minZfrac=0.00;
 const double maxZfrac=1.;
 
 
-	
-class snapShot_zt 
+
+class snapShot_zt
 {
 	scalarField data_;
  public:
 	//static std::string Names[12];
-	
- 
+
+
     scalar& q(){return data_[0];};
     scalar& vol(){return data_[1];};
 
@@ -24,32 +24,32 @@ class snapShot_zt
     scalar& dpddz(){return data_[6];};
     scalar& viscz(){return data_[7];};
     scalar& phiu(){return data_[8];};
-    
+
     scalar& xDropAvg(){return data_[9];};
     scalar& x1(){return data_[10];};
-    scalar& x2(){return data_[11];};       
-    
+    scalar& x2(){return data_[11];};
 
 
-	scalarField& data(){return data_;};	
-	
-	snapShot_zt();   
+
+	scalarField& data(){return data_;};
+
+	snapShot_zt();
 };
 
 void writePostProcHeader(std::string fnam, int nSlices)
 {
 	std::string Names[12]={
-	"U", 
-	"vol", 
-	"delPdelX", 
-	"dpdE", 
-	"viscE", 
-	"phiE", 
-	"dpddz", 
-	"viscz", 
+	"U",
+	"vol",
+	"delPdelX",
+	"dpdE",
+	"viscE",
+	"phiE",
+	"dpddz",
+	"viscz",
 	"phiu",
-	"xDropAvg", 
-	"x1", 
+	"xDropAvg",
+	"x1",
 	"x2"
 	}	;
 
@@ -62,7 +62,7 @@ void writePostProcHeader(std::string fnam, int nSlices)
 	out << "QOut ";
 	out << "Dp ";
 	out << "ADarcy ";
-	for (int i=0; i<nSlices; ++i) 
+	for (int i=0; i<nSlices; ++i)
 	{
 	 for(int j=0; j<12; ++j)   out << "S"<<i+1<<"-"<<Names[j]<<" ";
 	}
@@ -74,7 +74,7 @@ void writePostProcHeader(std::string fnam, int nSlices)
 
 snapShot_zt::snapShot_zt() : data_(12,0.) {	};
 
-class snapShot_t 
+class snapShot_t
 {
  public:
     double t;
@@ -83,7 +83,7 @@ class snapShot_t
     scalar QOut;
     scalar Dp;
     scalar ADarcy;
-    
+
     List<snapShot_zt> slices;
 
 	snapShot_t(unsigned int numSlices)	{	reset(numSlices);	};
@@ -98,7 +98,7 @@ class snapShot_t
 		ADarcy=0.;
 		slices=List<snapShot_zt>(numSlices);
 	};
-	
+
 
 	void write(std::ofstream& out)
 	{
@@ -108,12 +108,12 @@ class snapShot_t
 		out << QOut<<",";
 		out << Dp<<",";
 		out << ADarcy<<",";
-		for (int i=0; i<slices.size(); ++i) 
+		for (int i=0; i<slices.size(); ++i)
 		{
 		 forAll(slices[i].data(), j)   out << slices[i].data()[j]<<",";
 		}
 		out << std::endl ;
-		
+
 	}
 
 
@@ -140,8 +140,3 @@ std::string basename(const std::string& str)
 {
   return str.substr(str.find_last_of("/\\")+1);
 }
-
-
-
-
-

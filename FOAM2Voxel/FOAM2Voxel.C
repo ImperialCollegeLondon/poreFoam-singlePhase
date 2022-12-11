@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------*\
  Conversion utility, from Openfoam results to 3D images
 
- Copyright (C) 2010-2020  Ali Qaseminejad Raeini 
+ Copyright (C) 2010-2020  Ali Qaseminejad Raeini
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include <assert.h>
 
 #include "voxelImage.h"
+#include "voxelImageI.h"
 
 
 #include "FOAMProc2Voxel.H"
@@ -59,13 +60,13 @@ int main(int argc, char *argv[])
 				<< "  Works for both serial (N_processors = 1, default) and parallel runs." << endl
 				<< "  \"oldAscii\" output-format is for compatiblity with old IC dispression codes. " << endl<< endl;
 		if(headerName.empty() || headerName.substr(0,2)=="-h")
-		 { if(headerName.empty()) Info<<"Error: please try again  providing headerFileName"<<endl; return 1;	}	
+		 { if(headerName.empty()) Info<<"Error: please try again  providing headerFileName"<<endl; return 1;	}
 
 
 	if(argc>2) nProcs = atoi(argv[2]);
-	if(argc>3) outputFormat = std::string (argv[3]); 
-	if(argc>4) writeVoltage = argv[4][0]=='t' || argv[4][0]=='T'; 
-	//if(argc>4) skipOutlet = std::string(argv[4]); 
+	if(argc>3) outputFormat = std::string (argv[3]);
+	if(argc>4) writeVoltage = argv[4][0]=='t' || argv[4][0]=='T';
+	//if(argc>4) skipOutlet = std::string(argv[4]);
 	imgExt(outputFormat);
 	Info<<"FOAM2Voxel "<<headerName<<" "<<nProcs<<" "<<outputFormat<<" "<<writeVoltage<<endl;
 
@@ -77,8 +78,8 @@ int main(int argc, char *argv[])
 
 	Info<<"\nn: "<<n.x<<" "<<n.y<<" "<<n.z<<" \n"<<endl;
 
-	//dx*=1e-6; 
-	//xmin*=1e-6; 
+	//dx*=1e-6;
+	//xmin*=1e-6;
 
 
   std::ofstream("OpenMeInParaview.xmf")<<
@@ -155,7 +156,7 @@ int main(int argc, char *argv[])
 			if (nProcs==1) caseName=".\0";
 			char *argvProc[3]={argv[0], _case,&(caseName[0u])};
 
-			
+
 			Info<< "\nprocessor: "<<p<<"========================================" << endl;
 
 			procMain( argcProc, argvProc, vximage, pVoxel, vface0, vface1, vface2, peVoxel, initialiseOF);
@@ -165,8 +166,8 @@ int main(int argc, char *argv[])
 
 		if (outputFormat[0]=='o')  {
 			 vface0.writeAscii("./Ux.dat", 0,n.x, 0,n.y, 0,n.z);
-			 vface1.writeAscii("./Uy.dat", 0,n.x, 0,n.y, 0,n.z);	
-			 vface2.writeAscii("./Uz.dat", 0,n.x, 0,n.y, 0,n.z);	
+			 vface1.writeAscii("./Uy.dat", 0,n.x, 0,n.y, 0,n.z);
+			 vface2.writeAscii("./Uz.dat", 0,n.x, 0,n.y, 0,n.z);
 			 pVoxel.writeAscii("./p.dat");
 			 if(writeVoltage) peVoxel.writeAscii("./psi.dat");
 			 vximage.writeAscii("./vxlImage.dat");
@@ -174,8 +175,8 @@ int main(int argc, char *argv[])
 		}
 		else  {
 			vface0.writeNoHdr("./Ufx"+imgExt());
-			vface1.writeNoHdr("./Ufy"+imgExt());	
-			vface2.writeNoHdr("./Ufz"+imgExt());	
+			vface1.writeNoHdr("./Ufy"+imgExt());
+			vface2.writeNoHdr("./Ufz"+imgExt());
 			pVoxel.writeNoHdr("./p"+imgExt());
 			if(writeVoltage) peVoxel.writeNoHdr("./psi"+imgExt());
 			vximage.writeNoHdr("./vxlImage"+imgExt());
@@ -207,7 +208,7 @@ int main(int argc, char *argv[])
 				 vximage.write("./vxlImage"+imgExt());
 				 vximage.writeHeader("./vxlImage"+imgExt());
 			}
-			
+
 			vximage.printInfo();
 			vximage.reset(0,0,0,0);
 		}
@@ -265,9 +266,9 @@ int main(int argc, char *argv[])
 				procMainUy( 3, argvProc, vface1, n, xmin, dx, initialiseOF);
 			}
 			if (outputFormat[0]=='o')//old
-				vface1.writeAscii("./Uy.dat", 0,n.x, 0,n.y, 0,n.z);	
+				vface1.writeAscii("./Uy.dat", 0,n.x, 0,n.y, 0,n.z);
 			else
-				vface1.writeNoHdr("./Ufy"+imgExt());	
+				vface1.writeNoHdr("./Ufy"+imgExt());
 		}
 
 		{	voxelField<float> vface2(n.x,n.y,n.z+1,0.);
@@ -279,9 +280,9 @@ int main(int argc, char *argv[])
 				procMainUz( 3, argvProc, vface2, n, xmin, dx, initialiseOF);
 			}
 			if (outputFormat[0]=='o')//old
-				vface2.writeAscii("./Uz.dat", 0,n.x, 0,n.y, 0,n.z);	
+				vface2.writeAscii("./Uz.dat", 0,n.x, 0,n.y, 0,n.z);
 			else
-				vface2.writeNoHdr("./Ufz"+imgExt());	
+				vface2.writeNoHdr("./Ufz"+imgExt());
 		}
 
 

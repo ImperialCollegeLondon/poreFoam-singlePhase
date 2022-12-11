@@ -8,6 +8,3 @@ FoamFile // -*- C++ -*-
 }
 
 simulationType  laminar;
-
-
-

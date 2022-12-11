@@ -13,18 +13,14 @@ if (adjustTimeStep)
 
 
 
-    if(( (deltaTFact-1.)>0.05 )||( (1.-deltaTFact)>0.02 ))
+    if( deltaTFact-1.>0.05 || 1.-deltaTFact>0.02 )
     {
         runTime.setDeltaT
         (
-            min
-            (
-                deltaTFact*runTime.deltaT().value(),
-                maxDeltaT
-            )
+            max( minDeltaT, min(deltaTFact*runTime.deltaT().value(), maxDeltaT) )
         );
     }
-    
+
     Info<< "deltaT = " <<  runTime.deltaT().value() << endl;
 }
 

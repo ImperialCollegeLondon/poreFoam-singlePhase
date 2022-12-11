@@ -48,5 +48,3 @@ FoamFile // -*- C++ -*-
         startFace       1;
     }
 )
-
-

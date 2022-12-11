@@ -125,10 +125,10 @@ echo "p @ $direction : $p  Pa"
 	  echo ""  >>   $cpymhd
 	  echo "ElementDataFile = ../../$datFile"  >>   $cpymhd
 	  echo ""  >>   $cpymhd
-	elif [ -f $dataFile.tif ] ||  [ -f $dataFile.am ] ; then 
+	elif [ -f $dataFile.tif ] ||  [ -f $dataFile.am ] ; then
 	  echo "ObjectType =  Image" >   $cpymhd
 	  echo "NDims =       3"     >>   $cpymhd
-	  echo "ElementType = MET_UCHAR"  >>   $cpymhd	  
+	  echo "ElementType = MET_UCHAR"  >>   $cpymhd
 	  echo ""  >>   $cpymhd
 	  echo "ElementDataFile = ../../$datFile"  >>   $cpymhd
 
@@ -144,7 +144,7 @@ echo "p @ $direction : $p  Pa"
 	  exit
 	fi
 
-	if [ -n "$voxelCommands" ]; then 
+	if [ -n "$voxelCommands" ]; then
 		printf "\n\n$voxelCommands\n" >> $cpymhd
 	fi
 
@@ -198,7 +198,3 @@ echo "p @ $direction : $p  Pa"
 done
 done
 done
-
-
-
-

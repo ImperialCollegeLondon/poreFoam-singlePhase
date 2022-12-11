@@ -9,10 +9,10 @@
 		scalar UAk = average(mag(U)).value();
 		ifMonitor(AitkenEvery) {
 			scalar delU = UAk-UAkOOld;  scalar del2U = delU-(UAkOOld-UAkOOOOld);
-			scalar dUAkF= mag(del2U)>1e-18 ? -delU*delU/del2U : 0.9*delU;  
+			scalar dUAkF= mag(del2U)>1e-18 ? -delU*delU/del2U : 0.9*delU;
 			dUAkF = min(max(-0.1,dUAkF/max(1e-16,UAk)),0.1);
 			U *= dimensionedScalar(1+dUAkF);
-			Info<<"\ndUAitkenF:"<<dUAkF<<nl<<endl; 
+			Info<<"\ndUAitkenF:"<<dUAkF<<nl<<endl;
 		}
 		UAkOOOOld=UAkOOOld; UAkOOOld=UAkOOld;  UAkOOld=UAkOld;  UAkOld=UAk;
 	}
@@ -38,12 +38,12 @@
 		//U = rAU*UEqn().H()- rAU*fvc::grad(p-beta*fvc::div(phi));
 		U = (1-0.5/(nUCorr+1))*U + (0.5/(nUCorr+1))*(rAU*UEqn().H()- rAU*fvc::grad(p-beta*fvc::div(phi)));
 		U.correctBoundaryConditions();
-		
+
 		U = (1-0.5/(nUCorr+1))*U + (0.5/(nUCorr+1))*(rAU*UEqn().H()- rAU*fvc::grad(p-beta*fvc::div(phi)));
 		U.correctBoundaryConditions();
 	}
 
-	tmp<fvVectorMatrix> UEqn 
+	tmp<fvVectorMatrix> UEqn
     (
         fvm::ddt(rho, U)
       + fvm::div(rho*phi, U)
@@ -51,8 +51,8 @@
     );
 
 	UEqn.ref().relax();
-		//p.relax();   
-		
+		//p.relax();
+
         //solve
         //(
             //// UEqn.ref()==fvc::reconstruct(fvc::snGrad( p-beta*fvc::div(phi) )* mesh.magSf())

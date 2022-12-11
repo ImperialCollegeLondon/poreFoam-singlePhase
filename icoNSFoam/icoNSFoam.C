@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------*\
  Direct single-phase flow solver
 
- Copyright (C) 2010-2020  Ali Qaseminejad Raeini 
+ Copyright (C) 2010-2020  Ali Qaseminejad Raeini
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 
 #define SINGLE_PHASE
-#define ifMonitor(TEN)  if (runTime.timeIndex()%TEN==0) 
+#define ifMonitor(TEN)  if (runTime.timeIndex()%TEN==0)
 
 #include "fvCFD.H"
 
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
 
 			{
-				volScalarField pOldCopy=p; 
+				volScalarField pOldCopy=p;
 				p=0.30*pOldOld+0.34*pOld+0.36*p;
 				pOldOld=pOld;
 				pOld=pOldCopy;
@@ -137,12 +137,12 @@ int main(int argc, char *argv[])
 			<< "avgMagU = " << avgU << " m/s"
 			<< "   DP = " << (max(p)-min(p)).value() << " Pa"
 			<< nl<< nl << endl;
-			
+
 			scalar delUx10 =  mag(avgU - oldAvgU10);
 			if (delUx10<refDelUx10*max(avgU,oldAvgU10) && oldDelUx10<refDelUx10*max(avgU,oldAvgU10))
 			{
 				Info<< "converged ! " 	<< endl;
-				
+
 				runTime.writeAndEnd();
 			}
 			Info<<"! convergence: "<<delUx10<<"<"<<refDelUx10*max(avgU,oldAvgU10) <<" && "
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 		{
 			Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
 				<< "  ClockTime = " << runTime.elapsedClockTime() << " s\n"
-				<< maxSimTime/24/60/60<<"  days passed!, ending simulation. " 
+				<< maxSimTime/24/60/60<<"  days passed!, ending simulation. "
 				<< endl;
 
 			runTime.writeAndEnd();
