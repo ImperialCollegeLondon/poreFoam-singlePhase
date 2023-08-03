@@ -52,7 +52,7 @@ The velocities that are saved in 3D image files, are face-centred. Faces are eit
 
 ### Contact and References
 
-To report any problems, contact Ali Q. Raeini, email: a.q.raeini@imperial.ac.uk
+To report any problems, contact Sajjad Foroughi, email: s.foroughi@imperial.ac.uk
 
 For more contacts and references please visit:  
 https://www.imperial.ac.uk/earth-science/research/research-groups/pore-scale-modelling  
