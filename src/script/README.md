@@ -18,8 +18,9 @@ makefile or Makefile is present.  The libraries, those with a `makefile`,
 will be compiled before the apps that contain `Makefile`s.
 
 Compilation requires gnu (Linux) make, cmake, a c++ compiler with -std=c++11
-support and MPI. The compilation is tested using g++ (version 5+) (default)
+support and MPI. The compilation is tested using g++ (version 11.4.0+) (default)
 and using intel-2018 compilers.
+Compilation requires GNU Make, CMake, a C++ compiler with C++11 support, and MPI. The build has been tested on Ubuntu 22.04 using g++ 11.4.0 and CMake 3.22.1, and OpenMPI.
 
 For the modules which have `thirdparty/foamx3m` as dependancy, you if you have
 any other OpenFOAM you have on your machine, need to temporarily ***deactivate 
