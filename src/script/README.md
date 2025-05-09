@@ -50,7 +50,7 @@ script/testApp bash script.
 All scripts, either for testing or production, which need mathematical 
 calculations or plotting and are not performance critical are developed 
 using Python. We use Python 3, shich should be available as python3 command.
-In Ubuntu (18.04-20.04) this can be installed by typing in a terminal:    
+In Ubuntu (18.04-22.04) this can be installed by typing in a terminal:    
  `sudo apt install python3`
 
 
