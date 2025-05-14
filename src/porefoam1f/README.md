@@ -1,71 +1,134 @@
-# porefoam1f 
+# Compiling codes
 
- Porefoam1f code solves for incompressible single-phase (1f) flow on 3D images of porous media using OpenFOAM finite-volume library. The code computes and reports flow properties, such as the absolute permeability and formation factor and velocity distributions, of the pore space.
+To compile, open a terminal in the upper most directory, where `src` and `thirdparty`
+ folders are located, and run:    
 
----
+ `make -j`
 
-### Prerequisites 
+To test the compilation, run:    
 
- - A GNU Linux operating system (at least for compilation), tested on Ubuntu 18.04
- - GNU make, cmake, and a c++17 compiler (available in most Linux distributions or can be installed through their package manager)
- - MPI message passing interface.   In Ubuntu (18.04) MPI another foamx3m prerequisites can be installed by typing in a terminal:    
-      `sudo apt install mpi-default-dev  flex libscotch-dev`    
- - A costomized foam-extend, [foamx3m] (included)     
- - [libtiff] and [zlib] (optional, both dependencies of libvoxel, included)    
- - [script] for convenient compilation (included)    
+ `make test`
 
+Once everything compiled successfully, to clean the temporary files, type:
 
-## Instructions
-### Download and compile
+ `make clean`
 
-This repository is part of a larger group of partly independent packages. Please follow the instruction in README.md in the upper-most directory.  
+The above command can be run inside most of the subfolders, wherever a 
+makefile or Makefile is present.  The libraries, those with a `makefile`,
+will be compiled before the apps that contain `Makefile`s.
 
-### Running simulations
+Compilation requires GNU Make, CMake, a C++ compiler with C++11 support, and MPI. The build has been tested on Ubuntu 22.04 using g++ 11.4.0 and CMake 3.22.1, and OpenMPI.
 
-Please see the src/doc folder for [installation and usage](doc/porefoam_singlePhase.pdf),  and a sample input header file -- [Image.mhd](src/doc/Image.mhd), which you can you in conjunction with segmented micro-CT image files in raw, raw.gz, tif, and amira (.am) files. For sample micro-CT images and their mhd header files, see [Imperial College pore-scale modelling website].
+For the modules which have `thirdparty/foamx3m` as dependancy, you if you have
+any other OpenFOAM you have on your machine, need to temporarily ***deactivate 
+your OpenFOAM installation when compiling*** this code to avoid conflict between
+the foam3m provided here and your openfoam instalation.
+Additionally, you need to install foam3m dependancies, this can be done in Ubuntu
+by running:       
+`sudo apt install mpi-default-dev flex libscotch-dev`
 
+# Tests and demos
+To test the codes type:
 
-In summary, you need to download a segmented micro-CT image (with a `image.mhd` header) and run in a bash terminal:
-```shell
+ `make test`
 
-    source PATH/TO/src/script/bashrc # only once, change PATH/TO according to your porefoam installation path
-    
-    #cd PATH/TO/IMAGES/
-    
-    # Set the number of processors (=$nProcX x $nProcY x $nProcZ) used to run the simulation,
-    # based on the size of image and number of processors your machine:
-    export nProcX=2;  export nProcY=2;  export nProcZ=2  
-    
-    AllRunImagePar "$(ls *.mhd)"  "X Y Z" # Run the simulations, 
-    # This command runs flow simulations on all available mhd files in the current directory, 
-    # in all 3 spatial directions, and will take a while.
-
-```
-
- ### Simulation results
- 
- The 3D simulation results are saved in OpenFOAM format, as well as converted into 3D float32 images, both can be visualized using [Paraview], by opening the .foam or the .xmf file in the results folder named OpenMeInParaview.xmf. You can open the latter in a text viewer to see the sizes of the individual velocity files. The Input and output 3D images can also be viewed using [Fiji-is-ImageJ] software.  A summary of the simulation results, including connected porosity, permeability, formation factor and velocity distributions, are saved in a text file named summary_*.txt, alongside other log files.  These log files should be monitored in case of any anomaly in the produced results.  
+This should copy a series of input files/scripts in a `test` folder and 
+run a series of relatively quick test cases (see README.md files in 
+subdirectories).  
 
 
-The velocities that are saved in 3D image files, are face-centred. Faces are either sides of voxels, and cell/voxel-centred values can be obtained by averaging values of consecutive face pairs in the same direction.   If needed, these can be converted to cell/voxel centred values or their magnitudes using a post-processing code called Ufraw2Uc, install the codes and run `Ufraw2Uc -h` for its usage options. 
+# Technical notes for code developers
+
+GNU Makefile scripts are used primarily for code compilation and 
+running quick tests by code developers.
+
+Automatic tests are written using input files for C++ codes, new C++ 
+executables testing internals of the codes and Python scripts. All 
+these can be run using `make test` command, which uses 
+script/testApp bash script.
+
+All scripts, either for testing or production, which need mathematical 
+calculations or plotting and are not performance critical are developed 
+using Python. We use Python 3, shich should be available as python3 command.
+In Ubuntu (18.04-22.04) this can be installed by typing in a terminal:    
+ `sudo apt install python3`
 
 
-### Contact and References
-
-To report any problems, contact Sajjad Foroughi, email: s.foroughi@imperial.ac.uk
-
-For more contacts and references please visit:  
-https://www.imperial.ac.uk/earth-science/research/research-groups/pore-scale-modelling  
-
-License:    
-[GPLv3](https://www.gnu.org/licenses/gpl-3.0.txt)
+Bash/Shell scripts are used to run Makefile and Python scripts, 
+either for testing or in production to simplify the run of openfoam 
+solvers.  
 
 
-[Imperial College pore-scale modelling website]: https://www.imperial.ac.uk/earth-science/research/research-groups/pore-scale-modelling
-[Paraview]: https://www.paraview.org/download/    
-[libvoxel]: https://github.com/aliraeini/poreFoam-singlePhase/tree/master/src/libvoxel   
-[foamx3m]: https://github.com/aliraeini/poreFoam-singlePhase/tree/master/thirdparty/foamx3m     
-[libtiff]: https://github.com/aliraeini/poreFoam-singlePhase/tree/master/thirdparty/libtiff    
-[zlib]: https://github.com/aliraeini/poreFoam-singlePhase/tree/master/thirdparty/foamx3m    
-[script]: https://github.com/aliraeini/poreFoam-singlePhase/tree/master/thirdparty/foamx3m     
-[cmd]: https://github.com/aliraeini/pnextract/wiki/Running-command-line-applications
+The initbash is an independent bash script containing utility macros, 
+which together with bashrc (that contain installation variabls), is 
+required for running of the compiled applications.
+
+---------
+
+## Aims
+
+These scripts has been released as a separate module, to help 
+the code developers with script re-use,and simplification of 
+workflow for code compilation, testing, deployment and release. 
+
+
+---------
+
+##  Caution
+
+The scripts here use recursive make. These change and delete files on
+your system: the top directory where files are changed, generated or 
+deleted is called msRoot which, by default, points to two directories 
+upper to the location of these script themselves.  So, if you consider
+using these scripts for building your applications, make sure these are 
+wrapped inside two (sub-)sub-folders, dedicated to source codes.  Here is 
+what the directory structure should looks like:
+
+
+- `apps/ -------------------- msRoot directory`
+
+    - `src/ ----------------- -- source codes`
+        * `script/ ---------- -- ** this module, build & install`
+        * `include/ --------- -- ** C++ utility codes`
+        * `bench/ ----------- -- ** test/example data`
+        * `...`
+        * `...`
+        
+    - `thirdparty/ ---------- -- others' source codes`
+        * `foamx3m ---------- -- ** a minified openfoam `
+        * `svplot ---------- -- ** a modified former svg_plot`
+        * `zlib`
+        * `libtiff`
+        * `...`
+
+    - `bench/ --------------- -- large input files, too large for src/`
+    - `test/ ---------------- -- test folder (auto copied from bench/)`
+    - `bin/ ----------------- -- executables folder (auto crea/deleted)`
+    - `lib/ ----------------- -- library files (auto crea/deleted)`
+    - `share/ --------------- -- configuration files (auto crea/deleted)`
+    - `build/ --------------- -- temporary files (auto crea/deleted)`
+    - `...`
+
+
+As shown above, this `script` folder is typically located in `src` 
+(which holds regularly changed source codes as subdirectories). The 
+less frequently changed source code are placed a directory called 
+`thirdparty`.  A bench folder is also sometimes included holding 
+temporary/client data, as shown above.  A `.git` directory is kept 
+outside the msRoot directory and is used to test and release varius 
+modules of the code, which it ends up in the msRoot directory in the 
+modules published using git.  The `build`, `bin`,`lib`, `test` and 
+`share` folders are auto-generated and should not be used to store 
+any user data as they are removed by `make distclean` command.
+
+
+
+## Makefile.in usage
+
+ In `Makefile`s, define variables `tsts` together with `USE_msTEST=1` 
+ and `srcs` with `USE_msMAKE=1` and include the Makefile.in file.  
+ If not defined, `srcs` will be set to all `.cpp` files.  Example 
+ Makefiles can be found in libvoxel (single source.cpp apps) 
+ or pnextract (multiple source.cpp files).
+
+
