@@ -1,0 +1,8 @@
+// This past is only for testing
+{
+	"name": "Existing Dockerfile",
+	"build": {
+		"context": "..",
+		"dockerfile": "../Dockerfile"
+	}
+}
