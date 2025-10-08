@@ -8,22 +8,33 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Cache lib
-      uses: actions/cache@v2
-      with:
-        path: lib
-        key: ${{ runner.os }}-lib
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: install prerequisites
-      run: sudo apt install mpi-default-dev flex libscotch-dev
-    - name: clean
-      run: echo skip make distclean
-    - name: make
-      run: make -j
-    - name: test
-      run: make test
+      # Cache your local build artifacts folder (as you had it).
+      # Consider keying off files that change when the build graph changes.
+      - name: Cache lib
+        uses: actions/cache@v4
+        with:
+          path: lib
+          key: ${{ runner.os }}-lib-${{ hashFiles('**/Makefile', '**/CMakeLists.txt', 'config/**/*.mk') }}
+          restore-keys: |
+            ${{ runner.os }}-lib-
+
+      - name: Install prerequisites
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mpi-default-dev flex libscotch-dev
+
+      - name: Clean
+        run: echo "skip make distclean"
+
+      - name: Build
+        run: make -j
+
+      - name: Test
+        run: make test
